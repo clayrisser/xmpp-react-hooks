@@ -13,8 +13,9 @@ export default class MessageService extends StanzaService {
     super(xmpp);
   }
 
-  async sendMessage(to: string, body: string, lang = 'en', from?: string) {
-    if (!from) from = this.xmpp.fullJid;
+  async sendMessage(to: string, body: string, lang?: string, from?: string) {
+    if (!from) from = this.xmpp.fullJid!;
+    if (!lang) lang = this.xmpp.lang;
     const request = createXml(
       'message',
       {
@@ -29,7 +30,7 @@ export default class MessageService extends StanzaService {
   }
 
   readMessages(callback: (message: Message) => any, to?: string) {
-    if (!to) to = this.xmpp.fullJid;
+    if (!to) to = this.xmpp.fullJid!;
     this.xmpp.handle(
       (messageStanza: XmlFragment) => {
         return (

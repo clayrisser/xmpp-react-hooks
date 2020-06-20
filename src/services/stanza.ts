@@ -3,7 +3,9 @@ import Xmpp from '../xmpp';
 import XmppXml from '../xmppXml';
 
 export default class StanzaService {
-  constructor(_xmpp: Xmpp, public readonly namespaceName = '') {}
+  constructor(xmpp: Xmpp, public readonly namespaceName = '') {
+    if (!xmpp.client) throw new Error('login to access xmpp client');
+  }
 
   getIqError(iqStanza: XmlFragment): Error | undefined {
     const xmppXml = new XmppXml(iqStanza);

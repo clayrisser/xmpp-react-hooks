@@ -11,6 +11,7 @@ const App: FC<AppProps> = (_props: AppProps) => {
   return (
     <GlobalContext.Provider value={[global, setGlobal]}>
       <XmppProvider
+        debug
         hostname="test.siliconhills.dev"
         password={global.password}
         username={global.username}

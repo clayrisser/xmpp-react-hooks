@@ -5,10 +5,13 @@ import xmppDebug from '@xmpp/debug';
 import { XmppClient, client as xmppClient, XmlFragment } from '@xmpp/client';
 
 export default class Xmpp {
-  client?: XmppClient;
+  public client?: XmppClient;
+  public fullJid?: string;
+  public isOnline = false;
+  public isReady = false;
+  public jid?: string;
   public readonly config: Config;
-  public readonly fullJid: string;
-  public readonly jid: string;
+  public readonly lang: string;
 
   constructor(config: Config) {
     if (!config.hostname && !config.domain) {
@@ -17,24 +20,34 @@ export default class Xmpp {
     if (!config.hostname && !config.service) {
       throw new Error('hostname or service is required');
     }
-    this.config = { ...config, debug: config.debug !== false };
+    this.config = config;
+    this.lang = this.config.lang || 'en';
   }
 
   handleError(err: Error) {
     switch (err.message) {
-      case 'conflict - Replaced by new connection': {
-      }
       default: {
-        console.log(err.message);
         throw err;
       }
     }
+  }
+
+  handleOnline() {
+    this.isOnline = true;
+    this.isReady = true;
+  }
+
+  handleOffline() {
+    this.isOnline = false;
+    this.isReady = this.isReady;
   }
 
   async login(username: string, password: string) {
     const domain = this.config.domain || this.config.hostname;
     const resource = this.config.resource || (await this.getResource());
     const service = this.config.service || `wss://${this.config.hostname}/ws`;
+    this.jid = `${username}@${domain}`;
+    this.fullJid = `${this.jid}/${resource}`;
     try {
       this.client = xmppClient({
         password,
@@ -43,9 +56,23 @@ export default class Xmpp {
         domain,
         resource
       });
-      this.client.on('error', this.handleError);
-      if (this.config.debug) xmppDebug(this.client);
-      await this.client.start();
+      this.client.on('error', this.handleError.bind(this));
+      this.client.on('offline', this.handleOffline.bind(this));
+      this.client.on('online', this.handleOnline.bind(this));
+      if (this.config.debug) xmppDebug(this.client, true);
+      await new Promise((resolve, reject) => {
+        const handleOnline = async () => {
+          await new Promise((r) => setTimeout(r, 1000));
+          this.client!.removeListener('online', handleOnline);
+          resolve();
+        };
+        this.client!.on('online', handleOnline);
+        try {
+          this.client!.start();
+        } catch (err) {
+          reject(err);
+        }
+      });
     } catch (err) {
       throw err;
     }
@@ -147,6 +174,7 @@ export interface Config {
   debug?: boolean;
   domain?: string;
   hostname?: string;
+  lang?: string;
   resource?: string;
   service?: string;
 }

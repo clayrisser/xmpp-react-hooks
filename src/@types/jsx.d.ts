@@ -3,5 +3,6 @@ declare namespace JSX {
     iq: any;
     item: any;
     query: any;
+    status: any;
   }
 }

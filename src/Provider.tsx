@@ -1,6 +1,7 @@
 import React, { FC, useState, ReactNode, useEffect } from 'react';
 import Xmpp from './xmpp';
 import XmppContext from './contexts/xmpp';
+import { PresenceService } from './services';
 
 export interface ProviderProps {
   children: ReactNode;
@@ -37,6 +38,8 @@ const Provider: FC<ProviderProps> = (props: ProviderProps) => {
           service
         });
         await xmpp.login(username, password);
+        const presenceService = new PresenceService(xmpp);
+        await presenceService.sendPresence();
         setXmpp(xmpp);
       }
     })();

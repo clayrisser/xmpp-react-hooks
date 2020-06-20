@@ -31,7 +31,7 @@ export default class RosterService extends StanzaService {
   }
 
   async removeRosterItem(jid: string, from?: string) {
-    if (!from) from = this.xmpp.fullJid;
+    if (!from) from = this.xmpp.fullJid!;
     const id = Date.now().toString();
     const request = (
       <iq from={from} id={id} type="set">
@@ -46,7 +46,7 @@ export default class RosterService extends StanzaService {
   }
 
   async setRosterItem(jid: string, name?: string, from?: string) {
-    if (!from) from = this.xmpp.fullJid;
+    if (!from) from = this.xmpp.fullJid!;
     const id = Date.now().toString();
     const item = name ? <item jid={jid} name={name} /> : <item jid={jid} />;
     const request = (
@@ -60,7 +60,7 @@ export default class RosterService extends StanzaService {
   }
 
   async getRoster(from?: string): Promise<RosterItem[]> {
-    if (!from) from = this.xmpp.fullJid;
+    if (!from) from = this.xmpp.fullJid!;
     const jid = from.split('/')[0];
     const id = Date.now().toString();
     const request = (
