@@ -7,6 +7,8 @@ import { XmppClient, client as xmppClient, XmlFragment } from '@xmpp/client';
 export default class Xmpp {
   client?: XmppClient;
   public readonly config: Config;
+  public readonly fullJid: string;
+  public readonly jid: string;
 
   constructor(config: Config) {
     if (!config.hostname && !config.domain) {
@@ -15,7 +17,18 @@ export default class Xmpp {
     if (!config.hostname && !config.service) {
       throw new Error('hostname or service is required');
     }
-    this.config = { debug: true, ...config };
+    this.config = { ...config, debug: config.debug !== false };
+  }
+
+  handleError(err: Error) {
+    switch (err.message) {
+      case 'conflict - Replaced by new connection': {
+      }
+      default: {
+        console.log(err.message);
+        throw err;
+      }
+    }
   }
 
   async login(username: string, password: string) {
@@ -30,7 +43,9 @@ export default class Xmpp {
         domain,
         resource
       });
+      this.client.on('error', this.handleError);
       if (this.config.debug) xmppDebug(this.client);
+      await this.client.start();
     } catch (err) {
       throw err;
     }
