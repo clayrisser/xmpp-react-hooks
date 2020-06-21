@@ -4,27 +4,26 @@
  * https://xmpp.org/extensions/xep-0237.html
  */
 import xml from '@xmpp/xml';
-import { XmlFragment } from '@xmpp/client';
+import { XmlElement } from '@xmpp/client';
 import StanzaService from './stanza';
 import Xmpp from '../xmpp';
-import XmppXml from '../xmppXml';
 
 export default class RosterService extends StanzaService {
   constructor(private readonly xmpp: Xmpp) {
     super(xmpp, 'jabber:iq:roster');
   }
 
-  readRosterPush(callback: (roster: RosterItem[]) => any) {
-    this.xmpp.handle(
-      (iqStanza: XmlFragment) => {
+  readRosterPush(callback: (roster: RosterItem[]) => any): () => any {
+    return this.xmpp.handle(
+      (iqStanza: XmlElement) => {
         // TODO: improve with service
         return (
-          !iqStanza.attrs.from &&
-          iqStanza.attrs.type === 'set' &&
-          iqStanza.name === 'iq'
+          !iqStanza.getAttr('from') &&
+          !!iqStanza.getAttr('type') &&
+          !!iqStanza.name
         );
       },
-      (iqStanza: XmlFragment) => {
+      (iqStanza: XmlElement) => {
         callback(this.iqStanzaToRoster(iqStanza));
       }
     );
@@ -74,29 +73,26 @@ export default class RosterService extends StanzaService {
     return this.iqStanzaToRoster(iqStanza);
   }
 
-  iqStanzaToRoster(iqStanza: XmlFragment): RosterItem[] {
-    const xmppXml = new XmppXml(iqStanza);
-    const iqDocument = xmppXml.document;
-    return Array.from(iqDocument.getElementsByTagName('query')).reduce(
-      (roster: RosterItem[], queryElement: Element) => {
-        if (queryElement.getAttribute('xmlns') === this.namespaceName) {
-          Array.from(queryElement.getElementsByTagName('item')).forEach(
-            (itemElement: Element) => {
-              const groups = Array.from(
-                itemElement.getElementsByTagName('group')
-              ).map((groupElement: Element) => groupElement.innerHTML);
-              const jid = itemElement.getAttribute('jid');
-              const name = itemElement.getAttribute('name') || undefined;
+  iqStanzaToRoster(iqStanza: XmlElement): RosterItem[] {
+    return iqStanza
+      .getChildren('query')
+      .reduce((roster: RosterItem[], queryElement: XmlElement) => {
+        if (queryElement.getAttr('xmlns') === this.namespaceName) {
+          queryElement
+            .getChildren('item')
+            .forEach((itemElement: XmlElement) => {
+              const groups = itemElement
+                .getChildren('group')
+                .map((groupElement: XmlElement) => groupElement.text());
+              const jid = itemElement.getAttr('jid');
+              const name = itemElement.getAttr('name') || undefined;
               const subscription =
-                itemElement.getAttribute('subscription') || undefined;
+                itemElement.getAttr('subscription') || undefined;
               if (jid?.length) roster.push({ jid, name, subscription, groups });
-            }
-          );
+            });
         }
         return roster;
-      },
-      []
-    );
+      }, []);
   }
 }
 

@@ -3,10 +3,9 @@
  * https://xmpp.org/rfcs/rfc6120.html#stanzas
  */
 import xml from '@xmpp/xml';
-import { xml as createXml, XmlFragment } from '@xmpp/client';
+import { XmlElement } from '@xmpp/client';
 import StanzaService from './stanza';
 import Xmpp from '../xmpp';
-import XmppXml from '../xmppXml';
 
 export default class MessageService extends StanzaService {
   constructor(private readonly xmpp: Xmpp) {
@@ -16,7 +15,7 @@ export default class MessageService extends StanzaService {
   async sendMessage(to: string, body: string, lang?: string, from?: string) {
     if (!from) from = this.xmpp.fullJid!;
     if (!lang) lang = this.xmpp.lang;
-    const request = createXml(
+    const request = xml(
       'message',
       {
         to,
@@ -32,36 +31,31 @@ export default class MessageService extends StanzaService {
   readMessages(callback: (message: Message) => any, to?: string) {
     if (!to) to = this.xmpp.fullJid!;
     this.xmpp.handle(
-      (messageStanza: XmlFragment) => {
+      (messageStanza: XmlElement) => {
         return (
           messageStanza.name === 'message' &&
-          messageStanza.attrs.type === 'chat' &&
-          messageStanza.attrs.to === to
+          messageStanza.getAttr('type') === 'chat' &&
+          messageStanza.getAttr('to') === to
         );
       },
-      (messageStanza: XmlFragment) => {
+      (messageStanza: XmlElement) => {
         const message = this.messageStanzaToRoster(messageStanza);
         callback(message);
       }
     );
   }
 
-  messageStanzaToRoster(messageStanza: XmlFragment): Message {
-    const xmppXml = new XmppXml(messageStanza);
-    const messageElement = Array.from(
-      xmppXml.document.getElementsByTagName('message')
-    )?.[0];
-    const to = messageElement.getAttribute('to');
-    const from = messageElement.getAttribute('from');
-    const body = Array.from(messageElement.getElementsByTagName('body')).reduce(
-      (body: string, bodyElement: Element) => {
-        return [body, bodyElement.innerHTML].join('\n');
-      },
-      ''
-    );
-    const header =
-      Array.from(messageElement.getElementsByTagName('header'))?.[0]
-        .innerHTML || undefined;
+  messageStanzaToRoster(messageStanza: XmlElement): Message {
+    const messageElement = messageStanza.getChild('message');
+    if (!messageElement) throw new Error('invalid message stanza');
+    const to = messageElement.getAttr('to');
+    const from = messageElement.getAttr('from');
+    const body = messageElement
+      .getChildren('body')
+      .reduce((body: string, bodyElement: XmlElement) => {
+        return [body, bodyElement.text()].join('\n');
+      }, '');
+    const header = messageElement.getChild('header')?.text() || undefined;
     if (body && from && to) return { body, from, to, header };
     throw new Error('invalid message stanza');
   }

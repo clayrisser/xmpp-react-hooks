@@ -1,6 +1,8 @@
 declare module '@xmpp/client' {
   export type EventEmitter = import('events').EventEmitter;
 
+  export type XmlElement = import('ltx').Element;
+
   export function client(options: {
     service?: string;
     domain?: string;
@@ -23,24 +25,6 @@ declare module '@xmpp/client' {
     stop: () => Promise<any>;
     username: string;
   };
-
-  export interface XmlFragmentAttrs {
-    [key: string]: string;
-  }
-
-  export interface XmlFragment {
-    attrs: XmlFragmentAttrs;
-    children: XmlFragment[];
-    name: string;
-    parent: XmlFragment | null;
-  }
-
-  export interface XmlFragmentString {
-    attrs: XmlFragmentAttrs;
-    children: string[];
-    name: string;
-    parent: XmlFragment | null;
-  }
 
   export function jid(): any;
 

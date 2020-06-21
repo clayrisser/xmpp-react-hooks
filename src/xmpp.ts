@@ -2,7 +2,7 @@
  * https://tools.ietf.org/html/rfc6121
  **/
 import xmppDebug from '@xmpp/debug';
-import { XmppClient, client as xmppClient, XmlFragment } from '@xmpp/client';
+import { XmppClient, client as xmppClient, XmlElement } from '@xmpp/client';
 
 export default class Xmpp {
   public client?: XmppClient;
@@ -78,14 +78,14 @@ export default class Xmpp {
     }
   }
 
-  async handle(
+  handle(
     condition: CheckCondition | string | string[],
     readCallback: ReadCallback
-  ) {
+  ): () => any {
     if (!this.client) throw new Error('login to create xmpp client');
     let checkCondition = condition as CheckCondition;
     if (Array.isArray(condition) && condition.length >= 2) {
-      checkCondition = (stanza: XmlFragment) => {
+      checkCondition = (stanza: XmlElement) => {
         const [namespaceName, id] = condition;
         const queryFragment = stanza.children?.[0];
         if (!queryFragment) return false;
@@ -98,7 +98,7 @@ export default class Xmpp {
         );
       };
     } else if (typeof condition === 'string') {
-      checkCondition = (stanza: XmlFragment) => {
+      checkCondition = (stanza: XmlElement) => {
         return (
           stanza.name === 'iq' &&
           stanza.attrs.type === 'result' &&
@@ -106,21 +106,24 @@ export default class Xmpp {
         );
       };
     }
-    const listener = (stanza: XmlFragment) => {
+    const listener = (stanza: XmlElement) => {
       if (checkCondition(stanza)) readCallback(stanza);
     };
-    this.client!.on('stanza', listener);
+    this.client.on('stanza', listener);
+    return () => {
+      this.client?.removeListener('stanza', listener);
+    };
   }
 
   async query(
     request: any,
     condition: CheckCondition | string | string[] = () => true,
     readCallback?: ReadCallback
-  ): Promise<XmlFragment> {
+  ): Promise<XmlElement> {
     if (!this.client) throw new Error('login to create xmpp client');
     let checkCondition = condition as CheckCondition;
     if (Array.isArray(condition) && condition.length >= 2) {
-      checkCondition = (stanza: XmlFragment) => {
+      checkCondition = (stanza: XmlElement) => {
         const [namespaceName, id] = condition;
         const queryFragment = stanza.children?.[0];
         if (!queryFragment) return false;
@@ -133,7 +136,7 @@ export default class Xmpp {
         );
       };
     } else if (typeof condition === 'string') {
-      checkCondition = (stanza: XmlFragment) => {
+      checkCondition = (stanza: XmlElement) => {
         return (
           stanza.name === 'iq' &&
           stanza.attrs.type === 'result' &&
@@ -142,15 +145,15 @@ export default class Xmpp {
       };
     }
     if (readCallback) {
-      const listener = (stanza: XmlFragment) => {
+      const listener = (stanza: XmlElement) => {
         if (checkCondition(stanza)) readCallback(stanza);
       };
       this.client.on('stanza', listener);
       this.client.send(request);
-      return (null as unknown) as XmlFragment;
+      return (null as unknown) as XmlElement;
     }
     return new Promise((resolve, reject) => {
-      const listener = (stanza: XmlFragment) => {
+      const listener = (stanza: XmlElement) => {
         if (checkCondition(stanza)) {
           this.client!.removeListener('stanza', listener);
           resolve(stanza);
@@ -183,13 +186,13 @@ export type QueryRunner = (
   request: any,
   checkCondition?: CheckCondition | string | string[],
   readCallback?: ReadCallback
-) => Promise<XmlFragment>;
+) => Promise<XmlElement>;
 
 export type Handle = (
   checkCondition: CheckCondition | string | string[],
   readCallback: ReadCallback
 ) => any;
 
-export type CheckCondition = (stanza: XmlFragment) => boolean;
+export type CheckCondition = (stanza: XmlElement) => boolean;
 
-export type ReadCallback = (stanza: XmlFragment) => any;
+export type ReadCallback = (stanza: XmlElement) => any;

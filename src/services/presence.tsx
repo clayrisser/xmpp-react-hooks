@@ -3,7 +3,6 @@
  * https://xmpp.org/rfcs/rfc3921.html#presence
  */
 import xml from '@xmpp/xml';
-import { xml as createXml } from '@xmpp/client';
 import StanzaService from './stanza';
 import Xmpp from '../xmpp';
 
@@ -14,7 +13,7 @@ export default class PresenceService extends StanzaService {
 
   async sendPresence(status?: string, lang?: string) {
     if (!lang) lang = this.xmpp.lang!;
-    const request = createXml(
+    const request = xml(
       'presence',
       {
         'xml:lang': lang

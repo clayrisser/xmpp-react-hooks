@@ -2,7 +2,6 @@
   "name": "xmpp-react-hooks",
   "version": "0.0.1",
   "description": "react hooks for xmpp",
-  "private": true,
   "keywords": [
     "xmpp-react-hooks",
     "xmpp",
@@ -44,14 +43,14 @@
     "test:watch": "make -s test-watch"
   },
   "dependencies": {
+    "@callstack/async-storage": "^2.0.3",
     "@xmpp/client": "^0.11.1",
     "@xmpp/debug": "^0.11.0",
     "@xmpp/xml": "^0.11.0",
     "core-js": "^3.6.5",
     "event-ears": "^0.0.2",
-    "react": "^16.13.1",
-    "xml-escape": "^1.1.0",
-    "xmldom": "^0.3.0"
+    "ltx": "^2.9.2",
+    "react": "^16.13.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.10.3",
@@ -65,9 +64,8 @@
     "@babel/preset-typescript": "^7.10.1",
     "@types/events": "^3.0.0",
     "@types/jest": "^26.0.0",
+    "@types/ltx": "^2.8.1",
     "@types/react": "^16.9.38",
-    "@types/xml-escape": "^1.1.0",
-    "@types/xmldom": "^0.1.29",
     "@typescript-eslint/eslint-plugin": "^3.3.0",
     "@typescript-eslint/parser": "^3.3.0",
     "cspell": "^4.0.63",
