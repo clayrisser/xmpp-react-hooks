@@ -15,16 +15,16 @@ export default class RosterService extends StanzaService {
 
   readRosterPush(callback: (roster: RosterItem[]) => any): () => any {
     return this.xmpp.handle(
-      (iqStanza: XmlElement) => {
+      (iqElement: XmlElement) => {
         // TODO: improve with service
         return (
-          !iqStanza.getAttr('from') &&
-          !!iqStanza.getAttr('type') &&
-          !!iqStanza.name
+          !iqElement.getAttr('from') &&
+          !!iqElement.getAttr('type') &&
+          !!iqElement.name
         );
       },
-      (iqStanza: XmlElement) => {
-        callback(this.iqStanzaToRoster(iqStanza));
+      (iqElement: XmlElement) => {
+        callback(this.elementToRoster(iqElement));
       }
     );
   }
@@ -39,8 +39,8 @@ export default class RosterService extends StanzaService {
         </query>
       </iq>
     );
-    const iqStanza = await this.xmpp.query(request, [this.namespaceName, id]);
-    const err = this.getIqError(iqStanza);
+    const iqElement = await this.xmpp.query(request, [this.namespaceName, id]);
+    const err = this.getIqError(iqElement);
     if (err) throw err;
   }
 
@@ -53,8 +53,8 @@ export default class RosterService extends StanzaService {
         <query xmlns={this.namespaceName}>{item}</query>
       </iq>
     );
-    const iqStanza = await this.xmpp.query(request, [this.namespaceName, id]);
-    const err = this.getIqError(iqStanza);
+    const iqElement = await this.xmpp.query(request, [this.namespaceName, id]);
+    const err = this.getIqError(iqElement);
     if (err) throw err;
   }
 
@@ -67,14 +67,14 @@ export default class RosterService extends StanzaService {
         <query xmlns={this.namespaceName} />
       </iq>
     );
-    const iqStanza = await this.xmpp.query(request, [this.namespaceName, id]);
-    const err = this.getIqError(iqStanza);
+    const iqElement = await this.xmpp.query(request, [this.namespaceName, id]);
+    const err = this.getIqError(iqElement);
     if (err) throw err;
-    return this.iqStanzaToRoster(iqStanza);
+    return this.elementToRoster(iqElement);
   }
 
-  iqStanzaToRoster(iqStanza: XmlElement): RosterItem[] {
-    return iqStanza
+  elementToRoster(iqElement: XmlElement): RosterItem[] {
+    return iqElement
       .getChildren('query')
       .reduce((roster: RosterItem[], queryElement: XmlElement) => {
         if (queryElement.getAttr('xmlns') === this.namespaceName) {

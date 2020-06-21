@@ -31,23 +31,21 @@ export default class MessageService extends StanzaService {
   readMessages(callback: (message: Message) => any, to?: string) {
     if (!to) to = this.xmpp.fullJid!;
     this.xmpp.handle(
-      (messageStanza: XmlElement) => {
+      (messageElement: XmlElement) => {
         return (
-          messageStanza.name === 'message' &&
-          messageStanza.getAttr('type') === 'chat' &&
-          messageStanza.getAttr('to') === to
+          messageElement.name === 'message' &&
+          messageElement.getAttr('type') === 'chat' &&
+          messageElement.getAttr('to') === to
         );
       },
-      (messageStanza: XmlElement) => {
-        const message = this.messageStanzaToRoster(messageStanza);
+      (messageElement: XmlElement) => {
+        const message = this.elementToMessage(messageElement);
         callback(message);
       }
     );
   }
 
-  messageStanzaToRoster(messageStanza: XmlElement): Message {
-    const messageElement = messageStanza.getChild('message');
-    if (!messageElement) throw new Error('invalid message stanza');
+  elementToMessage(messageElement: XmlElement): Message {
     const to = messageElement.getAttr('to');
     const from = messageElement.getAttr('from');
     const body = messageElement

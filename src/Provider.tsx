@@ -54,6 +54,7 @@ const Provider: FC<ProviderProps> = (props: ProviderProps) => {
         value={{
           enabled: !!cache,
           namespace: typeof cache === 'string' ? cache : 'xmpp-react-hooks',
+          silence: false,
           strict: false
         }}
       >

@@ -24,7 +24,36 @@ export default class Xmpp {
     this.lang = this.config.lang || 'en';
   }
 
-  handleError(err: Error) {
+  private createCheckCondition(
+    condition: CheckCondition | string | string[]
+  ): CheckCondition {
+    let checkCondition = condition as CheckCondition;
+    if (Array.isArray(condition) && condition.length >= 2) {
+      checkCondition = (stanzaElement: XmlElement) => {
+        const [namespaceName, id] = condition;
+        const queryElement = stanzaElement.getChild('query');
+        if (!queryElement) return false;
+        return (
+          queryElement.getAttr('xmlns') === namespaceName &&
+          queryElement.name === 'query' &&
+          stanzaElement.getAttr('id') === id &&
+          stanzaElement.getAttr('type') === 'result' &&
+          stanzaElement.name === 'iq'
+        );
+      };
+    } else if (typeof condition === 'string') {
+      checkCondition = (stanzaElement: XmlElement) => {
+        return (
+          stanzaElement.getAttr('id') === condition &&
+          stanzaElement.getAttr('type') === 'result' &&
+          stanzaElement.name === 'iq'
+        );
+      };
+    }
+    return checkCondition;
+  }
+
+  private handleError(err: Error) {
     switch (err.message) {
       default: {
         throw err;
@@ -32,12 +61,12 @@ export default class Xmpp {
     }
   }
 
-  handleOnline() {
+  private handleOnline() {
     this.isOnline = true;
     this.isReady = true;
   }
 
-  handleOffline() {
+  private handleOffline() {
     this.isOnline = false;
     this.isReady = this.isReady;
   }
@@ -81,33 +110,11 @@ export default class Xmpp {
   handle(
     condition: CheckCondition | string | string[],
     readCallback: ReadCallback
-  ): () => any {
+  ): Cleanup {
     if (!this.client) throw new Error('login to create xmpp client');
-    let checkCondition = condition as CheckCondition;
-    if (Array.isArray(condition) && condition.length >= 2) {
-      checkCondition = (stanza: XmlElement) => {
-        const [namespaceName, id] = condition;
-        const queryFragment = stanza.children?.[0];
-        if (!queryFragment) return false;
-        return (
-          stanza.name === 'iq' &&
-          stanza.attrs.type === 'result' &&
-          stanza.attrs.id === id &&
-          queryFragment.name === 'query' &&
-          queryFragment.attrs.xmlns === namespaceName
-        );
-      };
-    } else if (typeof condition === 'string') {
-      checkCondition = (stanza: XmlElement) => {
-        return (
-          stanza.name === 'iq' &&
-          stanza.attrs.type === 'result' &&
-          stanza.attrs.id === condition
-        );
-      };
-    }
-    const listener = (stanza: XmlElement) => {
-      if (checkCondition(stanza)) readCallback(stanza);
+    const checkCondition = this.createCheckCondition(condition);
+    const listener = (stanzaElement: XmlElement) => {
+      if (checkCondition(stanzaElement)) readCallback(stanzaElement);
     };
     this.client.on('stanza', listener);
     return () => {
@@ -115,42 +122,31 @@ export default class Xmpp {
     };
   }
 
+  query(
+    request: any,
+    condition?: CheckCondition | string | string[]
+  ): Promise<XmlElement>;
+  query(
+    request: any,
+    condition: CheckCondition | string | string[],
+    readCallback: ReadCallback
+  ): Promise<Cleanup>;
   async query(
     request: any,
     condition: CheckCondition | string | string[] = () => true,
     readCallback?: ReadCallback
-  ): Promise<XmlElement> {
+  ): Promise<XmlElement | Cleanup> {
     if (!this.client) throw new Error('login to create xmpp client');
-    let checkCondition = condition as CheckCondition;
-    if (Array.isArray(condition) && condition.length >= 2) {
-      checkCondition = (stanza: XmlElement) => {
-        const [namespaceName, id] = condition;
-        const queryFragment = stanza.children?.[0];
-        if (!queryFragment) return false;
-        return (
-          stanza.name === 'iq' &&
-          stanza.attrs.type === 'result' &&
-          stanza.attrs.id === id &&
-          queryFragment.name === 'query' &&
-          queryFragment.attrs.xmlns === namespaceName
-        );
-      };
-    } else if (typeof condition === 'string') {
-      checkCondition = (stanza: XmlElement) => {
-        return (
-          stanza.name === 'iq' &&
-          stanza.attrs.type === 'result' &&
-          stanza.attrs.id === condition
-        );
-      };
-    }
+    const checkCondition = this.createCheckCondition(condition);
     if (readCallback) {
-      const listener = (stanza: XmlElement) => {
-        if (checkCondition(stanza)) readCallback(stanza);
+      const listener = (stanzaElement: XmlElement) => {
+        if (checkCondition(stanzaElement)) readCallback(stanzaElement);
       };
       this.client.on('stanza', listener);
       this.client.send(request);
-      return (null as unknown) as XmlElement;
+      return () => {
+        this.client?.removeListener('stanza', listener);
+      };
     }
     return new Promise((resolve, reject) => {
       const listener = (stanza: XmlElement) => {
@@ -196,3 +192,5 @@ export type Handle = (
 export type CheckCondition = (stanza: XmlElement) => boolean;
 
 export type ReadCallback = (stanza: XmlElement) => any;
+
+export type Cleanup = () => any;

@@ -6,11 +6,11 @@ export default class StanzaService {
     if (!xmpp.client) throw new Error('login to access xmpp client');
   }
 
-  getIqError(iqStanza: XmlElement): Error | undefined {
-    const errorElement = iqStanza.getChild('error');
+  getIqError(iqElement: XmlElement): Error | undefined {
+    const errorElement = iqElement.getChild('error');
     if (!errorElement) return;
     const err: any = new Error(`iq ${errorElement.getAttr('type')} error`);
-    err.stanza = iqStanza;
+    err.stanza = iqElement;
     return err;
   }
 }

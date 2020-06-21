@@ -6,26 +6,27 @@ export default function useStateCache<T>(
   key: string,
   initialState: T
 ): [T | undefined, Dispatch<SetStateAction<T>>] {
-  const { enabled, namespace, strict } = useStateCacheConfig();
+  const { enabled, namespace, silence, strict } = useStateCacheConfig();
   const [mutex, setMutex] = useState(enabled);
-  const [state, setState] = useState<T | undefined>(undefined);
+  const [state, setState] = useState<T | undefined>(
+    enabled ? undefined : initialState
+  );
   key = `${namespace}/${key}`;
 
   useEffect(() => {
     (async () => {
-      if (enabled) {
-        try {
-          const cachedState = JSON.parse(await AsyncStorage.getItem(key));
-          if (typeof cachedState !== 'undefined' && cachedState !== null) {
-            setState(cachedState);
-          } else {
-            setState(initialState);
-          }
-        } catch (err) {
+      if (!enabled) return;
+      try {
+        const cachedState = JSON.parse(await AsyncStorage.getItem(key));
+        if (typeof cachedState !== 'undefined' && cachedState !== null) {
+          setState(cachedState);
+        } else {
           setState(initialState);
         }
-        setMutex(false);
+      } catch (err) {
+        setState(initialState);
       }
+      setMutex(false);
     })();
   }, []);
 
@@ -34,7 +35,7 @@ export default function useStateCache<T>(
       const err = new Error('cannot set state while mutex locked');
       if (strict) {
         throw err;
-      } else {
+      } else if (!silence) {
         console.warn(err);
       }
     }
