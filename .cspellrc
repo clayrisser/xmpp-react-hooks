@@ -2,8 +2,6 @@
   "language": "en",
   "version": "0.1",
   "words": [
-    "callstack",
-    "mutex",
     "xmpp"
   ]
 }

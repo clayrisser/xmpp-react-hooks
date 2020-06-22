@@ -1,5 +1,5 @@
 import React, { FC, useState, ReactNode, useEffect } from 'react';
-import StateCacheConfigContext from './contexts/stateCacheConfig';
+import { Provider as UseStateCacheProvider } from 'use-state-cache';
 import Xmpp from './xmpp';
 import XmppContext from './contexts/xmpp';
 import { PresenceService } from './services';
@@ -50,16 +50,14 @@ const Provider: FC<ProviderProps> = (props: ProviderProps) => {
 
   return (
     <XmppContext.Provider value={xmpp}>
-      <StateCacheConfigContext.Provider
-        value={{
-          enabled: !!cache,
-          namespace: typeof cache === 'string' ? cache : 'xmpp-react-hooks',
-          silence: false,
-          strict: false
-        }}
+      <UseStateCacheProvider
+        enabled={!!cache}
+        namespace={typeof cache === 'string' ? cache : 'xmpp-react-hooks'}
+        silence={false}
+        strict={false}
       >
         {children}
-      </StateCacheConfigContext.Provider>
+      </UseStateCacheProvider>
     </XmppContext.Provider>
   );
 };

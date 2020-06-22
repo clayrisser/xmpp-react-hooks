@@ -1,6 +1,6 @@
+import useStateCache from 'use-state-cache';
 import { useEffect } from 'react';
 import useRosterService from './useRosterService';
-import useStateCache from './useStateCache';
 import { RosterItem } from '../services';
 
 export default function useRoster(): RosterItem[] {
