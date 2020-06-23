@@ -1,16 +1,22 @@
 /*
  * https://tools.ietf.org/html/rfc6121
- **/
+ * */
 import xmppDebug from '@xmpp/debug';
 import { XmppClient, client as xmppClient, XmlElement } from '@xmpp/client';
 
 export default class Xmpp {
   public client?: XmppClient;
+
   public fullJid?: string;
+
   public isOnline = false;
+
   public isReady = false;
+
   public jid?: string;
+
   public readonly config: Config;
+
   public readonly lang: string;
 
   constructor(config: Config) {
@@ -71,6 +77,10 @@ export default class Xmpp {
     this.isReady = this.isReady;
   }
 
+  private handleStanza(stanza: XmlElement) {
+    return stanza;
+  }
+
   async login(username: string, password: string) {
     const domain = this.config.domain || this.config.hostname;
     const resource = this.config.resource || (await this.getResource());
@@ -88,6 +98,7 @@ export default class Xmpp {
       this.client.on('error', this.handleError.bind(this));
       this.client.on('offline', this.handleOffline.bind(this));
       this.client.on('online', this.handleOnline.bind(this));
+      this.client.on('stanza', this.handleStanza.bind(this));
       if (this.config.debug) xmppDebug(this.client, true);
       await new Promise((resolve, reject) => {
         const handleOnline = async () => {

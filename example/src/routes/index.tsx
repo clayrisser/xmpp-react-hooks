@@ -1,5 +1,6 @@
 import React, { FC } from 'react';
 import { Switch, Route, BrowserRouter as Router } from 'react-router-dom';
+import Chat from './Chat';
 import ChatList from './ChatList';
 import Header from '../containers/Header';
 import Home from './Home';
@@ -21,7 +22,7 @@ const Routes: FC<RoutesProps> = (_props: RoutesProps) => (
         <Info />
       </Route>
       <Route path="/chat/:jid">
-        <Info />
+        <Chat />
       </Route>
     </Switch>
   </Router>
