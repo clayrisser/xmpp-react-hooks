@@ -10,7 +10,7 @@ export default function useRoster(): RosterItem[] {
   useEffect(() => {
     let cleanup = () => {};
     (async () => {
-      if (!rosterService || roster?.length) return;
+      if (!rosterService) return;
       const result = await rosterService.getRoster();
       setRoster(result);
       cleanup = rosterService.readRosterPush((roster: RosterItem[]) =>

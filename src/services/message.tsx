@@ -28,10 +28,11 @@ export default class MessageService extends StanzaService {
     await this.xmpp.query(request);
   }
 
-  readMessages(callback: (message: Message) => any, to?: string) {
+  readMessages(callback: (message: Message) => any, to?: string): () => any {
     if (!to) to = this.xmpp.fullJid!;
-    this.xmpp.handle(
+    return this.xmpp.handle(
       (messageElement: XmlElement) => {
+        console.log('messageElement', messageElement);
         return (
           messageElement.name === 'message' &&
           messageElement.getAttr('type') === 'chat' &&
