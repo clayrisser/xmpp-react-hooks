@@ -28,10 +28,14 @@ export default class MessageService extends StanzaService {
     await this.xmpp.query(request);
   }
 
-  readMessages(callback: (message: Message) => any, to?: string) {
+  readMessages(callback: (message: any) => any, to?: string) {
+    console.log('hello world');
     if (!to) to = this.xmpp.fullJid!;
+    console.log('to', to);
     this.xmpp.handle(
       (messageElement: XmlElement) => {
+        console.log('messages1234', messageElement);
+
         return (
           messageElement.name === 'message' &&
           messageElement.getAttr('type') === 'chat' &&
@@ -40,12 +44,14 @@ export default class MessageService extends StanzaService {
       },
       (messageElement: XmlElement) => {
         const message = this.elementToMessage(messageElement);
+        console.log('messages123', messageElement);
         callback(message);
       }
     );
   }
 
   elementToMessage(messageElement: XmlElement): Message {
+    console.log('test123');
     const to = messageElement.getAttr('to');
     const from = messageElement.getAttr('from');
     const body = messageElement

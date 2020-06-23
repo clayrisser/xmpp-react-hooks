@@ -6,14 +6,14 @@
 import xml from '@xmpp/xml';
 import { XmlElement } from '@xmpp/client';
 import StanzaService from './stanza';
-import Xmpp from '../xmpp';
+import Xmpp, { Cleanup } from '../xmpp';
 
 export default class RosterService extends StanzaService {
   constructor(private readonly xmpp: Xmpp) {
     super(xmpp, 'jabber:iq:roster');
   }
 
-  readRosterPush(callback: (roster: RosterItem[]) => any): () => any {
+  readRosterPush(callback: (roster: RosterItem[]) => any): Cleanup {
     return this.xmpp.handle(
       (iqElement: XmlElement) => {
         // TODO: improve with service

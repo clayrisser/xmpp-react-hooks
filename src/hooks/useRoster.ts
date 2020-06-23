@@ -7,10 +7,12 @@ export default function useRoster(): RosterItem[] {
   const [roster, setRoster] = useStateCache<RosterItem[]>('roster', []);
   const rosterService = useRosterService();
 
+  console.log('roster', roster);
+
   useEffect(() => {
     let cleanup = () => {};
     (async () => {
-      if (!rosterService || roster?.length) return;
+      if (!rosterService) return;
       const result = await rosterService.getRoster();
       setRoster(result);
       cleanup = rosterService.readRosterPush((roster: RosterItem[]) =>

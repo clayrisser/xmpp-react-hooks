@@ -114,10 +114,14 @@ export default class Xmpp {
     if (!this.client) throw new Error('login to create xmpp client');
     const checkCondition = this.createCheckCondition(condition);
     const listener = (stanzaElement: XmlElement) => {
+      console.log('listener');
       if (checkCondition(stanzaElement)) readCallback(stanzaElement);
     };
+    console.log('test', listener);
     this.client.on('stanza', listener);
+    console.log('stanza', listener);
     return () => {
+      console.log('remove', listener);
       this.client?.removeListener('stanza', listener);
     };
   }

@@ -20,7 +20,6 @@ export default class PresenceService extends StanzaService {
       },
       status?.length ? <status>{status}</status> : []
     );
-    // TODO: add condition
-    await this.xmpp.query(request);
+    this.xmpp.query(request);
   }
 }

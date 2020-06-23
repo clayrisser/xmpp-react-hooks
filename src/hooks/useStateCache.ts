@@ -38,6 +38,7 @@ export default function useStateCache<T>(
       } else if (!silence) {
         console.warn(err);
       }
+      return;
     }
     if (typeof setStateAction === 'function') {
       return setState((prevState: T | undefined) => {
