@@ -11,9 +11,9 @@ export default function useRoster(): RosterItem[] {
     let cleanup = () => {};
     (async () => {
       if (!rosterService || roster?.length) return;
-      const result = await rosterService.getRoster();
+      const result = await rosterService!.getRoster();
       setRoster(result);
-      cleanup = rosterService.readRosterPush((roster: RosterItem[]) =>
+      cleanup = rosterService!.readRosterPush((roster: RosterItem[]) =>
         setRoster(roster)
       );
     })().catch(console.error);
