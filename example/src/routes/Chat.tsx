@@ -1,26 +1,26 @@
 import React, { FC, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useXmpp, useMessageService, useMessage } from 'xmpp-react-hooks';
+import { useMessages, useMessageService } from 'xmpp-react-hooks';
 
 export interface ChatProps {}
 
-export interface Params {
+export interface ChatParams {
   jid: string;
 }
 
 const Chat: FC<ChatProps> = (_props: ChatProps) => {
-  const params: Params = useParams();
-  const xmpp = useXmpp();
   const messageService = useMessageService();
-  const [message, setMessage] = useState('');
+  const [_message, setMessage] = useState('');
 
   async function handleClick() {
     console.log('params', params!.jid, message);
     await messageService!.sendMessage(
       `${params!.jid}@test.siliconhills.dev`,
-      message
+      _message
     );
   }
+  const params = useParams<ChatParams>();
+  const message = useMessages(params.jid);
 
   return (
     <>
@@ -29,9 +29,11 @@ const Chat: FC<ChatProps> = (_props: ChatProps) => {
         id="message"
         name="message"
         onChange={(e: any) => setMessage(e.target.value)}
-        value={message}
+        value={_message}
       />
       <button onClick={() => handleClick()}>Send Message</button>
+      {/* <h1>{message.body}</h1> */}
+      <h1>{JSON.stringify(message)}</h1>
     </>
   );
 };

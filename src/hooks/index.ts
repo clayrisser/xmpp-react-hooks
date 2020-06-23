@@ -3,7 +3,7 @@ import useRoster from './useRoster';
 import useRosterService from './useRosterService';
 import useStatus from './useStatus';
 import useXmpp from './useXmpp';
-import useMessage from './useMessages';
+import useMessages from './useMessages';
 
 export {
   useXmpp,
@@ -11,5 +11,5 @@ export {
   useRosterService,
   useRoster,
   useMessageService,
-  useMessage
+  useMessages
 };

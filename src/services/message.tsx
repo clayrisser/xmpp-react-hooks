@@ -30,13 +30,14 @@ export default class MessageService extends StanzaService {
 
   readMessages(callback: (message: Message) => any, to?: string): () => any {
     if (!to) to = this.xmpp.fullJid!;
+    // console.log('to', to);
     return this.xmpp.handle(
       (messageElement: XmlElement) => {
         console.log('messageElement', messageElement);
         return (
           messageElement.name === 'message' &&
           messageElement.getAttr('type') === 'chat' &&
-          messageElement.getAttr('to') === to
+          messageElement.getAttr('to').split('/')[0] === to!.split('/')[0]
         );
       },
       (messageElement: XmlElement) => {
@@ -48,14 +49,20 @@ export default class MessageService extends StanzaService {
 
   elementToMessage(messageElement: XmlElement): Message {
     const to = messageElement.getAttr('to');
+    // console.log('to', to);
     const from = messageElement.getAttr('from');
+    // console.log('from', from);
     const body = messageElement
       .getChildren('body')
       .reduce((body: string, bodyElement: XmlElement) => {
+        // console.log('body', body);
         return [body, bodyElement.text()].join('\n');
       }, '');
     const header = messageElement.getChild('header')?.text() || undefined;
-    if (body && from && to) return { body, from, to, header };
+    if (body && from && to) {
+      console.log('body', body);
+      return { body, from, to, header };
+    }
     throw new Error('invalid message stanza');
   }
 }

@@ -13,7 +13,7 @@ export default function useRoster(): RosterItem[] {
       if (!rosterService) return;
       const result = await rosterService.getRoster();
       setRoster(result);
-      cleanup = rosterService.readRosterPush((roster: RosterItem[]) =>
+      cleanup = rosterService!.readRosterPush((roster: RosterItem[]) =>
         setRoster(roster)
       );
     })().catch(console.error);
