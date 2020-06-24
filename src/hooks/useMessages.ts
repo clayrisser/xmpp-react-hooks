@@ -1,5 +1,5 @@
 import useStateCache from 'use-state-cache';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import useMessageService from './useMessageService';
 import { Message } from '../services';
 

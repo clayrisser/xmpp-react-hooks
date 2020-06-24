@@ -59,7 +59,6 @@ export default class MAMService extends StanzaService {
       (mamMessage: MamMessage) => mamMessages.push(mamMessage),
       id
     );
-    console.log('mam messages', mamMessages);
     const iqElement = await this.xmpp.query(request, [this.namespaceName, id]);
     cleanup();
     const err = this.getIqError(iqElement);
@@ -78,7 +77,6 @@ export default class MAMService extends StanzaService {
       typeof childMessageElement === 'undefined' ||
       typeof deleyElement === 'undefined'
     ) {
-      console.log('hbkjn');
       return;
     }
     const body = childMessageElement.getChild('body');
@@ -86,7 +84,6 @@ export default class MAMService extends StanzaService {
     const from = childMessageElement.getAttr('from');
     const stamp = new Date(deleyElement.getAttr('stamp'));
     const header = childMessageElement.getAttr('header');
-    console.log('data', body!.children[0].toString(), to, from, stamp, header);
     return {
       body: body!.children[0].toString(),
       to,

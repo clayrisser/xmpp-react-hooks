@@ -148,11 +148,9 @@ export default class Xmpp {
     const checkCondition = this.createCheckCondition(condition);
     if (readCallback) {
       const listener = (stanzaElement: XmlElement) => {
-        console.log('stana element', stanzaElement);
         if (checkCondition(stanzaElement)) readCallback(stanzaElement);
       };
       this.client.on('stanza', listener);
-      console.log('stanza', listener);
       this.client.send(request);
       return () => {
         this.client?.removeListener('stanza', listener);
@@ -160,7 +158,6 @@ export default class Xmpp {
     }
     return new Promise((resolve, reject) => {
       const listener = (stanza: XmlElement) => {
-        console.log('stanzaaaa', stanza);
         if (checkCondition(stanza)) {
           this.client!.removeListener('stanza', listener);
           resolve(stanza);
