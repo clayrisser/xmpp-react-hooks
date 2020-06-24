@@ -4,5 +4,9 @@ declare namespace JSX {
     item: any;
     query: any;
     status: any;
+    x: any;
+    field: any;
+    value: any;
+    prefs: any;
   }
 }

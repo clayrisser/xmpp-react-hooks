@@ -72,4 +72,5 @@ export interface Message {
   from: string;
   header?: string;
   to: string;
+  stamp?: Date;
 }

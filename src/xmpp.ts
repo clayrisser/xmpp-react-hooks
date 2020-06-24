@@ -37,11 +37,8 @@ export default class Xmpp {
     if (Array.isArray(condition) && condition.length >= 2) {
       checkCondition = (stanzaElement: XmlElement) => {
         const [namespaceName, id] = condition;
-        const queryElement = stanzaElement.getChild('query');
-        if (!queryElement) return false;
         return (
-          queryElement.getAttr('xmlns') === namespaceName &&
-          queryElement.name === 'query' &&
+          !!stanzaElement.getChildByAttr('xmlns', namespaceName) &&
           stanzaElement.getAttr('id') === id &&
           stanzaElement.getAttr('type') === 'result' &&
           stanzaElement.name === 'iq'
@@ -151,9 +148,11 @@ export default class Xmpp {
     const checkCondition = this.createCheckCondition(condition);
     if (readCallback) {
       const listener = (stanzaElement: XmlElement) => {
+        console.log('stana element', stanzaElement);
         if (checkCondition(stanzaElement)) readCallback(stanzaElement);
       };
       this.client.on('stanza', listener);
+      console.log('stanza', listener);
       this.client.send(request);
       return () => {
         this.client?.removeListener('stanza', listener);
@@ -161,6 +160,7 @@ export default class Xmpp {
     }
     return new Promise((resolve, reject) => {
       const listener = (stanza: XmlElement) => {
+        console.log('stanzaaaa', stanza);
         if (checkCondition(stanza)) {
           this.client!.removeListener('stanza', listener);
           resolve(stanza);
