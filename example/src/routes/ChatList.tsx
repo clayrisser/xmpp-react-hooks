@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { useRoster, RosterItem } from 'xmpp-react-hooks';
+import { useRoster, RosterItem, useRegisterService } from 'xmpp-react-hooks';
 import { useHistory } from 'react-router-dom';
 import Loading from '../components/Loading';
 
@@ -8,9 +8,15 @@ export interface ChatListProps {}
 const ChatList: FC<ChatListProps> = (_props: ChatListProps) => {
   const history = useHistory();
   const roster = useRoster();
+  const registerService = useRegisterService();
 
   function handleClick(rosterItem: string) {
     history.push(`/chat/${rosterItem}`);
+  }
+
+  async function handleRegister() {
+    const register = await registerService!.requestRegister();
+    console.log('register', register);
   }
 
   function renderRosterItem(rosterItem: RosterItem) {
@@ -25,6 +31,7 @@ const ChatList: FC<ChatListProps> = (_props: ChatListProps) => {
         </button>
         <span style={{ fontStyle: 'italic' }}>&nbsp;{rosterItem.jid}</span>
         <hr />
+        <button onClick={() => handleRegister()}> Register</button>
       </div>
     );
   }

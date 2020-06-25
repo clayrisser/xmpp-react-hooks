@@ -11,5 +11,8 @@ declare namespace JSX {
     always: any;
     jid: any;
     never: any;
+    username: any;
+    password: any;
+    email: any;
   }
 }
