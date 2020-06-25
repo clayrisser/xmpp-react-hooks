@@ -6,7 +6,7 @@ import {
   useMamService,
   useXmpp
 } from 'xmpp-react-hooks';
-import { MamMessage } from '../../../lib';
+import { MamMessage, Preferences } from '../../../lib';
 
 export interface ChatProps {}
 
@@ -54,7 +54,7 @@ const Chat: FC<ChatProps> = (_props: ChatProps) => {
   }
 
   async function updatePrefs() {
-    await mamService!.updatePreferences(preference);
+    await mamService!.updatePreferences();
   }
   async function getPrefs() {
     await mamService!.getPreference();

@@ -105,14 +105,35 @@ export default class MAMService extends StanzaService {
     console.log('error', err);
     if (err) throw err;
     console.log('prefs', iqElement);
+    return this.elementToPreference(iqElement);
     // return {
-    //   always: [],
-    //   never: []
+    // always: [],
+    // never: []
+    // };
+  }
+
+  elementToPreference(preferenceElement: XmlElement): Preferences | void {
+    const resultElement = preferenceElement.getChild('prefs');
+    if (typeof resultElement === 'undefined') return;
+    const alwaysElement = resultElement.getChild('always');
+    if (typeof alwaysElement === 'undefined') return;
+    const neverElement = resultElement.getChild('never');
+    if (typeof neverElement === 'undefined') return;
+
+    const jidAlwaysElement = alwaysElement.getChildren('jid').map(
+      (groupElement: XmlElement) => console.log('jidsssss', groupElement.text())
+      // groupElement.text()
+    );
+    if (typeof jidAlwaysElement === 'undefined') return;
+
+    const jidNeverElement = neverElement.getChild('jid');
+    console.log('jidss', jidAlwaysElement);
+    // return {
     // };
   }
 
   async updatePreferences(
-    _preferences: Preferences,
+    // _preferences: Preferences,
     id?: string
   ): Promise<void> {
     if (!id) id = Date.now().toString();
@@ -121,7 +142,8 @@ export default class MAMService extends StanzaService {
       <iq type="set" id={id}>
         <prefs xmlns="urn:xmpp:mam:2" default="roster">
           <always>
-            <jid>{_preferences.always}</jid>
+            <jid>jam@test.siliconhills.dev</jid>
+            <jid>jayanth@test.siliconhills.dev</jid>
           </always>
           {/* <never>
             <jid>montague@montague.lit</jid>
