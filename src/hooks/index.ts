@@ -5,6 +5,7 @@ import useStatus from './useStatus';
 import useXmpp from './useXmpp';
 import useMessages from './useMessages';
 import useMamService from './useMamService';
+import useRegisterService from './useRegisterService';
 
 export {
   useXmpp,
@@ -13,5 +14,6 @@ export {
   useRoster,
   useMessageService,
   useMessages,
-  useMamService
+  useMamService,
+  useRegisterService
 };
