@@ -112,42 +112,40 @@ export default class MAMService extends StanzaService {
     // };
   }
 
-  elementToPreference(preferenceElement: XmlElement): Preferences | void {
-    const resultElement = preferenceElement.getChild('prefs');
-    if (typeof resultElement === 'undefined') return;
-    const value = resultElement
-      .getChildren('always' || 'never')
-      .reduce((preference: Preferences[], alwaysElement: XmlElement) => {
-        const always = alwaysElement
-          .getChildren('jid')
-          .map((alwaysJid: XmlElement) => {
-            // console.log('jiddds', jidAlwaysElement.push(alwaysValue));
-            return alwaysJid.text();
+  elementToPreference(preferenceElement: XmlElement): Preferences[] | void {
+    let neverelement: any;
+    let alwayselement: any;
+
+    return preferenceElement
+      .getChildren('prefs')
+      .reduce((preference: Preferences[], queryElement: XmlElement) => {
+        console.log('query element', queryElement);
+        queryElement.getChildren('never').forEach((itemElement: XmlElement) => {
+          console.log('never element', itemElement);
+          if (itemElement.getChildren('jid')) {
+            neverelement = itemElement
+              .getChildren('jid')
+              .map((groupElement: XmlElement) => groupElement.text());
+            console.log('never', neverelement);
+          }
+        });
+        queryElement
+          .getChildren('always')
+          .forEach((itemElement: XmlElement) => {
+            alwayselement = itemElement
+              .getChildren('jid')
+              .map((groupElement: XmlElement) => groupElement.text());
+            console.log('always', alwayselement);
           });
-        console.log('always13', always);
-        if (always.length) preference.push({ always });
+        preference.push({ never: neverelement, always: alwayselement });
+        console.log('preference', preference);
+        // return preference;
         return preference;
       }, []);
-    console.log('alawys', value);
-    // if (typeof alwaysElement === 'undefined') return;
-    // const neverElement = resultElement.getChild('never');
-    // if (typeof neverElement === 'undefined') return;
-
-    //   (groupElement: XmlElement) =>
-
-    //   // groupElement.text()
-    // );
-
-    // if (typeof jidAlwaysElement === 'undefined') return;
-
-    // const jidNeverElement = neverElement.getChild('jid');
-    // console.log('jidss', jidAlwaysElement);
-    // return {
-    // };
   }
 
   async updatePreferences(
-    // _preferences: Preferences,
+    _preferences: Preferences,
     id?: string
   ): Promise<void> {
     if (!id) id = Date.now().toString();
@@ -156,12 +154,11 @@ export default class MAMService extends StanzaService {
       <iq type="set" id={id}>
         <prefs xmlns="urn:xmpp:mam:2" default="roster">
           <always>
-            <jid>jam@test.siliconhills.dev</jid>
-            <jid>jayanth@test.siliconhills.dev</jid>
+            <jid>{`${_preferences.always}@test.siliconhills.dev`}</jid>
           </always>
-          {/* <never>
-            <jid>montague@montague.lit</jid>
-          </never> */}
+          <never>
+            <jid>{`${_preferences.never}@test.siliconhills.dev`}</jid>
+          </never>
         </prefs>
       </iq>
     );
