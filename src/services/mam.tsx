@@ -115,19 +115,33 @@ export default class MAMService extends StanzaService {
   elementToPreference(preferenceElement: XmlElement): Preferences | void {
     const resultElement = preferenceElement.getChild('prefs');
     if (typeof resultElement === 'undefined') return;
-    const alwaysElement = resultElement.getChild('always');
-    if (typeof alwaysElement === 'undefined') return;
-    const neverElement = resultElement.getChild('never');
-    if (typeof neverElement === 'undefined') return;
+    const value = resultElement
+      .getChildren('always' || 'never')
+      .reduce((preference: Preferences[], alwaysElement: XmlElement) => {
+        const always = alwaysElement
+          .getChildren('jid')
+          .map((alwaysJid: XmlElement) => {
+            // console.log('jiddds', jidAlwaysElement.push(alwaysValue));
+            return alwaysJid.text();
+          });
+        console.log('always13', always);
+        if (always.length) preference.push({ always });
+        return preference;
+      }, []);
+    console.log('alawys', value);
+    // if (typeof alwaysElement === 'undefined') return;
+    // const neverElement = resultElement.getChild('never');
+    // if (typeof neverElement === 'undefined') return;
 
-    const jidAlwaysElement = alwaysElement.getChildren('jid').map(
-      (groupElement: XmlElement) => console.log('jidsssss', groupElement.text())
-      // groupElement.text()
-    );
-    if (typeof jidAlwaysElement === 'undefined') return;
+    //   (groupElement: XmlElement) =>
 
-    const jidNeverElement = neverElement.getChild('jid');
-    console.log('jidss', jidAlwaysElement);
+    //   // groupElement.text()
+    // );
+
+    // if (typeof jidAlwaysElement === 'undefined') return;
+
+    // const jidNeverElement = neverElement.getChild('jid');
+    // console.log('jidss', jidAlwaysElement);
     // return {
     // };
   }

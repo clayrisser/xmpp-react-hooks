@@ -22,11 +22,13 @@ const Chat: FC<ChatProps> = (_props: ChatProps) => {
   const xmpp = useXmpp();
   const message = useMessages(params.jid);
   const [data, setData] = useState<MamMessage[]>([]);
-  const preference = {
+
+  const preference: Preferences = {
     always: [`${params!.jid}@test.siliconhills.dev`]
   };
 
   console.log('mam servicess', mamService);
+  console.log('xmpp', xmpp!.jid);
 
   async function handleClick() {
     // console.log('params', params!.jid, message);
