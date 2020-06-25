@@ -8,5 +8,8 @@ declare namespace JSX {
     field: any;
     value: any;
     prefs: any;
+    always: any;
+    jid: any;
+    never: any;
   }
 }

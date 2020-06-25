@@ -1,7 +1,6 @@
 /**
  * @jsx xml
- * https://tools.ietf.org/html/rfc6121#section-2
- * https://xmpp.org/extensions/xep-0237.html
+ * https://xmpp.org/extensions/xep-0313.html
  */
 import xml from '@xmpp/xml';
 import { XmlElement } from '@xmpp/client';
@@ -94,25 +93,48 @@ export default class MAMService extends StanzaService {
     };
   }
 
-  // async getPreference(id?: string): Promise<any> {
-  //   if (!id) id = Date.now().toString();
-  //   const request = (
-  //     <iq type="get" id={id}>
-  //       <prefs xmlns={this.namespaceName} />
-  //     </iq>
-  //   );
-  //   const iqElement = await this.xmpp.query(request, [this.namespaceName, id]);
-  //   const err = this.getIqError(iqElement);
-  //   console.log('error', err);
-  //   if (err) throw err;
-  //   console.log('prefs', iqElement);
-  //   // return {
-  //   //   always: [],
-  //   //   never: []
-  //   // };
-  // }
+  async getPreference(id?: string): Promise<any> {
+    if (!id) id = Date.now().toString();
+    const request = (
+      <iq type="get" id={id}>
+        <prefs xmlns={this.namespaceName} />
+      </iq>
+    );
+    const iqElement = await this.xmpp.query(request, [this.namespaceName, id]);
+    const err = this.getIqError(iqElement);
+    console.log('error', err);
+    if (err) throw err;
+    console.log('prefs', iqElement);
+    // return {
+    //   always: [],
+    //   never: []
+    // };
+  }
 
-  async updatePreferences(_preferences: Preferences): Promise<void> {}
+  async updatePreferences(
+    _preferences: Preferences,
+    id?: string
+  ): Promise<void> {
+    if (!id) id = Date.now().toString();
+
+    const request = (
+      <iq type="set" id={id}>
+        <prefs xmlns="urn:xmpp:mam:2" default="roster">
+          <always>
+            <jid>{_preferences.always}</jid>
+          </always>
+          {/* <never>
+            <jid>montague@montague.lit</jid>
+          </never> */}
+        </prefs>
+      </iq>
+    );
+    const iqElement = await this.xmpp.query(request, [this.namespaceName, id]);
+    console.log('iqelement', iqElement);
+    const err = this.getIqError(iqElement);
+    console.log('error', err);
+    if (err) throw err;
+  }
 }
 
 export interface MamMessage {
@@ -125,6 +147,6 @@ export interface MamMessage {
 }
 
 export interface Preferences {
-  always: string[];
-  never: string[];
+  always?: string[];
+  never?: string[];
 }

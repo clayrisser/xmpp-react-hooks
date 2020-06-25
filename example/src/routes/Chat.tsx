@@ -22,6 +22,9 @@ const Chat: FC<ChatProps> = (_props: ChatProps) => {
   const xmpp = useXmpp();
   const message = useMessages(params.jid);
   const [data, setData] = useState<MamMessage[]>([]);
+  const preference = {
+    always: [`${params!.jid}@test.siliconhills.dev`]
+  };
 
   console.log('mam servicess', mamService);
 
@@ -34,9 +37,7 @@ const Chat: FC<ChatProps> = (_props: ChatProps) => {
   }
 
   async function handleMamService() {
-    const info = await mamService!.getMessages(
-      `${params!.jid}@test.siliconhills.dev`
-    );
+    const info = await mamService!.getMessages();
     setData(info);
   }
 
@@ -52,7 +53,10 @@ const Chat: FC<ChatProps> = (_props: ChatProps) => {
     }
   }
 
-  async function handlePrefs() {
+  async function updatePrefs() {
+    await mamService!.updatePreferences(preference);
+  }
+  async function getPrefs() {
     await mamService!.getPreference();
   }
   return (
@@ -70,7 +74,8 @@ const Chat: FC<ChatProps> = (_props: ChatProps) => {
       <button onClick={() => handleMamService()}>Chat </button>
       {renderChat()}
 
-      <button onClick={() => handlePrefs()}>Get Preference</button>
+      <button onClick={() => updatePrefs()}>updatePreferences</button>
+      <button onClick={() => getPrefs()}>getPreferences</button>
     </>
   );
 };
