@@ -1,5 +1,7 @@
 import React, { FC, useState, useContext } from 'react';
 import GlobalContext from '../contexts/global';
+import { useRosterService } from 'xmpp-react-hooks';
+
 import { useHistory } from 'react-router-dom';
 
 export interface HomeProps {}
@@ -8,6 +10,8 @@ const Home: FC<HomeProps> = (_props: HomeProps) => {
   const [, setGlobal] = useContext(GlobalContext);
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
+  // const roster = useRoster();
+
   const history = useHistory();
 
   function handleClick(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {

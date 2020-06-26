@@ -1,5 +1,11 @@
-import React, { FC } from 'react';
-import { useRoster, RosterItem, useRegisterService } from 'xmpp-react-hooks';
+import React, { FC, useEffect } from 'react';
+import {
+  useRoster,
+  RosterItem,
+  useRegisterService,
+  useRosterService,
+  useXmpp
+} from 'xmpp-react-hooks';
 import { useHistory } from 'react-router-dom';
 import Loading from '../components/Loading';
 
@@ -8,6 +14,10 @@ export interface ChatListProps {}
 const ChatList: FC<ChatListProps> = (_props: ChatListProps) => {
   const history = useHistory();
   const roster = useRoster();
+  const rosterService = useRosterService();
+  const xmpp = useXmpp();
+
+  console.log('roster', roster);
   const registerService = useRegisterService();
 
   function handleClick(rosterItem: string) {
@@ -15,8 +25,9 @@ const ChatList: FC<ChatListProps> = (_props: ChatListProps) => {
   }
 
   async function handleRegister() {
-    const register = await registerService!.requestRegister();
-    console.log('register', register);
+    // const register = await registerService!.requestRegister();
+    rosterService!.setRosterItem('online');
+    //console.log('register', register);
   }
 
   function renderRosterItem(rosterItem: RosterItem) {

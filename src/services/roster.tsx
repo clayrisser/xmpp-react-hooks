@@ -44,10 +44,26 @@ export default class RosterService extends StanzaService {
     if (err) throw err;
   }
 
-  async setRosterItem(jid: string, name?: string, from?: string) {
+  async setRosterItem(
+    group?: string,
+    jid?: string,
+
+    name?: string,
+    from?: string
+  ) {
     if (!from) from = this.xmpp.fullJid!;
+    if (!jid) jid = this.xmpp.fullJid;
+
     const id = Date.now().toString();
-    const item = name ? <item jid={jid} name={name} /> : <item jid={jid} />;
+    const item = name ? (
+      <item jid={jid} name={name}>
+        <group>{group}</group>
+      </item>
+    ) : (
+      <item jid={jid}>
+        <group>{group}</group>
+      </item>
+    );
     const request = (
       <iq from={from} id={id} type="set">
         <query xmlns={this.namespaceName}>{item}</query>
@@ -68,12 +84,14 @@ export default class RosterService extends StanzaService {
       </iq>
     );
     const iqElement = await this.xmpp.query(request, [this.namespaceName, id]);
+    console.log('iqElementsssss', iqElement);
     const err = this.getIqError(iqElement);
     if (err) throw err;
     return this.elementToRoster(iqElement);
   }
 
   elementToRoster(iqElement: XmlElement): RosterItem[] {
+    // console.log('iqElement', iqElement);
     return iqElement
       .getChildren('query')
       .reduce((roster: RosterItem[], queryElement: XmlElement) => {

@@ -4,7 +4,8 @@ import {
   useMessages,
   useMessageService,
   useMamService,
-  useXmpp
+  useXmpp,
+  useRoster
 } from 'xmpp-react-hooks';
 import { MamMessage, Preferences } from '../../../lib';
 
@@ -18,6 +19,7 @@ const Chat: FC<ChatProps> = (_props: ChatProps) => {
   const messageService = useMessageService();
   const [_message, setMessage] = useState('');
   const mamService = useMamService();
+  const roster = useRoster();
   const params = useParams<ChatParams>();
   const xmpp = useXmpp();
   const message = useMessages(params.jid);

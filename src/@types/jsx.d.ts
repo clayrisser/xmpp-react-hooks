@@ -14,5 +14,6 @@ declare namespace JSX {
     username: any;
     password: any;
     email: any;
+    group: any;
   }
 }
