@@ -1,11 +1,12 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   useMessages,
   useMessageService,
   useMamService,
   useXmpp,
-  useRoster
+  useRoster,
+  useRosterService
 } from 'xmpp-react-hooks';
 import { MamMessage, Preferences } from '../../../lib';
 
@@ -20,20 +21,22 @@ const Chat: FC<ChatProps> = (_props: ChatProps) => {
   const [_message, setMessage] = useState('');
   const mamService = useMamService();
   const roster = useRoster();
+  console.log('roster', roster);
   const params = useParams<ChatParams>();
   const xmpp = useXmpp();
   const message = useMessages(params.jid);
   const [data, setData] = useState<MamMessage[]>([]);
-  // const preference: Preferences = {
-  //   always: [`${params!.jid}@test.siliconhills.dev`],
-  //   never: ['navya@test.siliconhills.dev']
-  // };
+  const rosterService = useRosterService();
   const [always, setAlways] = useState();
   const [never, setNever] = useState();
   const [preferencedata, setPreference] = useState<Preferences[]>([]);
 
   console.log('mam servicess', mamService);
   // console.log('xmpp', xmpp!.jid);
+  // useEffect(() => {
+  //   if (rosterService !== undefined)
+  //     rosterService!.setRosterItem('chat', params.jid);
+  // }, [rosterService]);
 
   async function handleClick() {
     // console.log('params', params!.jid, message);

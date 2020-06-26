@@ -53,16 +53,15 @@ export default class RosterService extends StanzaService {
   ) {
     if (!from) from = this.xmpp.fullJid!;
     if (!jid) jid = this.xmpp.fullJid;
+    console.log('jid', jid);
 
     const id = Date.now().toString();
     const item = name ? (
       <item jid={jid} name={name}>
-        <group>{group}</group>
+        {/* <group>{group}</group> */}
       </item>
     ) : (
-      <item jid={jid}>
-        <group>{group}</group>
-      </item>
+      <item jid={jid}>{/* <group>{group}</group> */}</item>
     );
     const request = (
       <iq from={from} id={id} type="set">
@@ -79,7 +78,7 @@ export default class RosterService extends StanzaService {
     const jid = from.split('/')[0];
     const id = Date.now().toString();
     const request = (
-      <iq from={from} id={id} to={jid} type="get">
+      <iq from={from} id={id} type="get">
         <query xmlns={this.namespaceName} />
       </iq>
     );

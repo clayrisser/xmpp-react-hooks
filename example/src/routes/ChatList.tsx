@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import {
   useRoster,
   RosterItem,
@@ -16,22 +16,32 @@ const ChatList: FC<ChatListProps> = (_props: ChatListProps) => {
   const roster = useRoster();
   const rosterService = useRosterService();
   const xmpp = useXmpp();
+  const [jid, setJid] = useState('');
 
   console.log('roster', roster);
-  const registerService = useRegisterService();
+  // const registerService = useRegisterService();
+  // useEffect(() => {
+  //   if (rosterService !== undefined) {
+  //     console.log('rosterservice', rosterService!);
+  //     console.log('hello');
+  //     rosterService!.setRosterItem('online');
+  //   }
+  // }, [rosterService]);
 
   function handleClick(rosterItem: string) {
+    console.log('jid', rosterItem);
     history.push(`/chat/${rosterItem}`);
   }
 
   async function handleRegister() {
     // const register = await registerService!.requestRegister();
-    rosterService!.setRosterItem('online');
+    // rosterService!.setRosterItem('online');
     //console.log('register', register);
   }
 
   function renderRosterItem(rosterItem: RosterItem) {
     const displayName = rosterItem.name || rosterItem.jid.split('@')[0];
+
     return (
       <div key={rosterItem.jid}>
         <button
@@ -55,7 +65,24 @@ const ChatList: FC<ChatListProps> = (_props: ChatListProps) => {
   return (
     <>
       <h1>Chat List</h1>
+      <input
+        type="text"
+        placeholder="enter jid"
+        value={jid}
+        onChange={(e: any) => {
+          console.log('value', e.value);
+          setJid(e.target.value);
+        }}
+      />
+      {/* <button
+        onClick={() => {
+          handleClick(jid);
+        }}
+      >
+        chat
+      </button> */}
       {renderRoster(roster)}
+      {/* <div>{JSON.stringify(roster)}</div> */}
     </>
   );
 };

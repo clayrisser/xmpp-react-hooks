@@ -11,16 +11,59 @@ export default class PresenceService extends StanzaService {
     super(xmpp);
   }
 
-  async sendPresence(status?: string, lang?: string) {
+  async sendPresence(
+    status?: string,
+    type?: string,
+    to?: string,
+    from?: string,
+    lang?: string
+  ) {
     if (!lang) lang = this.xmpp.lang!;
-    const request = xml(
-      'presence',
-      {
-        'xml:lang': lang
-      },
-      status?.length ? <status>{status}</status> : []
+    if (!type) type = 'subscribe';
+    if (!from) from = 'jayanth@test.siliconhills.dev';
+    if (!to) to = 'navya@test.siliconhills.dev';
+    // const request = xml(
+    //   'presence',
+    //   {
+    //     'xml:lang': lang,
+    //     ...(to?.length ? to : ''),
+    //     ...(from?.length ? from : ''),
+    //     ...(type?.length ? type : '')
+    //   },
+    //   status?.length ? <status>{status}</status> : []
+    const request = (
+      <presence
+        xml="lang"
+        to="navya@test.siliconhills.dev"
+        from="jayanth@test.siliconhills.dev"
+        type="subscribe"
+      ></presence>
     );
+
     // TODO: add condition
-    await this.xmpp.query(request);
+    const test = await this.xmpp.query(request);
+    console.log('testss', test);
   }
+
+  // async updatePresence(to?: string) {
+  //   const request = (
+  //     <presence type="subscribe" to="navya@test.siliconhills.dev" />
+  //   );
+
+  //   //   // TODO: add condition
+  //   const value = await this.xmpp.query(request);
+  //   console.log('value', value);
+  // }
+
+  // async getPreference() {
+  //   const request = (
+  //     <presence
+  //       type="probe"
+  //       from="jayanth@test.siliconhills.dev"
+  //       to="navya@test.siliconhills.dev"
+  //     />
+  //   );
+  //   const value123 = await this.xmpp.query(request);
+  //   console.log('value', value123);
+  // }
 }
