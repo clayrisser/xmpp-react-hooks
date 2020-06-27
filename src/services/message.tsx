@@ -84,6 +84,7 @@ export default class MessageService extends StanzaService {
   elementToMessage(messageElement: XmlElement): Message {
     const from = messageElement.getAttr('from');
     const header = messageElement.getChild('header')?.text() || undefined;
+    const id = messageElement.getAttr('id');
     const stamp = new Date();
     const to = messageElement.getAttr('to');
     const body = messageElement
@@ -91,8 +92,8 @@ export default class MessageService extends StanzaService {
       .reduce((body: string, bodyElement: XmlElement) => {
         return [body, bodyElement.text()].join('\n');
       }, '');
-    if (body && from && to) {
-      return { body, from, to, header, stamp };
+    if (body && from && to && id) {
+      return { body, from, to, header, stamp, id };
     }
     throw new Error('invalid message stanza');
   }
@@ -102,6 +103,7 @@ export interface Message {
   body: string;
   from: string;
   header?: string;
-  to: string;
+  id: string;
   stamp?: Date;
+  to: string;
 }

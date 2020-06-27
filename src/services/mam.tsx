@@ -80,6 +80,7 @@ export default class MAMService extends StanzaService {
       return;
     }
     const from = childMessageElement.getAttr('from');
+    const id = messageElement.getAttr('id');
     const stamp = new Date(deleyElement.getAttr('stamp'));
     const to = childMessageElement.getAttr('to');
     const header =
@@ -89,14 +90,17 @@ export default class MAMService extends StanzaService {
       .reduce((body: string, bodyElement: XmlElement) => {
         return [body, bodyElement.text()].join('\n');
       }, '');
-    return {
-      body,
-      from,
-      header,
-      mam: true,
-      stamp,
-      to
-    };
+    if (id && body && from && to) {
+      return {
+        body,
+        from,
+        header,
+        id,
+        mam: true,
+        stamp,
+        to
+      };
+    }
   }
 
   async getPreference(id?: string): Promise<any> {

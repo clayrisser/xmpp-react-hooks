@@ -1,20 +1,21 @@
 declare namespace JSX {
   interface IntrinsicElements {
+    ack: any;
+    always: any;
+    email: any;
+    field: any;
+    group: any;
     iq: any;
     item: any;
-    query: any;
-    status: any;
-    x: any;
-    field: any;
-    value: any;
-    prefs: any;
-    always: any;
     jid: any;
     never: any;
-    username: any;
     password: any;
-    email: any;
-    group: any;
+    prefs: any;
     presence: any;
+    query: any;
+    status: any;
+    username: any;
+    value: any;
+    x: any;
   }
 }
