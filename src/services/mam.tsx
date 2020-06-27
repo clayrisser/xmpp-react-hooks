@@ -6,6 +6,7 @@ import xml from '@xmpp/xml';
 import { XmlElement } from '@xmpp/client';
 import StanzaService from './stanza';
 import Xmpp, { Cleanup } from '../xmpp';
+import { Message } from './message';
 
 export default class MAMService extends StanzaService {
   constructor(private readonly xmpp: Xmpp) {
@@ -78,18 +79,23 @@ export default class MAMService extends StanzaService {
     ) {
       return;
     }
-    const body = childMessageElement.getChild('body');
-    const to = childMessageElement.getAttr('to');
     const from = childMessageElement.getAttr('from');
     const stamp = new Date(deleyElement.getAttr('stamp'));
-    const header = childMessageElement.getAttr('header');
+    const to = childMessageElement.getAttr('to');
+    const header =
+      childMessageElement.getChild('header')?.getText() || undefined;
+    const body = childMessageElement
+      .getChildren('body')
+      .reduce((body: string, bodyElement: XmlElement) => {
+        return [body, bodyElement.text()].join('\n');
+      }, '');
     return {
-      body: body!.children[0].toString(),
-      to,
+      body,
       from,
-      stamp,
       header,
-      mam: true
+      mam: true,
+      stamp,
+      to
     };
   }
 
@@ -154,13 +160,8 @@ export default class MAMService extends StanzaService {
   }
 }
 
-export interface MamMessage {
-  body: string;
-  to: string;
-  from: string;
-  stamp: Date;
+export interface MamMessage extends Message {
   mam: boolean;
-  header?: string;
 }
 
 export interface Preferences {

@@ -37,13 +37,14 @@ export default class MessageService extends StanzaService {
     return this.xmpp.handle(
       (messageElement: XmlElement) => {
         return (
+          !messageElement.getChild('result') &&
           messageElement.getAttr('type') === 'chat' &&
           messageElement.getAttr('xmlns') === this.namespaceName &&
           messageElement.name === 'message' &&
-          messageElement.getAttr('from').split('/')[0] ===
-            from!.split('/')[0] &&
+          messageElement.getAttr('from')?.split('/')[0] ===
+            from?.split('/')[0] &&
           (!to?.length ||
-            messageElement.getAttr('to').split('/')[0] === to!.split('/')[0])
+            messageElement.getAttr('to')?.split('/')[0] === to?.split('/')[0])
         );
       },
       (messageElement: XmlElement) => {
@@ -63,13 +64,14 @@ export default class MessageService extends StanzaService {
     return this.xmpp.handle(
       (messageElement: XmlElement) => {
         return (
-          messageElement.getAttr('to').split('/')[0] === to!.split('/')[0] &&
+          !messageElement.getChild('result') &&
+          messageElement.getAttr('to')?.split('/')[0] === to?.split('/')[0] &&
           messageElement.getAttr('type') === 'chat' &&
           messageElement.getAttr('xmlns') === this.namespaceName &&
           messageElement.name === 'message' &&
           (!from?.length ||
-            messageElement.getAttr('from').split('/')[0] ===
-              from!.split('/')[0])
+            messageElement.getAttr('from')?.split('/')[0] ===
+              from?.split('/')[0])
         );
       },
       (messageElement: XmlElement) => {
@@ -80,16 +82,17 @@ export default class MessageService extends StanzaService {
   }
 
   elementToMessage(messageElement: XmlElement): Message {
-    const to = messageElement.getAttr('to');
     const from = messageElement.getAttr('from');
+    const header = messageElement.getChild('header')?.text() || undefined;
+    const stamp = new Date();
+    const to = messageElement.getAttr('to');
     const body = messageElement
       .getChildren('body')
       .reduce((body: string, bodyElement: XmlElement) => {
         return [body, bodyElement.text()].join('\n');
       }, '');
-    const header = messageElement.getChild('header')?.text() || undefined;
     if (body && from && to) {
-      return { body, from, to, header };
+      return { body, from, to, header, stamp };
     }
     throw new Error('invalid message stanza');
   }
