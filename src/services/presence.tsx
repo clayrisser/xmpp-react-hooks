@@ -22,15 +22,6 @@ export default class PresenceService extends StanzaService {
     if (!type) type = 'subscribe';
     if (!from) from = 'jayanth@test.siliconhills.dev';
     if (!to) to = 'navya@test.siliconhills.dev';
-    // const request = xml(
-    //   'presence',
-    //   {
-    //     'xml:lang': lang,
-    //     ...(to?.length ? to : ''),
-    //     ...(from?.length ? from : ''),
-    //     ...(type?.length ? type : '')
-    //   },
-    //   status?.length ? <status>{status}</status> : []
     const request = (
       <presence
         xml="lang"
@@ -39,31 +30,6 @@ export default class PresenceService extends StanzaService {
         type="subscribe"
       ></presence>
     );
-
-    // TODO: add condition
     const test = await this.xmpp.query(request);
-    console.log('testss', test);
   }
-
-  // async updatePresence(to?: string) {
-  //   const request = (
-  //     <presence type="subscribe" to="navya@test.siliconhills.dev" />
-  //   );
-
-  //   //   // TODO: add condition
-  //   const value = await this.xmpp.query(request);
-  //   console.log('value', value);
-  // }
-
-  // async getPreference() {
-  //   const request = (
-  //     <presence
-  //       type="probe"
-  //       from="jayanth@test.siliconhills.dev"
-  //       to="navya@test.siliconhills.dev"
-  //     />
-  //   );
-  //   const value123 = await this.xmpp.query(request);
-  //   console.log('value', value123);
-  // }
 }

@@ -117,16 +117,17 @@ export default class Xmpp {
 
   handle(
     condition: CheckCondition | string | string[],
-    readCallback: ReadCallback
+    readCallback: ReadCallback,
+    event = 'stanza'
   ): Cleanup {
     if (!this.client) throw new Error('login to create xmpp client');
     const checkCondition = this.createCheckCondition(condition);
     const listener = (stanzaElement: XmlElement) => {
       if (checkCondition(stanzaElement)) readCallback(stanzaElement);
     };
-    this.client.on('stanza', listener);
+    this.client.on(event, listener);
     return () => {
-      this.client?.removeListener('stanza', listener);
+      this.client?.removeListener(event, listener);
     };
   }
 
@@ -137,12 +138,14 @@ export default class Xmpp {
   query(
     request: any,
     condition: CheckCondition | string | string[],
-    readCallback: ReadCallback
+    readCallback: ReadCallback,
+    event?: string
   ): Promise<Cleanup>;
   async query(
     request: any,
     condition: CheckCondition | string | string[] = () => true,
-    readCallback?: ReadCallback
+    readCallback?: ReadCallback,
+    event = 'stanza'
   ): Promise<XmlElement | Cleanup> {
     if (!this.client) throw new Error('login to create xmpp client');
     const checkCondition = this.createCheckCondition(condition);
@@ -150,20 +153,20 @@ export default class Xmpp {
       const listener = (stanzaElement: XmlElement) => {
         if (checkCondition(stanzaElement)) readCallback(stanzaElement);
       };
-      this.client.on('stanza', listener);
+      this.client.on(event, listener);
       this.client.send(request);
       return () => {
-        this.client?.removeListener('stanza', listener);
+        this.client?.removeListener(event, listener);
       };
     }
     return new Promise((resolve, reject) => {
       const listener = (stanza: XmlElement) => {
         if (checkCondition(stanza)) {
-          this.client!.removeListener('stanza', listener);
+          this.client!.removeListener(event, listener);
           resolve(stanza);
         }
       };
-      this.client!.on('stanza', listener);
+      this.client!.on(event, listener);
       try {
         this.client!.send(request);
       } catch (err) {

@@ -102,44 +102,31 @@ export default class MAMService extends StanzaService {
     );
     const iqElement = await this.xmpp.query(request, [this.namespaceName, id]);
     const err = this.getIqError(iqElement);
-    console.log('error', err);
     if (err) throw err;
-    console.log('prefs', iqElement);
     return this.elementToPreference(iqElement);
-    // return {
-    // always: [],
-    // never: []
-    // };
   }
 
   elementToPreference(preferenceElement: XmlElement): Preferences[] | void {
-    let neverelement: any;
-    let alwayselement: any;
-
+    let neverElement: any;
+    let alwaysElement: any;
     return preferenceElement
       .getChildren('prefs')
       .reduce((preference: Preferences[], queryElement: XmlElement) => {
-        console.log('query element', queryElement);
         queryElement.getChildren('never').forEach((itemElement: XmlElement) => {
-          console.log('never element', itemElement);
           if (itemElement.getChildren('jid')) {
-            neverelement = itemElement
+            neverElement = itemElement
               .getChildren('jid')
               .map((groupElement: XmlElement) => groupElement.text());
-            console.log('never', neverelement);
           }
         });
         queryElement
           .getChildren('always')
           .forEach((itemElement: XmlElement) => {
-            alwayselement = itemElement
+            alwaysElement = itemElement
               .getChildren('jid')
               .map((groupElement: XmlElement) => groupElement.text());
-            console.log('always', alwayselement);
           });
-        preference.push({ never: neverelement, always: alwayselement });
-        console.log('preference', preference);
-        // return preference;
+        preference.push({ never: neverElement, always: alwaysElement });
         return preference;
       }, []);
   }
@@ -149,10 +136,9 @@ export default class MAMService extends StanzaService {
     id?: string
   ): Promise<void> {
     if (!id) id = Date.now().toString();
-
     const request = (
       <iq type="set" id={id}>
-        <prefs xmlns="urn:xmpp:mam:2" default="roster">
+        <prefs xmlns={this.namespaceName} default="roster">
           <always>
             <jid>{`${_preferences.always}@test.siliconhills.dev`}</jid>
           </always>
@@ -163,9 +149,7 @@ export default class MAMService extends StanzaService {
       </iq>
     );
     const iqElement = await this.xmpp.query(request, [this.namespaceName, id]);
-    console.log('iqelement', iqElement);
     const err = this.getIqError(iqElement);
-    console.log('error', err);
     if (err) throw err;
   }
 }

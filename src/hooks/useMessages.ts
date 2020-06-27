@@ -14,11 +14,21 @@ export default function useMessage(jid: string): Message[] {
     let cleanup = () => {};
     (async () => {
       if (!messageService) return;
-      cleanup = messageService.readMessages((message: Message) => {
-        if (typeof messages !== 'undefined') {
-          setMessage([...messages, message]);
+      const cleanupReadSentMessages = messageService.readSentMessages(
+        (message: Message) => {
+          if (typeof messages !== 'undefined') {
+            setMessage([...messages, message]);
+          }
         }
-      });
+      );
+      const cleanupReadMessages = messageService.readMessages(
+        (message: Message) => {
+          if (typeof messages !== 'undefined') {
+            setMessage([...messages, message]);
+          }
+        }
+      );
+      cleanup = () => cleanupReadSentMessages() && cleanupReadMessages();
     })().catch(console.error);
     return () => cleanup();
   }, [messageService, messages]);

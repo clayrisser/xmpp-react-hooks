@@ -9,7 +9,7 @@ import Xmpp from '../xmpp';
 
 export default class MessageService extends StanzaService {
   constructor(private readonly xmpp: Xmpp) {
-    super(xmpp);
+    super(xmpp, 'jabber:client');
   }
 
   async sendMessage(to: string, body: string, lang?: string, from?: string) {
@@ -28,14 +28,48 @@ export default class MessageService extends StanzaService {
     await this.xmpp.query(request);
   }
 
-  readMessages(callback: (message: Message) => any, to?: string): () => any {
+  readSentMessages(
+    callback: (message: Message) => any,
+    to?: string,
+    from?: string
+  ): () => any {
+    if (!from) from = this.xmpp.fullJid!;
+    return this.xmpp.handle(
+      (messageElement: XmlElement) => {
+        return (
+          messageElement.getAttr('type') === 'chat' &&
+          messageElement.getAttr('xmlns') === this.namespaceName &&
+          messageElement.name === 'message' &&
+          messageElement.getAttr('from').split('/')[0] ===
+            from!.split('/')[0] &&
+          (!to?.length ||
+            messageElement.getAttr('to').split('/')[0] === to!.split('/')[0])
+        );
+      },
+      (messageElement: XmlElement) => {
+        const message = this.elementToMessage(messageElement);
+        callback(message);
+      },
+      'send'
+    );
+  }
+
+  readMessages(
+    callback: (message: Message) => any,
+    from?: string,
+    to?: string
+  ): () => any {
     if (!to) to = this.xmpp.fullJid!;
     return this.xmpp.handle(
       (messageElement: XmlElement) => {
         return (
-          messageElement.name === 'message' &&
+          messageElement.getAttr('to').split('/')[0] === to!.split('/')[0] &&
           messageElement.getAttr('type') === 'chat' &&
-          messageElement.getAttr('to').split('/')[0] === to!.split('/')[0]
+          messageElement.getAttr('xmlns') === this.namespaceName &&
+          messageElement.name === 'message' &&
+          (!from?.length ||
+            messageElement.getAttr('from').split('/')[0] ===
+              from!.split('/')[0])
         );
       },
       (messageElement: XmlElement) => {

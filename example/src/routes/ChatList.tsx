@@ -1,58 +1,40 @@
-import React, { FC, useEffect, useState } from 'react';
-import {
-  useRoster,
-  RosterItem,
-  useRegisterService,
-  useRosterService,
-  useXmpp
-} from 'xmpp-react-hooks';
+import React, { FC, useState } from 'react';
+import { useRoster, RosterItem, useRosterService } from 'xmpp-react-hooks';
 import { useHistory } from 'react-router-dom';
 import Loading from '../components/Loading';
 
 export interface ChatListProps {}
 
 const ChatList: FC<ChatListProps> = (_props: ChatListProps) => {
+  const [jid, setJid] = useState('');
+  const [name, setName] = useState<string>();
   const history = useHistory();
   const roster = useRoster();
   const rosterService = useRosterService();
-  const xmpp = useXmpp();
-  const [jid, setJid] = useState('');
 
-  console.log('roster', roster);
-  // const registerService = useRegisterService();
-  // useEffect(() => {
-  //   if (rosterService !== undefined) {
-  //     console.log('rosterservice', rosterService!);
-  //     console.log('hello');
-  //     rosterService!.setRosterItem('online');
-  //   }
-  // }, [rosterService]);
-
-  function handleClick(rosterItem: string) {
-    console.log('jid', rosterItem);
+  function handleRosterItemClick(rosterItem: string) {
     history.push(`/chat/${rosterItem}`);
   }
 
-  async function handleRegister() {
-    // const register = await registerService!.requestRegister();
-    // rosterService!.setRosterItem('online');
-    //console.log('register', register);
+  async function handleSubmitJid(
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) {
+    e.preventDefault();
+    await rosterService?.setRosterItem(jid, name);
   }
 
   function renderRosterItem(rosterItem: RosterItem) {
     const displayName = rosterItem.name || rosterItem.jid.split('@')[0];
-
     return (
       <div key={rosterItem.jid}>
         <button
-          onClick={() => handleClick(rosterItem.jid)}
+          onClick={() => handleRosterItemClick(rosterItem.jid)}
           style={{ fontWeight: 'bold' }}
         >
           {displayName}
         </button>
         <span style={{ fontStyle: 'italic' }}>&nbsp;{rosterItem.jid}</span>
         <hr />
-        <button onClick={() => handleRegister()}> Register</button>
       </div>
     );
   }
@@ -65,24 +47,34 @@ const ChatList: FC<ChatListProps> = (_props: ChatListProps) => {
   return (
     <>
       <h1>Chat List</h1>
-      <input
-        type="text"
-        placeholder="enter jid"
-        value={jid}
-        onChange={(e: any) => {
-          console.log('value', e.value);
-          setJid(e.target.value);
-        }}
-      />
-      {/* <button
-        onClick={() => {
-          handleClick(jid);
-        }}
-      >
-        chat
-      </button> */}
+      <form>
+        <div style={{ paddingBottom: 10 }}>
+          <label htmlFor="jid">Jid:</label>
+          <br />
+          <input
+            id="jid"
+            name="jid"
+            onChange={(e: any) => setJid(e.target.value)}
+            type="jid"
+            value={jid}
+          />
+        </div>
+        <div style={{ paddingBottom: 10 }}>
+          <label htmlFor="jid">Name:</label>
+          <br />
+          <input
+            id="name"
+            name="name"
+            onChange={(e: any) => setName(e.target.value)}
+            type="name"
+            value={name}
+          />
+        </div>
+        <button type="submit" onClick={handleSubmitJid}>
+          Register
+        </button>
+      </form>
       {renderRoster(roster)}
-      {/* <div>{JSON.stringify(roster)}</div> */}
     </>
   );
 };
