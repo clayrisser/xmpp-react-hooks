@@ -14,19 +14,9 @@ export interface ChatListProps {}
 const ChatList: FC<ChatListProps> = (_props: ChatListProps) => {
   const history = useHistory();
   const roster = useRoster();
-  const rosterService = useRosterService();
-  const xmpp = useXmpp();
   const [jid, setJid] = useState('');
 
   console.log('roster', roster);
-  // const registerService = useRegisterService();
-  // useEffect(() => {
-  //   if (rosterService !== undefined) {
-  //     console.log('rosterservice', rosterService!);
-  //     console.log('hello');
-  //     rosterService!.setRosterItem('online');
-  //   }
-  // }, [rosterService]);
 
   function handleClick(rosterItem: string) {
     console.log('jid', rosterItem);
@@ -61,7 +51,7 @@ const ChatList: FC<ChatListProps> = (_props: ChatListProps) => {
     return roster.map((rosterItem: RosterItem) => renderRosterItem(rosterItem));
   }
 
-  if (!roster.length) return <Loading />;
+  // if (!roster.length) return <Loading />;
   return (
     <>
       <h1>Chat List</h1>
@@ -74,13 +64,13 @@ const ChatList: FC<ChatListProps> = (_props: ChatListProps) => {
           setJid(e.target.value);
         }}
       />
-      {/* <button
+      <button
         onClick={() => {
           handleClick(jid);
         }}
       >
         chat
-      </button> */}
+      </button>
       {renderRoster(roster)}
       {/* <div>{JSON.stringify(roster)}</div> */}
     </>

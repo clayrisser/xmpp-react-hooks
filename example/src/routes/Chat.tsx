@@ -6,9 +6,10 @@ import {
   useMamService,
   useXmpp,
   useRoster,
-  useRosterService
+  useRosterService,
+  MamMessage,
+  Preferences
 } from 'xmpp-react-hooks';
-import { MamMessage, Preferences } from '../../../lib';
 
 export interface ChatProps {}
 
@@ -18,13 +19,13 @@ export interface ChatParams {
 
 const Chat: FC<ChatProps> = (_props: ChatProps) => {
   const messageService = useMessageService();
-  const [_message, setMessage] = useState('');
+  const [_message, setMessage] = useState<string>('');
   const mamService = useMamService();
   const roster = useRoster();
   console.log('roster', roster);
   const params = useParams<ChatParams>();
   const xmpp = useXmpp();
-  const message = useMessages(params.jid);
+  const messages = useMessages(params.jid);
   const [data, setData] = useState<MamMessage[]>([]);
   const rosterService = useRosterService();
   const [always, setAlways] = useState();
@@ -32,15 +33,16 @@ const Chat: FC<ChatProps> = (_props: ChatProps) => {
   const [preferencedata, setPreference] = useState<Preferences[]>([]);
 
   console.log('mam servicess', mamService);
+  console.log('message service', messageService);
   // console.log('xmpp', xmpp!.jid);
-  // useEffect(() => {
-  //   if (rosterService !== undefined)
-  //     rosterService!.setRosterItem('chat', params.jid);
-  // }, [rosterService]);
+  useEffect(() => {
+    if (rosterService !== undefined) rosterService!.setRosterItem(params.jid);
+  }, [rosterService]);
 
-  async function handleClick() {
-    // console.log('params', params!.jid, message);
-    await messageService!.sendMessage(
+  function handleClick() {
+    if (!messageService) return;
+    console.log('message', _message);
+    messageService!.sendMessage(
       `${params!.jid}@test.siliconhills.dev`,
       _message
     );
@@ -111,7 +113,7 @@ const Chat: FC<ChatProps> = (_props: ChatProps) => {
       />
       <button onClick={() => handleClick()}>Send Message</button>
       <br></br>
-      <h1>{JSON.stringify(message)}</h1>
+      <h1>{JSON.stringify(messages)}</h1>
       <button onClick={() => handleMamService()}>Chat </button>
       <br></br>
       {renderChat()}

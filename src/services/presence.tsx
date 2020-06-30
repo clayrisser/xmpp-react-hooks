@@ -19,30 +19,19 @@ export default class PresenceService extends StanzaService {
     lang?: string
   ) {
     if (!lang) lang = this.xmpp.lang!;
-    if (!type) type = 'subscribe';
-    if (!from) from = 'jayanth@test.siliconhills.dev';
-    if (!to) to = 'navya@test.siliconhills.dev';
-    // const request = xml(
-    //   'presence',
-    //   {
-    //     'xml:lang': lang,
-    //     ...(to?.length ? to : ''),
-    //     ...(from?.length ? from : ''),
-    //     ...(type?.length ? type : '')
-    //   },
-    //   status?.length ? <status>{status}</status> : []
-    const request = (
-      <presence
-        xml="lang"
-        to="navya@test.siliconhills.dev"
-        from="jayanth@test.siliconhills.dev"
-        type="subscribe"
-      ></presence>
+    // if (!type) type = 'subscribe';
+    // if (!from) from = 'jayanth@test.siliconhills.dev';
+    // if (!to) to = 'navya@test.siliconhills.dev';
+    const request = xml(
+      'presence',
+      {
+        'xml:lang': lang
+      },
+      status?.length ? <status>{status}</status> : []
     );
 
     // TODO: add condition
-    const test = await this.xmpp.query(request);
-    console.log('testss', test);
+    await this.xmpp.query(request);
   }
 
   // async updatePresence(to?: string) {

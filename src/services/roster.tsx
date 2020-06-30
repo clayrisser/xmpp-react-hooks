@@ -45,14 +45,12 @@ export default class RosterService extends StanzaService {
   }
 
   async setRosterItem(
-    group?: string,
-    jid?: string,
+    jid: string,
 
     name?: string,
     from?: string
   ) {
     if (!from) from = this.xmpp.fullJid!;
-    if (!jid) jid = this.xmpp.fullJid;
     console.log('jid', jid);
 
     const id = Date.now().toString();
