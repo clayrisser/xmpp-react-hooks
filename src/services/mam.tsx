@@ -6,6 +6,7 @@ import xml from '@xmpp/xml';
 import { XmlElement } from '@xmpp/client';
 import StanzaService from './stanza';
 import Xmpp, { Cleanup } from '../xmpp';
+import { Message } from './message';
 
 export default class MAMService extends StanzaService {
   constructor(private readonly xmpp: Xmpp) {
@@ -78,19 +79,28 @@ export default class MAMService extends StanzaService {
     ) {
       return;
     }
-    const body = childMessageElement.getChild('body');
-    const to = childMessageElement.getAttr('to');
     const from = childMessageElement.getAttr('from');
+    const id = messageElement.getAttr('id');
     const stamp = new Date(deleyElement.getAttr('stamp'));
-    const header = childMessageElement.getAttr('header');
-    return {
-      body: body!.children[0].toString(),
-      to,
-      from,
-      stamp,
-      header,
-      mam: true
-    };
+    const to = childMessageElement.getAttr('to');
+    const header =
+      childMessageElement.getChild('header')?.getText() || undefined;
+    const body = childMessageElement
+      .getChildren('body')
+      .reduce((body: string, bodyElement: XmlElement) => {
+        return [body, bodyElement.text()].join('\n');
+      }, '');
+    if (id && body && from && to) {
+      return {
+        body,
+        from,
+        header,
+        id,
+        mam: true,
+        stamp,
+        to
+      };
+    }
   }
 
   async getPreference(id?: string): Promise<any> {
@@ -102,44 +112,31 @@ export default class MAMService extends StanzaService {
     );
     const iqElement = await this.xmpp.query(request, [this.namespaceName, id]);
     const err = this.getIqError(iqElement);
-    console.log('error', err);
     if (err) throw err;
-    console.log('prefs', iqElement);
     return this.elementToPreference(iqElement);
-    // return {
-    // always: [],
-    // never: []
-    // };
   }
 
   elementToPreference(preferenceElement: XmlElement): Preferences[] | void {
-    let neverelement: any;
-    let alwayselement: any;
-
+    let neverElement: any;
+    let alwaysElement: any;
     return preferenceElement
       .getChildren('prefs')
       .reduce((preference: Preferences[], queryElement: XmlElement) => {
-        console.log('query element', queryElement);
         queryElement.getChildren('never').forEach((itemElement: XmlElement) => {
-          console.log('never element', itemElement);
           if (itemElement.getChildren('jid')) {
-            neverelement = itemElement
+            neverElement = itemElement
               .getChildren('jid')
               .map((groupElement: XmlElement) => groupElement.text());
-            console.log('never', neverelement);
           }
         });
         queryElement
           .getChildren('always')
           .forEach((itemElement: XmlElement) => {
-            alwayselement = itemElement
+            alwaysElement = itemElement
               .getChildren('jid')
               .map((groupElement: XmlElement) => groupElement.text());
-            console.log('always', alwayselement);
           });
-        preference.push({ never: neverelement, always: alwayselement });
-        console.log('preference', preference);
-        // return preference;
+        preference.push({ never: neverElement, always: alwaysElement });
         return preference;
       }, []);
   }
@@ -149,10 +146,9 @@ export default class MAMService extends StanzaService {
     id?: string
   ): Promise<void> {
     if (!id) id = Date.now().toString();
-
     const request = (
       <iq type="set" id={id}>
-        <prefs xmlns="urn:xmpp:mam:2" default="roster">
+        <prefs xmlns={this.namespaceName} default="roster">
           <always>
             <jid>{`${_preferences.always}@test.siliconhills.dev`}</jid>
           </always>
@@ -163,20 +159,13 @@ export default class MAMService extends StanzaService {
       </iq>
     );
     const iqElement = await this.xmpp.query(request, [this.namespaceName, id]);
-    console.log('iqelement', iqElement);
     const err = this.getIqError(iqElement);
-    console.log('error', err);
     if (err) throw err;
   }
 }
 
-export interface MamMessage {
-  body: string;
-  to: string;
-  from: string;
-  stamp: Date;
+export interface MamMessage extends Message {
   mam: boolean;
-  header?: string;
 }
 
 export interface Preferences {

@@ -1,6 +1,6 @@
 {
   "name": "xmpp-react-hooks",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "react hooks for xmpp",
   "keywords": [
     "xmpp-react-hooks",
@@ -51,7 +51,7 @@
     "event-ears": "^0.0.2",
     "ltx": "^2.9.2",
     "react": "^16.13.1",
-    "use-state-cache": "^0.0.4"
+    "use-state-cache": "^0.0.5"
   },
   "devDependencies": {
     "@babel/cli": "^7.10.3",

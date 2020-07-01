@@ -51,7 +51,7 @@ export default class RosterService extends StanzaService {
     from?: string
   ) {
     if (!from) from = this.xmpp.fullJid!;
-    console.log('jid', jid);
+    console.log(jid, 'jid');
 
     const id = Date.now().toString();
     const item = name ? (
@@ -81,14 +81,12 @@ export default class RosterService extends StanzaService {
       </iq>
     );
     const iqElement = await this.xmpp.query(request, [this.namespaceName, id]);
-    console.log('iqElementsssss', iqElement);
     const err = this.getIqError(iqElement);
     if (err) throw err;
     return this.elementToRoster(iqElement);
   }
 
   elementToRoster(iqElement: XmlElement): RosterItem[] {
-    // console.log('iqElement', iqElement);
     return iqElement
       .getChildren('query')
       .reduce((roster: RosterItem[], queryElement: XmlElement) => {

@@ -9,6 +9,7 @@ export interface Status {
 
 export default function useStatus(): Status {
   const xmpp = useXmpp();
+  console.log('xMPP', xmpp);
   const [status, setStatus] = useState<Status>({
     isOnline: !!xmpp?.isOnline,
     isReady: !!xmpp?.isReady
@@ -18,12 +19,14 @@ export default function useStatus(): Status {
     if (!xmpp?.client) return;
     const eventEars = new EventEars(xmpp?.client, {
       offline: () => {
+        console.log('offline');
         setStatus({
           isOnline: false,
           isReady: status.isReady
         });
       },
       online: async (_address: any) => {
+        console.log('online');
         setStatus({
           isOnline: true,
           isReady: true

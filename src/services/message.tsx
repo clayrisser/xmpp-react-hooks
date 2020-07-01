@@ -9,7 +9,7 @@ import Xmpp from '../xmpp';
 
 export default class MessageService extends StanzaService {
   constructor(private readonly xmpp: Xmpp) {
-    super(xmpp);
+    super(xmpp, 'jabber:client');
   }
 
   sendMessage(to: string, body: string, lang?: string, from?: string) {
@@ -28,20 +28,53 @@ export default class MessageService extends StanzaService {
     this.xmpp.query(request);
   }
 
-  readMessages(callback: (message: Message) => any, to?: string): () => any {
-    console.log('read messages');
-    if (!to) to = this.xmpp.fullJid!;
+  readSentMessages(
+    callback: (message: Message) => any,
+    to?: string,
+    from?: string
+  ): () => any {
+    if (!from) from = this.xmpp.fullJid!;
     return this.xmpp.handle(
       (messageElement: XmlElement) => {
-        console.log('meele', messageElement);
         return (
-          messageElement.name === 'message' &&
+          !messageElement.getChild('result') &&
           messageElement.getAttr('type') === 'chat' &&
-          messageElement.getAttr('to').split('/')[0] === to!.split('/')[0]
+          messageElement.getAttr('xmlns') === this.namespaceName &&
+          messageElement.name === 'message' &&
+          messageElement.getAttr('from')?.split('/')[0] ===
+            from?.split('/')[0] &&
+          (!to?.length ||
+            messageElement.getAttr('to')?.split('/')[0] === to?.split('/')[0])
         );
       },
       (messageElement: XmlElement) => {
-        console.log('hello', messageElement);
+        const message = this.elementToMessage(messageElement);
+        callback(message);
+      },
+      'send'
+    );
+  }
+
+  readMessages(
+    callback: (message: Message) => any,
+    from?: string,
+    to?: string
+  ): () => any {
+    if (!to) to = this.xmpp.fullJid!;
+    return this.xmpp.handle(
+      (messageElement: XmlElement) => {
+        return (
+          !messageElement.getChild('result') &&
+          messageElement.getAttr('to')?.split('/')[0] === to?.split('/')[0] &&
+          messageElement.getAttr('type') === 'chat' &&
+          messageElement.getAttr('xmlns') === this.namespaceName &&
+          messageElement.name === 'message' &&
+          (!from?.length ||
+            messageElement.getAttr('from')?.split('/')[0] ===
+              from?.split('/')[0])
+        );
+      },
+      (messageElement: XmlElement) => {
         const message = this.elementToMessage(messageElement);
         callback(message);
       }
@@ -49,17 +82,18 @@ export default class MessageService extends StanzaService {
   }
 
   elementToMessage(messageElement: XmlElement): Message {
-    console.log('to123', messageElement);
-    const to = messageElement.getAttr('to');
     const from = messageElement.getAttr('from');
+    const header = messageElement.getChild('header')?.text() || undefined;
+    const id = messageElement.getAttr('id');
+    const stamp = new Date();
+    const to = messageElement.getAttr('to');
     const body = messageElement
       .getChildren('body')
       .reduce((body: string, bodyElement: XmlElement) => {
         return [body, bodyElement.text()].join('\n');
       }, '');
-    const header = messageElement.getChild('header')?.text() || undefined;
-    if (body && from && to) {
-      return { body, from, to, header };
+    if (body && from && to && id) {
+      return { body, from, to, header, stamp, id };
     }
     throw new Error('invalid message stanza');
   }
@@ -69,6 +103,7 @@ export interface Message {
   body: string;
   from: string;
   header?: string;
-  to: string;
+  id: string;
   stamp?: Date;
+  to: string;
 }
