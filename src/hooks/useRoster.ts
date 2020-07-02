@@ -5,6 +5,7 @@ import { RosterItem } from '../services';
 
 export default function useRoster(): RosterItem[] | undefined {
   const [roster, setRoster] = useStateCache<RosterItem[]>('roster', []);
+  console.log('roster123', roster);
   const rosterService = useRosterService();
 
   useEffect(() => {

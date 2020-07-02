@@ -1,5 +1,11 @@
 import React, { FC, useState } from 'react';
-import { useRoster, RosterItem, useRosterService } from 'xmpp-react-hooks';
+import {
+  useRoster,
+  RosterItem,
+  useRosterService,
+  useStatus,
+  useXmpp
+} from 'xmpp-react-hooks';
 import { useHistory } from 'react-router-dom';
 import Loading from '../components/Loading';
 
@@ -7,10 +13,14 @@ export interface ChatListProps {}
 
 const ChatList: FC<ChatListProps> = (_props: ChatListProps) => {
   const [jid, setJid] = useState('');
+  const status = useStatus();
+  const xmpp = useXmpp();
+  console.log('status', status, 'xmpp', xmpp);
   const [name, setName] = useState<string>();
   const history = useHistory();
   const roster = useRoster();
   const rosterService = useRosterService();
+  console.log('rosterService', rosterService);
 
   function handleRosterItemClick(rosterItem: string) {
     history.push(`/chat/${rosterItem}`);

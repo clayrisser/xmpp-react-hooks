@@ -12,7 +12,7 @@ export default class MessageService extends StanzaService {
     super(xmpp, 'jabber:client');
   }
 
-  async sendMessage(to: string, body: string, lang?: string, from?: string) {
+  sendMessage(to: string, body: string, lang?: string, from?: string) {
     if (!from) from = this.xmpp.fullJid!;
     if (!lang) lang = this.xmpp.lang;
     const id = Date.now().toString();
