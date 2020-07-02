@@ -15,17 +15,20 @@ export default class MessageService extends StanzaService {
   async sendMessage(to: string, body: string, lang?: string, from?: string) {
     if (!from) from = this.xmpp.fullJid!;
     if (!lang) lang = this.xmpp.lang;
+    const id = Date.now().toString();
     const request = xml(
       'message',
       {
-        to,
         from,
+        id,
+        to,
         type: 'chat',
         'xml:lang': lang
       },
       <body>{body}</body>
     );
-    await this.xmpp.query(request);
+    // TODO: resolve query on server ack
+    this.xmpp.query(request);
   }
 
   readSentMessages(
@@ -64,17 +67,18 @@ export default class MessageService extends StanzaService {
     return this.xmpp.handle(
       (messageElement: XmlElement) => {
         return (
-          !messageElement.getChild('result') &&
+          !messageElement.getChildByAttr('xmlns', 'urn:xmpp:mam:2') &&
+          /* !messageElement.getChild('result') && */
           messageElement.getAttr('to')?.split('/')[0] === to?.split('/')[0] &&
           messageElement.getAttr('type') === 'chat' &&
-          messageElement.getAttr('xmlns') === this.namespaceName &&
+          /* messageElement.getAttr('xmlns') === this.namespaceName && */
           messageElement.name === 'message' &&
           (!from?.length ||
             messageElement.getAttr('from')?.split('/')[0] ===
               from?.split('/')[0])
         );
       },
-      (messageElement: XmlElement) => {
+      async (messageElement: XmlElement) => {
         const message = this.elementToMessage(messageElement);
         callback(message);
       }

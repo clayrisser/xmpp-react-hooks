@@ -4,12 +4,14 @@ import { MessageService } from '../services';
 
 export default function useMessageService(): MessageService | undefined {
   const xmpp = useXmpp();
-  const [modMessage, setModMessage] = useState<MessageService | undefined>();
+  const [messageService, setMessageService] = useState<
+    MessageService | undefined
+  >();
 
   useEffect(() => {
     if (!xmpp) return;
-    setModMessage(new MessageService(xmpp));
+    setMessageService(new MessageService(xmpp));
   }, [xmpp]);
 
-  return modMessage;
+  return messageService;
 }

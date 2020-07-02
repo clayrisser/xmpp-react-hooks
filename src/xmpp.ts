@@ -176,6 +176,7 @@ export default class Xmpp {
   }
 
   async getResource() {
+    // TODO: get resource from xmpp server (if xmpp server does not support getting resource then generate from hashed user agent or hashed mac address)
     return 'abc';
   }
 }

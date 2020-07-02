@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import useRosterService from './useRosterService';
 import { RosterItem } from '../services';
 
-export default function useRoster(): RosterItem[] {
+export default function useRoster(): RosterItem[] | undefined {
   const [roster, setRoster] = useStateCache<RosterItem[]>('roster', []);
   const rosterService = useRosterService();
 
@@ -20,5 +20,5 @@ export default function useRoster(): RosterItem[] {
     return () => cleanup();
   }, [rosterService]);
 
-  return roster || [];
+  return roster;
 }

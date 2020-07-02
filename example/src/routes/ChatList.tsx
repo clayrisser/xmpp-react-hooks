@@ -43,7 +43,7 @@ const ChatList: FC<ChatListProps> = (_props: ChatListProps) => {
     return roster.map((rosterItem: RosterItem) => renderRosterItem(rosterItem));
   }
 
-  if (!roster.length) return <Loading />;
+  if (!roster) return <Loading />;
   return (
     <>
       <h1>Chat List</h1>

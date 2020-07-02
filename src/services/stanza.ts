@@ -9,7 +9,7 @@ export default class StanzaService {
   getIqError(iqElement: XmlElement): Error | undefined {
     const errorElement = iqElement.getChild('error');
     if (!errorElement) return;
-    const err: any = new Error(`iq ${errorElement.getAttr('type')} error`);
+    const err: any = new Error(errorElement.toString());
     err.stanza = iqElement;
     return err;
   }
