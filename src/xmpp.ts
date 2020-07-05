@@ -13,7 +13,7 @@ export default class Xmpp {
 
   public isReady = false;
 
-  public jid?: string;
+  public bareJid?: string;
 
   public readonly config: Config;
 
@@ -82,8 +82,8 @@ export default class Xmpp {
     const domain = this.config.domain || this.config.hostname;
     const resource = this.config.resource || (await this.getResource());
     const service = this.config.service || `wss://${this.config.hostname}/ws`;
-    this.jid = `${username}@${domain}`;
-    this.fullJid = `${this.jid}/${resource}`;
+    this.bareJid = `${username}@${domain}`;
+    this.fullJid = `${this.bareJid}/${resource}`;
     try {
       this.client = xmppClient({
         password,

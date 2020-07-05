@@ -12,7 +12,9 @@ declare namespace JSX {
     password: any;
     prefs: any;
     presence: any;
+    priority: any;
     query: any;
+    show: any;
     status: any;
     username: any;
     value: any;
