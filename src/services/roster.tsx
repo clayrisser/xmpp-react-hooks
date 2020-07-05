@@ -13,17 +13,28 @@ export default class RosterService extends StanzaService {
     super(xmpp, 'jabber:iq:roster');
   }
 
-  readRosterPush(callback: (roster: RosterItem[]) => any): () => any {
+  readRosterPush(
+    callback: (roster: RosterItem[]) => any,
+    { reply = false, from }: { reply?: boolean; from?: string } = {}
+  ): () => any {
     return this.xmpp.handle(
       (iqElement: XmlElement) => {
-        // TODO: improve with service
+        const queryElement = iqElement.getChild('query');
         return (
+          !!iqElement.getAttr('to') &&
+          !!queryElement &&
+          !!queryElement.getChild('item') &&
           !iqElement.getAttr('from') &&
-          !!iqElement.getAttr('type') &&
-          !!iqElement.name
+          iqElement.getAttr('type') === 'set'
         );
       },
       (iqElement: XmlElement) => {
+        if (reply) {
+          if (!from) from = this.xmpp.fullJid;
+          const id = iqElement.getAttr('id');
+          const request = <iq from={from} id={id} type="result" />;
+          this.xmpp.client?.send(request);
+        }
         callback(this.elementToRoster(iqElement));
       }
     );
@@ -74,7 +85,7 @@ export default class RosterService extends StanzaService {
   async getRoster({ from, ver }: { from?: string; ver?: string } = {}): Promise<
     RosterItem[]
   > {
-    if (!from) from = this.xmpp.fullJid!;
+    if (!from) from = this.xmpp.fullJid;
     const id = Date.now().toString();
     const request = (
       <iq from={from} id={id} type="get">
