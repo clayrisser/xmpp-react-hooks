@@ -43,6 +43,7 @@ const Provider: FC<ProviderProps> = (props: ProviderProps) => {
         await xmpp.login(username, password);
         const presenceService = new PresenceService(xmpp);
         await presenceService.sendPresence();
+        await presenceService.acceptPresence();
         // await presenceService.updatePresence();
         // await presenceService.getPreference();
         setXmpp(xmpp);

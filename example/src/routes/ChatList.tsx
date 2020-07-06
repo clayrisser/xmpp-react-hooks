@@ -26,12 +26,12 @@ const ChatList: FC<ChatListProps> = (_props: ChatListProps) => {
     history.push(`/chat/${rosterItem}`);
   }
 
-  async function handleSubmitJid(
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) {
-    e.preventDefault();
-    await rosterService?.setRosterItem(jid, name);
-  }
+  // async function handleSubmitJid(
+  //   e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  // ) {
+  //   e.preventDefault();
+  //   await rosterService?.setRosterItem({ jid, name });
+  // }
 
   function renderRosterItem(rosterItem: RosterItem) {
     const displayName = rosterItem.name || rosterItem.jid.split('@')[0];
@@ -80,9 +80,9 @@ const ChatList: FC<ChatListProps> = (_props: ChatListProps) => {
             value={name}
           />
         </div>
-        <button type="submit" onClick={handleSubmitJid}>
-          Register
-        </button>
+        {/* <button type="submit" onClick={handleSubmitJid}> */}
+        {/* Register
+        </button> */}
       </form>
       {renderRoster(roster)}
     </>

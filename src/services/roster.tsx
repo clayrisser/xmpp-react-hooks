@@ -31,7 +31,7 @@ export default class RosterService extends StanzaService {
 
   // H
   async removeRosterItem(jid: string, from?: string) {
-    return this.setRosterItem(jid, from, (subscription = 'remove'));
+    // return this.setRosterItem(jid, from, (subscription = 'remove'));
     if (!from) from = this.xmpp.fullJid!;
     const id = Date.now().toString();
     const request = (
@@ -46,13 +46,21 @@ export default class RosterService extends StanzaService {
     if (err) throw err;
   }
 
-  async setRosterItem(
-    group?: string,
-    jid?: string,
-    name?: string,
-    subscription?: string,
-    from?: string
-  ) {
+  async setRosterItem({
+    from,
+    ver,
+    group,
+    jid,
+    name,
+    subscription
+  }: {
+    from?: string;
+    ver?: string;
+    group?: string;
+    jid?: string;
+    subscription?: string;
+    name?: string;
+  } = {}) {
     if (!from) from = this.xmpp.fullJid!;
     if (!jid) jid = this.xmpp.fullJid;
     const id = Date.now().toString();
