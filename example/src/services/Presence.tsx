@@ -7,7 +7,7 @@ export interface PresenceProps {}
 const Presence: FC<PresenceProps> = (_props: PresenceProps) => {
   //   const [mamMessages, setMamMessages] = useState<MamMessage[]>([]);
   const [withJid, setWithJid] = useState<string>();
-  const modPresence = usePresenceService;
+  const modPresence = usePresenceService();
   //   const mamService = useMamService();
   const status = useStatus();
 
@@ -20,7 +20,7 @@ const Presence: FC<PresenceProps> = (_props: PresenceProps) => {
   //   }
 
   async function handleGetPreference() {
-    modPresence.sendPreference({ to: withJid });
+    modPresence?.sendPresence({ to: withJid });
   }
 
   if (!status.isReady) return <Loading />;
@@ -41,7 +41,7 @@ const Presence: FC<PresenceProps> = (_props: PresenceProps) => {
           value={withJid}
         />
         <button type="submit" onClick={handleGetPreference}>
-          Get Messages
+          Get Presence
         </button>
       </form>
     </div>
