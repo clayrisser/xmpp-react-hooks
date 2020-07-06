@@ -3,12 +3,48 @@
  * https://xmpp.org/rfcs/rfc3921.html#presence
  */
 import xml from '@xmpp/xml';
+import { XmlElement } from '@xmpp/client';
 import StanzaService from './stanza';
-import Xmpp from '../xmpp';
+import Xmpp, { Cleanup } from '../xmpp';
 
 export default class PresenceService extends StanzaService {
   constructor(private readonly xmpp: Xmpp) {
     super(xmpp);
+  }
+
+  readPresence(
+    callback: (presence: Presence) => any,
+    {
+      from,
+      show,
+      to,
+      type
+    }: {
+      from?: string;
+      show?: PresenceShow;
+      to?: string;
+      type?: PresenceType;
+    } = {}
+  ): Cleanup {
+    return this.xmpp.handle(
+      (presenceElement: XmlElement) => {
+        if (!to) to = this.xmpp.fullJid;
+        return (
+          !!presenceElement.getAttr('from') &&
+          (!from || presenceElement.getAttr('from') === from) &&
+          presenceElement.getAttr('to') === to &&
+          presenceElement.name === 'presence' &&
+          (!type ||
+            presenceElement.getAttr('type') === this.lookupType(type)) &&
+          (!show ||
+            presenceElement.getChild('show')?.text() === this.lookupShow(show))
+        );
+      },
+      (presenceElement: XmlElement) => {
+        const presence = this.elementToPresence(presenceElement);
+        return callback(presence);
+      }
+    );
   }
 
   async sendPresence({
@@ -27,7 +63,7 @@ export default class PresenceService extends StanzaService {
     status?: string;
     to?: string;
     type?: PresenceType;
-  }): Promise<string> {
+  } = {}): Promise<string> {
     if (!lang) lang = this.xmpp.lang!;
     const children = [];
     if (show) {
@@ -49,7 +85,45 @@ export default class PresenceService extends StanzaService {
     return result.toString();
   }
 
-  private lookupShow(show?: PresenceShow): string | undefined {
+  private elementToPresence(presenceElement: XmlElement): Presence {
+    const from = presenceElement.getAttr('from');
+    const priorityString = presenceElement.getChild('priority')?.text();
+    const showString = presenceElement.getChild('show')?.text();
+    const show = showString?.length ? this.lookupShow(showString) : undefined;
+    const status = presenceElement.getChild('status')?.text();
+    const to = presenceElement.getAttr('to');
+    const priority = priorityString?.length
+      ? Number(priorityString)
+      : undefined;
+    if (!to || !from) throw new Error('invalid presence stanza');
+    return {
+      from,
+      priority,
+      show,
+      status,
+      to
+    };
+  }
+
+  private lookupShow(show?: string): PresenceShow | undefined;
+  private lookupShow(show?: PresenceShow): string | undefined;
+  private lookupShow(
+    show?: PresenceShow | string
+  ): PresenceShow | string | undefined {
+    if (typeof show === 'string') {
+      switch (show) {
+        case 'away':
+          return PresenceShow.AWAY;
+        case 'chat':
+          return PresenceShow.CHAT;
+        case 'dnd':
+          return PresenceShow.DND;
+        case 'xa':
+          return PresenceShow.XA;
+        default:
+          return;
+      }
+    }
     switch (show) {
       case PresenceShow.AWAY:
         return 'away';
@@ -64,7 +138,31 @@ export default class PresenceService extends StanzaService {
     }
   }
 
-  private lookupType(type?: PresenceType): string | undefined {
+  private lookupType(type?: PresenceType): string | undefined;
+  private lookupType(type?: string): PresenceType | undefined;
+  private lookupType(
+    type?: PresenceType | string
+  ): PresenceType | string | undefined {
+    if (typeof type === 'string') {
+      switch (type) {
+        case 'error':
+          return PresenceType.ERROR;
+        case 'probe':
+          return PresenceType.PROBE;
+        case 'subscribe':
+          return PresenceType.SUBSCRIBE;
+        case 'subscribed':
+          return PresenceType.SUBSCRIBED;
+        case 'unavailable':
+          return PresenceType.UNAVAILABLE;
+        case 'unsubscribe':
+          return PresenceType.UNSUBSCRIBE;
+        case 'unsubscribed':
+          return PresenceType.UNSUBSCRIBED;
+        default:
+          return;
+      }
+    }
     switch (type) {
       case PresenceType.ERROR:
         return 'error';
@@ -101,4 +199,12 @@ export enum PresenceType {
   UNAVAILABLE,
   UNSUBSCRIBE,
   UNSUBSCRIBED
+}
+
+export interface Presence {
+  from: string;
+  priority?: number;
+  show?: PresenceShow;
+  status?: string;
+  to: string;
 }
