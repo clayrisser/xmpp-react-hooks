@@ -4,11 +4,11 @@
  */
 import xml from '@xmpp/xml';
 import { XmlElement } from '@xmpp/client';
-import StanzaService from './stanza';
+import StanzaClient from './stanza';
 import Xmpp, { Cleanup } from '../xmpp';
 
-export default class PresenceService extends StanzaService {
-  constructor(private readonly xmpp: Xmpp) {
+export default class PresenceClient extends StanzaClient {
+  constructor(protected readonly xmpp: Xmpp) {
     super(xmpp);
   }
 
@@ -16,11 +16,13 @@ export default class PresenceService extends StanzaService {
     callback: (presence: Presence) => any,
     {
       from,
+      noType,
       show,
       to,
       type
     }: {
       from?: string;
+      noType?: boolean;
       show?: PresenceShow;
       to?: string;
       type?: PresenceType;
@@ -30,6 +32,7 @@ export default class PresenceService extends StanzaService {
       (presenceElement: XmlElement) => {
         if (!to) to = this.xmpp.fullJid;
         return (
+          (!noType || !presenceElement.getAttr('type')) &&
           !!presenceElement.getAttr('from') &&
           (!from || presenceElement.getAttr('from') === from) &&
           presenceElement.getAttr('to') === to &&
@@ -105,9 +108,9 @@ export default class PresenceService extends StanzaService {
     };
   }
 
-  private lookupShow(show?: string): PresenceShow | undefined;
-  private lookupShow(show?: PresenceShow): string | undefined;
-  private lookupShow(
+  protected lookupShow(show?: string): PresenceShow | undefined;
+  protected lookupShow(show?: PresenceShow): string | undefined;
+  protected lookupShow(
     show?: PresenceShow | string
   ): PresenceShow | string | undefined {
     if (typeof show === 'string') {
@@ -138,9 +141,9 @@ export default class PresenceService extends StanzaService {
     }
   }
 
-  private lookupType(type?: PresenceType): string | undefined;
-  private lookupType(type?: string): PresenceType | undefined;
-  private lookupType(
+  protected lookupType(type?: PresenceType): string | undefined;
+  protected lookupType(type?: string): PresenceType | undefined;
+  protected lookupType(
     type?: PresenceType | string
   ): PresenceType | string | undefined {
     if (typeof type === 'string') {

@@ -4,11 +4,11 @@
  */
 import xml from '@xmpp/xml';
 import { XmlElement } from '@xmpp/client';
-import StanzaService from './stanza';
+import StanzaClient from './stanza';
 import Xmpp, { Cleanup } from '../xmpp';
 import { Message } from './message';
 
-export default class MAMService extends StanzaService {
+export default class MAMClient extends StanzaClient {
   constructor(private readonly xmpp: Xmpp) {
     super(xmpp, 'urn:xmpp:mam:2');
   }

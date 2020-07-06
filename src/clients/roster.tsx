@@ -5,18 +5,15 @@
  */
 import xml from '@xmpp/xml';
 import { XmlElement } from '@xmpp/client';
-import StanzaService from './stanza';
+import StanzaClient, { IqType } from './stanza';
 import Xmpp from '../xmpp';
 
-export default class RosterService extends StanzaService {
+export default class RosterClient extends StanzaClient {
   constructor(private readonly xmpp: Xmpp) {
     super(xmpp, 'jabber:iq:roster');
   }
 
-  readRosterPush(
-    callback: (roster: RosterItem[]) => any,
-    { reply = false, from }: { reply?: boolean; from?: string } = {}
-  ): () => any {
+  readRosterPush(callback: (roster: RosterItem[]) => any): () => any {
     return this.xmpp.handle(
       (iqElement: XmlElement) => {
         const queryElement = iqElement.getChild('query');
@@ -28,68 +25,63 @@ export default class RosterService extends StanzaService {
           iqElement.getAttr('type') === 'set'
         );
       },
-      (iqElement: XmlElement) => {
-        if (reply) {
-          if (!from) from = this.xmpp.fullJid;
-          const id = iqElement.getAttr('id');
-          const request = <iq from={from} id={id} type="result" />;
-          this.xmpp.client?.send(request);
-        }
-        callback(this.elementToRoster(iqElement));
-      }
+      (iqElement: XmlElement) => callback(this.elementToRoster(iqElement))
     );
   }
 
-  async removeRosterItem({ jid, from }: { jid: string; from?: string }) {
-    return this.setRosterItem({
-      jid,
-      from,
-      subscription: RosterSubscription.REMOVE
-    });
-  }
-
-  async setRosterItem({
+  sendRosterQuery({
     from,
-    groups = [],
-    jid,
-    name,
-    subscription
+    type,
+    ver
   }: {
     from?: string;
-    groups?: string[];
-    jid: string;
-    name?: string;
-    subscription?: RosterSubscription;
-  }) {
+    type?: IqType;
+    ver?: string;
+  }): Promise<RosterItem[]>;
+  sendRosterQuery({
+    from,
+    rosterItem,
+    type,
+    ver
+  }: {
+    from?: string;
+    rosterItem?: Partial<RosterItem>;
+    type?: IqType;
+    ver?: string;
+  }): Promise<void>;
+  async sendRosterQuery({
+    from,
+    rosterItem,
+    type,
+    ver
+  }: {
+    from?: string;
+    rosterItem?: Partial<RosterItem>;
+    type?: IqType;
+    ver?: string;
+  }): Promise<RosterItem[] | void> {
     if (!from) from = this.xmpp.fullJid;
     const id = Date.now().toString();
-    const itemChildren = groups.map((group: string) => <group>{group}</group>);
+    const children = [];
+    if (rosterItem) {
+      const itemChildren = rosterItem.groups?.map((group: string) => (
+        <group>{group}</group>
+      ));
+      children.push(
+        <item
+          jid={rosterItem.jid}
+          name={rosterItem.name}
+          subscription={this.lookupSubscription(rosterItem.subscription)}
+        >
+          {itemChildren}
+        </item>
+      );
+    }
     const request = (
-      <iq from={from} id={id} type="set">
-        <query xmlns={this.namespaceName}>
-          <item
-            jid={jid}
-            name={name}
-            subscription={this.lookupSubscription(subscription)}
-          >
-            {itemChildren}
-          </item>
+      <iq from={from} id={id} type={this.lookupIqType(type)}>
+        <query xmlns={this.namespaceName} ver={ver}>
+          {children}
         </query>
-      </iq>
-    );
-    const iqElement = await this.xmpp.query(request, [this.namespaceName, id]);
-    const err = this.getIqError(iqElement);
-    if (err) throw err;
-  }
-
-  async getRoster({ from, ver }: { from?: string; ver?: string } = {}): Promise<
-    RosterItem[]
-  > {
-    if (!from) from = this.xmpp.fullJid;
-    const id = Date.now().toString();
-    const request = (
-      <iq from={from} id={id} type="get">
-        <query xmlns={this.namespaceName} ver={ver} />
       </iq>
     );
     const iqElement = await this.xmpp.query(request, [this.namespaceName, id]);
@@ -119,9 +111,23 @@ export default class RosterService extends StanzaService {
     return roster;
   }
 
-  private lookupSubscription(
+  protected lookupSubscription(
+    subscription?: string
+  ): RosterSubscription | undefined;
+  protected lookupSubscription(
     subscription?: RosterSubscription
-  ): string | undefined {
+  ): string | undefined;
+  protected lookupSubscription(
+    subscription?: RosterSubscription | string
+  ): RosterSubscription | string | undefined {
+    if (typeof subscription === 'string') {
+      switch (subscription) {
+        case 'remove':
+          return RosterSubscription.REMOVE;
+        default:
+          return;
+      }
+    }
     switch (subscription) {
       case RosterSubscription.REMOVE:
         return 'remove';
@@ -135,7 +141,7 @@ export interface RosterItem {
   groups: string[];
   jid: string;
   name?: string;
-  subscription: string;
+  subscription: RosterSubscription;
   ver?: string;
 }
 

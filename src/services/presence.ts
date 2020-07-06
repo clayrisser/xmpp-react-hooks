@@ -1,22 +1,20 @@
 import Xmpp, { Cleanup } from '../xmpp';
-import PresenceService, { PresenceType, Presence } from '../services/presence';
+import PresenceClient, { PresenceType, Presence } from '../clients/presence';
 
-export default class PresenceWrapperService {
-  service: PresenceService;
-
+export default class PresenceService extends PresenceClient {
   disableHandlePresenceSubscribe: Cleanup = () => {};
 
-  constructor(private readonly xmpp: Xmpp) {
-    this.service = new PresenceService(xmpp);
+  constructor(xmpp: Xmpp) {
+    super(xmpp);
   }
 
   enabledHandlePresenceSubscribe({
     type = PresenceType.SUBSCRIBED
   }: { type?: PresenceType.SUBSCRIBED | PresenceType.UNSUBSCRIBED } = {}) {
     this.disableHandlePresenceSubscribe();
-    this.disableHandlePresenceSubscribe = this.service.readPresence(
+    this.disableHandlePresenceSubscribe = this.readPresence(
       (presence: Presence) => {
-        this.service.sendPresence({
+        this.sendPresence({
           from: this.xmpp?.bareJid,
           to: presence.from,
           type
@@ -27,4 +25,4 @@ export default class PresenceWrapperService {
   }
 }
 
-export * from '../services/presence';
+export * from '../clients/presence';

@@ -4,10 +4,10 @@
  */
 import xml from '@xmpp/xml';
 import { XmlElement } from '@xmpp/client';
-import StanzaService from './stanza';
+import StanzaClient from './stanza';
 import Xmpp from '../xmpp';
 
-export default class MessageService extends StanzaService {
+export default class MessageClient extends StanzaClient {
   constructor(private readonly xmpp: Xmpp) {
     super(xmpp, 'jabber:client');
   }
