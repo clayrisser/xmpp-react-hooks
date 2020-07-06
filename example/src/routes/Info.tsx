@@ -2,6 +2,7 @@ import React, { FC } from 'react';
 import { useStatus, useRoster } from 'xmpp-react-hooks';
 import Loading from '../components/Loading';
 import { Mam } from '../services';
+import { Presence } from '../services';
 
 export interface ChatListProps {}
 
@@ -16,6 +17,7 @@ const ChatList: FC<ChatListProps> = (_props: ChatListProps) => {
       <div>status: {JSON.stringify(status)}</div>
       <div>roster: {JSON.stringify(roster)}</div>
       <Mam />
+      <Presence />
     </>
   );
 };

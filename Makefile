@@ -64,14 +64,14 @@ ifeq ($(PLATFORM), win32)
 else
 	@$(GIT) clean -fXd -e \!/node_modules -e \!/node_modules/**/* -e \!/yarn.lock -e \!/pnpm-lock.yaml -e \!/package-lock.json
 endif
-	-@$(RM) -rf node_modules/.cache
-	-@$(RM) -rf node_modules/.make
-	-@$(RM) -rf node_modules/.tmp
+	-@$(RM) -rf node_modules/.cache $(NOFAIL)
+	-@$(RM) -rf node_modules/.make $(NOFAIL)
+	-@$(RM) -rf node_modules/.tmp $(NOFAIL)
 
 .PHONY: build
 build: lib
 lib: node_modules/.tmp/coverage/lcov.info $(shell $(GIT) ls-files)
-	-@$(RM) -r lib node_modules/.tmp/lib
+	-@$(RM) -r lib node_modules/.tmp/lib $(NOFAIL)
 	@babel src -d lib --extensions '.ts,.tsx' --source-maps inline
 	@tsc -d --emitDeclarationOnly
 	@$(CP) -r node_modules/.tmp/lib/src/. lib

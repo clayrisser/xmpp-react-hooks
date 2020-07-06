@@ -6,6 +6,7 @@ import useXmpp from './useXmpp';
 import useMessages from './useMessages';
 import useMamService from './useMamService';
 import useRegisterService from './useRegisterService';
+import usePresenceService from './usePresenceService';
 
 export {
   useXmpp,
@@ -15,5 +16,6 @@ export {
   useMessageService,
   useMessages,
   useMamService,
-  useRegisterService
+  useRegisterService,
+  usePresenceService
 };

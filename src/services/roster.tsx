@@ -13,67 +13,68 @@ export default class RosterService extends StanzaService {
     super(xmpp, 'jabber:iq:roster');
   }
 
-  readRosterPush(callback: (roster: RosterItem[]) => any): () => any {
+  readRosterPush(
+    callback: (roster: RosterItem[]) => any,
+    { reply = false, from }: { reply?: boolean; from?: string } = {}
+  ): () => any {
     return this.xmpp.handle(
       (iqElement: XmlElement) => {
-        // TODO: improve with service
+        const queryElement = iqElement.getChild('query');
         return (
+          !!iqElement.getAttr('to') &&
+          !!queryElement &&
+          !!queryElement.getChild('item') &&
           !iqElement.getAttr('from') &&
-          !!iqElement.getAttr('type') &&
-          !!iqElement.name
+          iqElement.getAttr('type') === 'set'
         );
       },
       (iqElement: XmlElement) => {
+        if (reply) {
+          if (!from) from = this.xmpp.fullJid;
+          const id = iqElement.getAttr('id');
+          const request = <iq from={from} id={id} type="result" />;
+          this.xmpp.client?.send(request);
+        }
         callback(this.elementToRoster(iqElement));
       }
     );
   }
 
-  // H
-  async removeRosterItem(jid: string, from?: string) {
-    // return this.setRosterItem(jid, from, (subscription = 'remove'));
-    if (!from) from = this.xmpp.fullJid!;
-    const id = Date.now().toString();
-    const request = (
-      <iq from={from} id={id} type="set">
-        <query xmlns={this.namespaceName}>
-          <item jid={jid} subscription="remove" />
-        </query>
-      </iq>
-    );
-    const iqElement = await this.xmpp.query(request, [this.namespaceName, id]);
-    const err = this.getIqError(iqElement);
-    if (err) throw err;
+  async removeRosterItem({ jid, from }: { jid: string; from?: string }) {
+    return this.setRosterItem({
+      jid,
+      from,
+      subscription: RosterSubscription.REMOVE
+    });
   }
 
   async setRosterItem({
     from,
-    ver,
-    group,
+    groups = [],
     jid,
     name,
     subscription
   }: {
     from?: string;
-    ver?: string;
-    group?: string;
-    jid?: string;
-    subscription?: string;
+    groups?: string[];
+    jid: string;
     name?: string;
-  } = {}) {
-    if (!from) from = this.xmpp.fullJid!;
-    if (!jid) jid = this.xmpp.fullJid;
+    subscription?: RosterSubscription;
+  }) {
+    if (!from) from = this.xmpp.fullJid;
     const id = Date.now().toString();
-    const item = name ? (
-      <item jid={jid} name={name}>
-        {/* <group>{group}</group> */}
-      </item>
-    ) : (
-      <item jid={jid}>{/* <group>{group}</group> */}</item>
-    );
+    const itemChildren = groups.map((group: string) => <group>{group}</group>);
     const request = (
       <iq from={from} id={id} type="set">
-        <query xmlns={this.namespaceName}>{item}</query>
+        <query xmlns={this.namespaceName}>
+          <item
+            jid={jid}
+            name={name}
+            subscription={this.lookupSubscription(subscription)}
+          >
+            {itemChildren}
+          </item>
+        </query>
       </iq>
     );
     const iqElement = await this.xmpp.query(request, [this.namespaceName, id]);
@@ -84,7 +85,7 @@ export default class RosterService extends StanzaService {
   async getRoster({ from, ver }: { from?: string; ver?: string } = {}): Promise<
     RosterItem[]
   > {
-    if (!from) from = this.xmpp.fullJid!;
+    if (!from) from = this.xmpp.fullJid;
     const id = Date.now().toString();
     const request = (
       <iq from={from} id={id} type="get">
@@ -117,6 +118,17 @@ export default class RosterService extends StanzaService {
     }
     return roster;
   }
+
+  private lookupSubscription(
+    subscription?: RosterSubscription
+  ): string | undefined {
+    switch (subscription) {
+      case RosterSubscription.REMOVE:
+        return 'remove';
+      default:
+        
+    }
+  }
 }
 
 export interface RosterItem {
@@ -125,4 +137,8 @@ export interface RosterItem {
   name?: string;
   subscription: string;
   ver?: string;
+}
+
+export enum RosterSubscription {
+  REMOVE
 }
