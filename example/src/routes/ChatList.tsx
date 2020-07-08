@@ -1,9 +1,9 @@
 import React, { FC, useState } from 'react';
 import {
   useRoster,
-  RosterItem,
   useRosterService,
   useStatus,
+  RosterItem,
   useXmpp
 } from 'xmpp-react-hooks';
 import { useHistory } from 'react-router-dom';

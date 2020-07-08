@@ -123,7 +123,11 @@ export default class Xmpp {
     if (!this.client) throw new Error('login to create xmpp client');
     const checkCondition = this.createCheckCondition(condition);
     const listener = (stanzaElement: XmlElement) => {
-      if (checkCondition(stanzaElement)) readCallback(stanzaElement);
+      console.log('stanza', stanzaElement);
+      if (checkCondition(stanzaElement)) {
+        console.log('condition testing');
+        readCallback(stanzaElement);
+      }
     };
     this.client.on(event, listener);
     return () => {
@@ -151,6 +155,7 @@ export default class Xmpp {
     const checkCondition = this.createCheckCondition(condition);
     if (readCallback) {
       const listener = (stanzaElement: XmlElement) => {
+        console.log('stanzaElement', stanzaElement);
         if (checkCondition(stanzaElement)) readCallback(stanzaElement);
       };
       this.client.on(event, listener);

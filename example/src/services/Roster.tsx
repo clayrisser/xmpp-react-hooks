@@ -1,10 +1,5 @@
 import React, { FC, useState } from 'react';
-import {
-  useStatus,
-  useRoster,
-  RosterItem,
-  useRosterService
-} from 'xmpp-react-hooks';
+import { useStatus, useRoster, useRosterService } from 'xmpp-react-hooks';
 import Loading from '../components/Loading';
 
 export interface RosterProps {}

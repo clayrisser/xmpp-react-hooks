@@ -2,7 +2,9 @@ import Xmpp, { Cleanup } from '../xmpp';
 import PresenceClient, { PresenceType, Presence } from '../clients/presence';
 
 export default class PresenceService extends PresenceClient {
-  disableHandlePresenceSubscribe: Cleanup = () => {};
+  disableHandlePresenceSubscribe: Cleanup = () => {
+    console.log('hello world');
+  };
 
   constructor(xmpp: Xmpp) {
     super(xmpp);
