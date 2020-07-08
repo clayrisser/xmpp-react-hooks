@@ -13,7 +13,7 @@ export default class RosterClient extends StanzaClient {
     super(xmpp, 'jabber:iq:roster');
   }
 
-  readRosterPush(callback: (roster: RosterItem[]) => any): () => any {
+  readRosterPush(callback: (roster: RosterItem) => any): () => any {
     return this.xmpp.handle(
       (iqElement: XmlElement) => {
         const queryElement = iqElement.getChild('query');
@@ -25,43 +25,52 @@ export default class RosterClient extends StanzaClient {
           iqElement.getAttr('type') === 'set'
         );
       },
-      (iqElement: XmlElement) => callback(this.elementToRoster(iqElement))
+      (iqElement: XmlElement) => {
+        const rosterItem = this.elementToRoster(iqElement)?.[0];
+        if (rosterItem) callback(rosterItem);
+      }
     );
   }
 
   sendRosterQuery({
     from,
+    id,
     type,
     ver
   }: {
     from?: string;
+    id?: string;
     type?: IqType;
     ver?: string;
   }): Promise<RosterItem[]>;
   sendRosterQuery({
     from,
+    id,
     rosterItem,
     type,
     ver
   }: {
     from?: string;
+    id?: string;
     rosterItem?: Partial<RosterItem>;
     type?: IqType;
     ver?: string;
   }): Promise<void>;
   async sendRosterQuery({
     from,
+    id,
     rosterItem,
     type,
     ver
   }: {
     from?: string;
+    id?: string;
     rosterItem?: Partial<RosterItem>;
     type?: IqType;
     ver?: string;
   }): Promise<RosterItem[] | void> {
     if (!from) from = this.xmpp.fullJid;
-    const id = Date.now().toString();
+    if (!id) id = Date.now().toString();
     const children = [];
     if (rosterItem) {
       const itemChildren = rosterItem.groups?.map((group: string) => (
@@ -93,6 +102,7 @@ export default class RosterClient extends StanzaClient {
   elementToRoster(iqElement: XmlElement): RosterItem[] {
     const roster: RosterItem[] = [];
     const queryElement = iqElement.getChild('query');
+    const iqId = iqElement.getAttr('id');
     if (!queryElement) return roster;
     const ver = queryElement.getAttr('ver');
     if (queryElement.getAttr('xmlns') === this.namespaceName) {
@@ -103,8 +113,8 @@ export default class RosterClient extends StanzaClient {
         const jid = itemElement.getAttr('jid');
         const name = itemElement.getAttr('name');
         const subscription = itemElement.getAttr('subscription');
-        if (jid && subscription) {
-          roster.push({ jid, name, subscription, groups, ver });
+        if (jid && subscription && iqId) {
+          roster.push({ jid, name, subscription, groups, ver, iqId });
         }
       });
     }
@@ -132,13 +142,14 @@ export default class RosterClient extends StanzaClient {
       case RosterSubscription.REMOVE:
         return 'remove';
       default:
-        
+        return;
     }
   }
 }
 
 export interface RosterItem {
   groups: string[];
+  iqId: string;
   jid: string;
   name?: string;
   subscription: RosterSubscription;
