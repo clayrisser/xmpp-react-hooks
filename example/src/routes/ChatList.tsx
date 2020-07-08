@@ -16,7 +16,7 @@ const ChatList: FC<ChatListProps> = (_props: ChatListProps) => {
   const status = useStatus();
   const xmpp = useXmpp();
   console.log('status', status, 'xmpp', xmpp);
-  const [name, setName] = useState<string>();
+  const [name, setName] = useState<string>('');
   const history = useHistory();
   const roster = useRoster();
   const rosterService = useRosterService();
@@ -30,7 +30,7 @@ const ChatList: FC<ChatListProps> = (_props: ChatListProps) => {
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) {
     e.preventDefault();
-    await rosterService?.setRosterItem(jid, name);
+    await rosterService?.setRosterItem({ jid, name });
   }
 
   function renderRosterItem(rosterItem: RosterItem) {

@@ -1,3 +1,4 @@
 import Mam from './Mam';
+import Presence from './Presence';
 
-export { Mam };
+export { Mam, Presence };
