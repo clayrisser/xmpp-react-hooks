@@ -44,7 +44,6 @@ export default class PresenceClient extends StanzaClient {
         );
       },
       (presenceElement: XmlElement) => {
-        console.log('presence', presenceElement);
         const presence = this.elementToPresence(presenceElement);
 
         return callback(presence);
@@ -70,7 +69,6 @@ export default class PresenceClient extends StanzaClient {
     type?: PresenceType;
   } = {}): Promise<string> {
     if (!lang) lang = this.xmpp.lang!;
-    console.log('type', type);
     const children = [];
     if (show) {
       children.push(<show>{this.lookupShow(show)}</show>);
@@ -88,12 +86,10 @@ export default class PresenceClient extends StanzaClient {
       </presence>
     );
     const result = await this.xmpp.query(request);
-    console.log('result', result);
     return result.toString();
   }
 
   private elementToPresence(presenceElement: XmlElement): Presence {
-    console.log('pElementt', presenceElement);
     const from = presenceElement.getAttr('from');
     const priorityString = presenceElement.getChild('priority')?.text();
     const showString = presenceElement.getChild('show')?.text();

@@ -11,14 +11,11 @@ export default function useRoster(): RosterItem[] | undefined {
     let cleanup = () => {};
     (async () => {
       if (!rosterService) return;
-      const rosterBatch: RosterItem[] = [];
       const roster = await rosterService.getRoster();
       setRoster(roster);
       cleanup = rosterService!.readRosterPush((rosterItem: RosterItem) => {
-        if (roster) {
-          rosterBatch.push(rosterItem);
-          setRoster([...roster, ...rosterBatch]);
-        }
+        console.log('roster PUSH', rosterItem);
+        if (roster) setRoster([...roster, rosterItem]);
       });
     })().catch(console.error);
     return () => cleanup();

@@ -18,7 +18,6 @@ const Presence: FC<PresenceProps> = (_props: PresenceProps) => {
     <div>
       <h1>Presence</h1>
       <hr />
-      <h3></h3>
       <form>
         <div style={{ paddingBottom: 10 }}>
           <label htmlFor="withJid">WithJid:</label>

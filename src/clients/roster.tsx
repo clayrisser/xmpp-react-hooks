@@ -21,7 +21,7 @@ export default class RosterClient extends StanzaClient {
           !!iqElement.getAttr('to') &&
           !!queryElement &&
           !!queryElement.getChild('item') &&
-          !iqElement.getAttr('from') &&
+          !!iqElement.getAttr('from') &&
           iqElement.getAttr('type') === 'set'
         );
       },
