@@ -5,19 +5,9 @@ import Loading from '../components/Loading';
 export interface PresenceProps {}
 
 const Presence: FC<PresenceProps> = (_props: PresenceProps) => {
-  //   const [mamMessages, setMamMessages] = useState<MamMessage[]>([]);
   const [withJid, setWithJid] = useState<string>();
   const modPresence = usePresenceService();
-  //   const mamService = useMamService();
   const status = useStatus();
-
-  //   async function handleGetMamMessages(
-  //     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  //   ) {
-  //     e.preventDefault();
-  //     const mamMessages = (await mamService?.getMessages(withJid)) || [];
-  //     setMamMessages(mamMessages);
-  //   }
 
   async function handleGetPreference() {
     modPresence?.sendPresence({ to: withJid });

@@ -13,44 +13,39 @@ export default class RosterService extends RosterClient {
     super(xmpp);
   }
 
-  async setRosterItem({
-    from,
-    groups = [],
-    jid,
-    name,
-    subscription
-  }: {
-    from?: string;
-    groups?: string[];
-    jid: string;
-    name?: string;
-    subscription?: RosterSubscription;
-  }) {
-    return this.sendRosterQuery({
-      from,
-      rosterItem: { groups, jid, name, subscription }
-    });
+  async setRosterItem(
+    rosterItem: Partial<RosterItem>,
+    {
+      from
+    }: {
+      from?: string;
+    } = {}
+  ) {
+    return this.sendRosterQuery({ from, rosterItem, type: IqType.SET });
   }
 
   async getRoster({ from, ver }: { from?: string; ver?: string } = {}): Promise<
     RosterItem[]
   > {
-    return this.sendRosterQuery({ from, ver });
+    return this.sendRosterQuery({ from, ver, type: IqType.GET });
   }
 
   async removeRosterItem({ jid, from }: { jid: string; from?: string }) {
-    return this.setRosterItem({
-      jid,
+    return this.sendRosterQuery({
       from,
-      subscription: RosterSubscription.REMOVE
+      type: IqType.SET,
+      rosterItem: {
+        jid,
+        subscription: RosterSubscription.REMOVE
+      }
     });
   }
 
   enabledHandleRosterPush() {
     this.disableHandleRosterPush();
     this.disableHandleRosterPush = this.readRosterPush(
-      (_roster: RosterItem[]) => {
-        this.sendRosterQuery({ type: IqType.RESULT });
+      ({ iqId }: RosterItem) => {
+        this.sendRosterQuery({ type: IqType.RESULT, id: iqId });
       }
     );
   }

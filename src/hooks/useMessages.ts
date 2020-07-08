@@ -5,7 +5,6 @@ import useMessageService from './useMessageService';
 import { Message, MamMessage } from '../clients';
 
 export default function useMessage(jid: string): Message[] {
-  console.log('jid', jid);
   const messageService = useMessageService();
   const mamService = useMamService();
   const [messages, setMessage] = useStateCache<Message[]>(
@@ -14,10 +13,8 @@ export default function useMessage(jid: string): Message[] {
     (state: Message[], delayedState: Message[]) =>
       sortAndFilterMessages([...state, ...delayedState])
   );
-  console.log('messages123', messages);
 
   useEffect(() => {
-    console.log('useeffect');
     let cleanup = () => {};
     (async () => {
       const id = Date.now().toString();

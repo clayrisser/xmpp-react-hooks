@@ -5,18 +5,21 @@ import { RosterItem } from '../clients';
 
 export default function useRoster(): RosterItem[] | undefined {
   const [roster, setRoster] = useStateCache<RosterItem[]>('roster', []);
-  console.log('roster123', roster);
   const rosterService = useRosterService();
 
   useEffect(() => {
     let cleanup = () => {};
     (async () => {
       if (!rosterService) return;
-      const result = await rosterService.getRoster();
-      setRoster(result);
-      cleanup = rosterService!.readRosterPush((roster: RosterItem[]) =>
-        setRoster(roster)
-      );
+      const rosterBatch: RosterItem[] = [];
+      const roster = await rosterService.getRoster();
+      setRoster(roster);
+      cleanup = rosterService!.readRosterPush((rosterItem: RosterItem) => {
+        if (roster) {
+          rosterBatch.push(rosterItem);
+          setRoster([...roster, ...rosterBatch]);
+        }
+      });
     })().catch(console.error);
     return () => cleanup();
   }, [rosterService]);
