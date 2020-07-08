@@ -1,45 +1,27 @@
 import React, { FC, useState } from 'react';
-import {
-  useStatus,
-  useRoster,
-  RosterItem,
-  useRosterService
-} from 'xmpp-react-hooks';
-import Loading from '../components/Loading';
+import { useRoster, useRosterService } from 'xmpp-react-hooks';
 
 export interface RosterProps {}
 
 const Roster: FC<RosterProps> = (_props: RosterProps) => {
-  //   const [mamMessages, setMamMessages] = useState<MamMessage[]>([]);
   const [jid, setJid] = useState<string>('');
   const [name, setName] = useState<string>('');
   const modRoster = useRosterService();
   const roster = useRoster();
-  //   const mamService = useMamService();
-  const status = useStatus();
-
-  //   async function handleGetMamMessages(
-  //     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  //   ) {
-  //     e.preventDefault();
-  //     const mamMessages = (await mamService?.getMessages(withJid)) || [];
-  //     setMamMessages(mamMessages);
-  //   }
 
   async function handleSetRosterItem() {
     if (!jid) return;
     modRoster?.setRosterItem({ jid, name });
   }
 
-  if (!status.isReady) return <Loading />;
   return (
     <div>
-      <h1>Presence</h1>
+      <h1>Roster</h1>
       <hr />
-      <h3></h3>
+      <code>{JSON.stringify(roster)}</code>
       <form>
         <div style={{ paddingBottom: 10 }}>
-          <label htmlFor="withJid">WithJid:</label>
+          <label htmlFor="jid">Jid:</label>
           <br />
         </div>
         <input
@@ -55,12 +37,8 @@ const Roster: FC<RosterProps> = (_props: RosterProps) => {
           value={name}
         />
         <button type="submit" onClick={handleSetRosterItem}>
-          Set Roster Items
+          Set Roster Item
         </button>
-
-        <p>Roster Items:</p>
-        <br />
-        <p>{JSON.stringify(roster)}</p>
       </form>
     </div>
   );

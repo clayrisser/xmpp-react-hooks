@@ -142,7 +142,7 @@ export default class RosterClient extends StanzaClient {
       case RosterSubscription.REMOVE:
         return 'remove';
       default:
-        return;
+        
     }
   }
 }

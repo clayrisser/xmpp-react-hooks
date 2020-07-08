@@ -5,7 +5,6 @@ import { RosterItem } from '../clients';
 
 export default function useRoster(): RosterItem[] | undefined {
   const [roster, setRoster] = useStateCache<RosterItem[]>('roster', []);
-  console.log('roster123', roster);
   const rosterService = useRosterService();
 
   useEffect(() => {
@@ -14,9 +13,9 @@ export default function useRoster(): RosterItem[] | undefined {
       if (!rosterService) return;
       const result = await rosterService.getRoster();
       setRoster(result);
-      cleanup = rosterService!.readRosterPush((roster: RosterItem[]) =>
-        setRoster(roster)
-      );
+      cleanup = rosterService!.readRosterPush((rosterItem: RosterItem) => {
+        if (roster) setRoster([...roster, rosterItem]);
+      });
     })().catch(console.error);
     return () => cleanup();
   }, [rosterService]);

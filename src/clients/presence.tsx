@@ -182,7 +182,6 @@ export default class PresenceClient extends StanzaClient {
       case PresenceType.UNSUBSCRIBED:
         return 'unsubscribed';
       default:
-        
     }
   }
 }

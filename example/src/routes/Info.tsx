@@ -1,27 +1,21 @@
 import React, { FC } from 'react';
-import { useStatus, useRoster } from 'xmpp-react-hooks';
+import { useStatus } from 'xmpp-react-hooks';
 import Loading from '../components/Loading';
-import { Mam } from '../services';
-import { Presence } from '../services';
+import { Roster } from '../services';
 
-export interface ChatListProps {}
+export interface InfoProps {}
 
-const ChatList: FC<ChatListProps> = (_props: ChatListProps) => {
-  const roster = useRoster();
+const Info: FC<InfoProps> = (_props: InfoProps) => {
   const status = useStatus();
 
   if (!status.isReady) return <Loading />;
   return (
     <>
-      <h1>Chat List</h1>
-      <div>status: {JSON.stringify(status)}</div>
-      <div>roster: {JSON.stringify(roster)}</div>
-      <Mam />
-      <Presence />
+      <Roster />
     </>
   );
 };
 
-ChatList.defaultProps = {};
+Info.defaultProps = {};
 
-export default ChatList;
+export default Info;

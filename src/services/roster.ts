@@ -13,13 +13,14 @@ export default class RosterService extends RosterClient {
     super(xmpp);
   }
 
-  async setRosterItem({
-    from,
-    rosterItem
-  }: {
-    from?: string;
-    rosterItem: RosterItem;
-  }) {
+  async setRosterItem(
+    rosterItem: Partial<RosterItem>,
+    {
+      from
+    }: {
+      from?: string;
+    } = {}
+  ) {
     return this.sendRosterQuery({ from, rosterItem, type: IqType.SET });
   }
 
