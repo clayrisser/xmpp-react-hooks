@@ -40,7 +40,8 @@ export default class Xmpp {
         return (
           !!stanzaElement.getChildByAttr('xmlns', namespaceName) &&
           stanzaElement.getAttr('id') === id &&
-          stanzaElement.getAttr('type') === 'result' &&
+          (stanzaElement.getAttr('type') === 'result' ||
+            stanzaElement.getAttr('type') === 'error') &&
           stanzaElement.name === 'iq'
         );
       };
@@ -48,7 +49,8 @@ export default class Xmpp {
       checkCondition = (stanzaElement: XmlElement) => {
         return (
           stanzaElement.getAttr('id') === condition &&
-          stanzaElement.getAttr('type') === 'result' &&
+          (stanzaElement.getAttr('type') === 'result' ||
+            stanzaElement.getAttr('type') === 'error') &&
           stanzaElement.name === 'iq'
         );
       };

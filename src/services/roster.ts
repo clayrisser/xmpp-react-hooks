@@ -27,7 +27,7 @@ export default class RosterService extends RosterClient {
   async getRoster({ from, ver }: { from?: string; ver?: string } = {}): Promise<
     RosterItem[]
   > {
-    return this.sendRosterQuery({ from, ver });
+    return this.sendRosterQuery({ from, ver, type: IqType.GET });
   }
 
   async removeRosterItem({ jid, from }: { jid: string; from?: string }) {

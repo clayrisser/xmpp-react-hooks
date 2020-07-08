@@ -40,7 +40,7 @@ export default class RosterClient extends StanzaClient {
   }: {
     from?: string;
     id?: string;
-    type?: IqType;
+    type: IqType;
     ver?: string;
   }): Promise<RosterItem[]>;
   sendRosterQuery({
@@ -102,8 +102,8 @@ export default class RosterClient extends StanzaClient {
   elementToRoster(iqElement: XmlElement): RosterItem[] {
     const roster: RosterItem[] = [];
     const queryElement = iqElement.getChild('query');
-    const iqId = iqElement.getAttr('id');
     if (!queryElement) return roster;
+    const iqId = iqElement.getAttr('id');
     const ver = queryElement.getAttr('ver');
     if (queryElement.getAttr('xmlns') === this.namespaceName) {
       queryElement.getChildren('item').forEach((itemElement: XmlElement) => {
@@ -112,8 +112,10 @@ export default class RosterClient extends StanzaClient {
           .map((groupElement: XmlElement) => groupElement.text());
         const jid = itemElement.getAttr('jid');
         const name = itemElement.getAttr('name');
-        const subscription = itemElement.getAttr('subscription');
-        if (jid && subscription && iqId) {
+        const subscription = this.lookupSubscription(
+          itemElement.getAttr('subscription')
+        );
+        if (jid && iqId) {
           roster.push({ jid, name, subscription, groups, ver, iqId });
         }
       });
@@ -142,17 +144,16 @@ export default class RosterClient extends StanzaClient {
       case RosterSubscription.REMOVE:
         return 'remove';
       default:
-        
     }
   }
 }
 
 export interface RosterItem {
   groups: string[];
-  iqId: string;
+  iqId?: string;
   jid: string;
   name?: string;
-  subscription: RosterSubscription;
+  subscription?: RosterSubscription;
   ver?: string;
 }
 

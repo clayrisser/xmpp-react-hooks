@@ -4,12 +4,14 @@ import RosterService from '../services/roster';
 
 export default function useRosterService(): RosterService | undefined {
   const xmpp = useXmpp();
-  const [modRoster, setModRoster] = useState<RosterService | undefined>();
+  const [rosterService, setRosterService] = useState<
+    RosterService | undefined
+  >();
 
   useEffect(() => {
     if (!xmpp) return;
-    setModRoster(new RosterService(xmpp));
+    setRosterService(new RosterService(xmpp));
   }, [xmpp]);
 
-  return modRoster;
+  return rosterService;
 }
