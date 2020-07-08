@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import useXmpp from './useXmpp';
-import { RegisterService } from '../services';
+import { RegisterClient } from '../clients';
 
-export default function useRegisterService(): RegisterService | undefined {
+export default function useRegisterService(): RegisterClient | undefined {
   const xmpp = useXmpp();
-  const [modRegister, setModRegister] = useState<RegisterService | undefined>();
+  const [modRegister, setModRegister] = useState<RegisterClient | undefined>();
 
   useEffect(() => {
     if (!xmpp) return;
-    setModRegister(new RegisterService(xmpp));
+    setModRegister(new RegisterClient(xmpp));
   }, [xmpp]);
 
   return modRegister;

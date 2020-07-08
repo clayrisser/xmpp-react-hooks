@@ -1,7 +1,7 @@
-import MamClient from './mam';
+import MamClient, { MamMessage } from './mam';
 import MessageClient from './message';
 import PresenceClient from './presence';
-import RosterClient from './roster';
+import RosterClient, { RosterItem } from './roster';
 import StanzaClient from './stanza';
 import RegisterClient from './register';
 
@@ -11,7 +11,9 @@ export {
   PresenceClient,
   RosterClient,
   StanzaClient,
-  RegisterClient
+  RegisterClient,
+  RosterItem,
+  MamMessage
 };
 
 export * from './mam';

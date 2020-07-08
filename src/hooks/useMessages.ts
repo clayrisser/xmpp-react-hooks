@@ -2,7 +2,7 @@ import useStateCache from 'use-state-cache';
 import { useEffect } from 'react';
 import useMamService from './useMamService';
 import useMessageService from './useMessageService';
-import { Message, MamMessage } from '../services';
+import { Message, MamMessage } from '../clients';
 
 export default function useMessage(jid: string): Message[] {
   console.log('jid', jid);

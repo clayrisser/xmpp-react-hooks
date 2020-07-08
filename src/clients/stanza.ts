@@ -35,7 +35,7 @@ export default class StanzaService {
       case IqType.SET:
         return 'set';
       default:
-        return;
+        
     }
   }
 

@@ -1,7 +1,7 @@
 import useStateCache from 'use-state-cache';
 import { useEffect } from 'react';
 import useRosterService from './useRosterService';
-import { RosterItem } from '../services';
+import { RosterItem } from '../clients';
 
 export default function useRoster(): RosterItem[] | undefined {
   const [roster, setRoster] = useStateCache<RosterItem[]>('roster', []);

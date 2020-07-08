@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react';
 import useXmpp from './useXmpp';
-import { MessageService } from '../services';
+import { MessageClient } from '../clients';
 
-export default function useMessageService(): MessageService | undefined {
+export default function useMessageService(): MessageClient | undefined {
   const xmpp = useXmpp();
   const [messageService, setMessageService] = useState<
-    MessageService | undefined
+    MessageClient | undefined
   >();
 
   useEffect(() => {
     if (!xmpp) return;
-    setMessageService(new MessageService(xmpp));
+    setMessageService(new MessageClient(xmpp));
   }, [xmpp]);
 
   return messageService;

@@ -137,7 +137,7 @@ export default class PresenceClient extends StanzaClient {
       case PresenceShow.XA:
         return 'xa';
       default:
-        return;
+        
     }
   }
 
@@ -182,7 +182,7 @@ export default class PresenceClient extends StanzaClient {
       case PresenceType.UNSUBSCRIBED:
         return 'unsubscribed';
       default:
-        return;
+        
     }
   }
 }

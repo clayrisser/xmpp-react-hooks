@@ -8,6 +8,7 @@ import {
 
 export default class RosterService extends RosterClient {
   disableHandleRosterPush: Cleanup = () => {};
+
   constructor(xmpp: Xmpp) {
     super(xmpp);
   }
