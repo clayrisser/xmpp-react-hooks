@@ -1,21 +1,23 @@
+import useAvailable from './useAvailable';
+import useMamService from './useMamService';
 import useMessageService from './useMessageService';
+import useMessages from './useMessages';
+import usePresenceService from './usePresenceService';
+import useRegisterService from './useRegisterService';
 import useRoster from './useRoster';
 import useRosterService from './useRosterService';
 import useStatus from './useStatus';
 import useXmpp from './useXmpp';
-import useMessages from './useMessages';
-import useMamService from './useMamService';
-import useRegisterService from './useRegisterService';
-import usePresenceService from './usePresenceService';
 
 export {
-  useXmpp,
-  useStatus,
-  useRosterService,
-  useRoster,
+  useAvailable,
+  useMamService,
   useMessageService,
   useMessages,
-  useMamService,
+  usePresenceService,
   useRegisterService,
-  usePresenceService
+  useRoster,
+  useRosterService,
+  useStatus,
+  useXmpp
 };

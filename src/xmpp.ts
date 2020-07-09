@@ -86,35 +86,35 @@ export default class Xmpp {
     const service = this.config.service || `wss://${this.config.hostname}/ws`;
     this.bareJid = `${username}@${domain}`;
     this.fullJid = `${this.bareJid}/${resource}`;
-    try {
-      this.client = xmppClient({
-        password,
-        username,
-        service,
-        domain,
-        resource
-      });
-      this.client.on('error', this.handleError.bind(this));
-      this.client.on('offline', this.handleOffline.bind(this));
-      this.client.on('online', this.handleOnline.bind(this));
-      this.client.on('stanza', this.handleStanza.bind(this));
-      if (this.config.debug) xmppDebug(this.client, true);
-      await new Promise((resolve, reject) => {
-        const handleOnline = async () => {
-          await new Promise((r) => setTimeout(r, 1000));
-          this.client!.removeListener('online', handleOnline);
-          resolve();
-        };
-        this.client!.on('online', handleOnline);
-        try {
-          this.client!.start();
-        } catch (err) {
-          reject(err);
-        }
-      });
-    } catch (err) {
-      throw err;
-    }
+    this.client = xmppClient({
+      password,
+      username,
+      service,
+      domain,
+      resource
+    });
+    this.client.on('error', this.handleError.bind(this));
+    this.client.on('offline', this.handleOffline.bind(this));
+    this.client.on('online', this.handleOnline.bind(this));
+    this.client.on('stanza', this.handleStanza.bind(this));
+    if (this.config.debug) xmppDebug(this.client, true);
+  }
+
+  async start() {
+    if (!this.client) throw new Error('login to create xmpp client');
+    await new Promise((resolve, reject) => {
+      const handleOnline = async () => {
+        await new Promise((r) => setTimeout(r, 1000));
+        this.client!.removeListener('online', handleOnline);
+        resolve();
+      };
+      this.client!.on('online', handleOnline);
+      try {
+        this.client!.start();
+      } catch (err) {
+        reject(err);
+      }
+    });
   }
 
   handle(
@@ -125,9 +125,7 @@ export default class Xmpp {
     if (!this.client) throw new Error('login to create xmpp client');
     const checkCondition = this.createCheckCondition(condition);
     const listener = (stanzaElement: XmlElement) => {
-      console.log('stanza', stanzaElement);
       if (checkCondition(stanzaElement)) {
-        console.log('condition testing');
         readCallback(stanzaElement);
       }
     };
@@ -157,7 +155,6 @@ export default class Xmpp {
     const checkCondition = this.createCheckCondition(condition);
     if (readCallback) {
       const listener = (stanzaElement: XmlElement) => {
-        console.log('stanzaElement', stanzaElement);
         if (checkCondition(stanzaElement)) readCallback(stanzaElement);
       };
       this.client.on(event, listener);

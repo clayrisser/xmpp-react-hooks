@@ -6,40 +6,7 @@ export default class StanzaService {
     if (!xmpp.client) throw new Error('login to access xmpp client');
   }
 
-  protected lookupIqType(subscription?: string): IqType | undefined;
-  protected lookupIqType(subscription?: IqType): string | undefined;
-  protected lookupIqType(
-    subscription?: IqType | string
-  ): IqType | string | undefined {
-    if (typeof subscription === 'string') {
-      switch (subscription) {
-        case 'get':
-          return IqType.GET;
-        case 'push':
-          return IqType.PUSH;
-        case 'result':
-          return IqType.RESULT;
-        case 'set':
-          return IqType.SET;
-        default:
-          return;
-      }
-    }
-    switch (subscription) {
-      case IqType.GET:
-        return 'get';
-      case IqType.PUSH:
-        return 'push';
-      case IqType.RESULT:
-        return 'result';
-      case IqType.SET:
-        return 'set';
-      default:
-        
-    }
-  }
-
-  getIqError(iqElement: XmlElement): Error | undefined {
+  protected getIqError(iqElement: XmlElement): Error | undefined {
     const errorElement = iqElement.getChild('error');
     if (!errorElement) return;
     const err: any = new Error(errorElement.toString());
@@ -49,8 +16,8 @@ export default class StanzaService {
 }
 
 export enum IqType {
-  GET,
-  PUSH,
-  RESULT,
-  SET
+  GET = 'get',
+  PUSH = 'push',
+  RESULT = 'result',
+  SET = 'set'
 }

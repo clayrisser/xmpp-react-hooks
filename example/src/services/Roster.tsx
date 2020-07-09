@@ -9,7 +9,10 @@ const Roster: FC<RosterProps> = (_props: RosterProps) => {
   const modRoster = useRosterService();
   const roster = useRoster();
 
-  async function handleSetRosterItem() {
+  async function handleSetRosterItem(
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) {
+    e.preventDefault();
     if (!jid) return;
     modRoster?.setRosterItem({ jid, name });
   }
@@ -18,24 +21,30 @@ const Roster: FC<RosterProps> = (_props: RosterProps) => {
     <div>
       <h1>Roster</h1>
       <hr />
+      <h3>Use Roster</h3>
       <code>{JSON.stringify(roster)}</code>
+      <h3>Set Roster Item</h3>
       <form>
         <div style={{ paddingBottom: 10 }}>
           <label htmlFor="jid">Jid:</label>
           <br />
+          <input
+            id="jid"
+            name="jid"
+            onChange={(e: any) => setJid(e.target.value)}
+            value={jid}
+          />
         </div>
-        <input
-          id="jid"
-          name="jid"
-          onChange={(e: any) => setJid(e.target.value)}
-          value={jid}
-        />
-        <input
-          id="name"
-          name="jid"
-          onChange={(e: any) => setName(e.target.value)}
-          value={name}
-        />
+        <div style={{ paddingBottom: 10 }}>
+          <label htmlFor="name">Name:</label>
+          <br />
+          <input
+            id="name"
+            name="name"
+            onChange={(e: any) => setName(e.target.value)}
+            value={name}
+          />
+        </div>
         <button type="submit" onClick={handleSetRosterItem}>
           Set Roster Item
         </button>
