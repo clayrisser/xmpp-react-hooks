@@ -1,6 +1,5 @@
 import React, { FC, useState } from 'react';
 import { useRoster, useRosterService } from 'xmpp-react-hooks';
-
 export interface RosterProps {}
 
 const Roster: FC<RosterProps> = (_props: RosterProps) => {

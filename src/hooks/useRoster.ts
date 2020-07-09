@@ -1,5 +1,6 @@
 import useStateCache from 'use-state-cache';
 import { useEffect } from 'react';
+import _ from 'lodash';
 import useXmpp from './useXmpp';
 import useRosterService from './useRosterService';
 import { RosterItem } from '../clients';
@@ -11,26 +12,27 @@ export default function useRoster(): RosterItem[] | undefined {
     []
   );
   const rosterService = useRosterService();
+  const updateRoster = async (roster: RosterItem[], rosterItem: RosterItem) => {
+    const currentRosterItems: RosterItem[] = _.map(
+      roster,
+      (rosterSubItem: RosterItem) => {
+        return rosterSubItem.jid === rosterItem.jid
+          ? rosterItem
+          : rosterSubItem;
+      }
+    );
+    const rosterItems = new Set([...currentRosterItems, rosterItem]);
+    setRoster([...rosterItems]);
+  };
 
   useEffect(() => {
     let cleanup = () => {};
     (async () => {
       if (!rosterService) return;
-      let roster = await rosterService.getRoster();
+      const roster = await rosterService.getRoster();
       setRoster(roster);
       cleanup = rosterService!.readRosterPush((rosterItem: RosterItem) => {
-        if (roster) {
-          roster = [...roster, rosterItem];
-          setRoster(
-            roster.filter(
-              (rosterItem: RosterItem) =>
-                roster.filter(
-                  (rosterSubItem: RosterItem) =>
-                    rosterItem.jid === rosterSubItem.jid
-                ).length > 1
-            )
-          );
-        }
+        if (roster) updateRoster(roster, rosterItem);
       });
     })().catch(console.error);
     return () => cleanup();
