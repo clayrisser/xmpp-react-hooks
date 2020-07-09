@@ -1,14 +1,4 @@
 import React, { FC, useState } from 'react';
-<<<<<<< HEAD
-import {
-  useRoster,
-  useRosterService,
-  useStatus,
-  RosterItem,
-  useXmpp
-} from 'xmpp-react-hooks';
-=======
->>>>>>> 3d5901b12c03030f914bf21863ec7d0f396f74c5
 import { useHistory } from 'react-router-dom';
 import { useRoster, RosterItem, useRosterService } from 'xmpp-react-hooks';
 import Loading from '../components/Loading';
