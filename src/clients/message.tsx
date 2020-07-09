@@ -12,7 +12,36 @@ export default class MessageClient extends StanzaClient {
     super(xmpp, 'jabber:client');
   }
 
-  sendMessage(to: string, body: string, lang?: string, from?: string) {
+  // sendMessages(to: string, body: string, lang?: string, from?: string) {
+  //   if (!from) from = this.xmpp.fullJid!;
+  //   if (!lang) lang = this.xmpp.lang;
+  //   const id = Date.now().toString();
+  //   const request = xml(
+  //     'message',
+  //     {
+  //       from,
+  //       id,
+  //       to,
+  //       type: 'chat',
+  //       'xml:lang': lang
+  //     },
+  //     <body>{body}</body>
+  //   );
+  //   // TODO: resolve query on server ack
+  //   this.xmpp.query(request);
+  // }
+
+  sendMessage({
+    to,
+    body,
+    lang,
+    from
+  }: {
+    to?: string;
+    body?: string;
+    lang?: string;
+    from?: string;
+  } = {}) {
     if (!from) from = this.xmpp.fullJid!;
     if (!lang) lang = this.xmpp.lang;
     const id = Date.now().toString();
@@ -33,8 +62,13 @@ export default class MessageClient extends StanzaClient {
 
   readSentMessages(
     callback: (message: Message) => any,
-    to?: string,
-    from?: string
+    {
+      to,
+      from
+    }: {
+      to?: string;
+      from?: string;
+    } = {}
   ): () => any {
     if (!from) from = this.xmpp.fullJid!;
     return this.xmpp.handle(
@@ -60,8 +94,13 @@ export default class MessageClient extends StanzaClient {
 
   readMessages(
     callback: (message: Message) => any,
-    from?: string,
-    to?: string
+    {
+      from,
+      to
+    }: {
+      from?: string;
+      to?: string;
+    } = {}
   ): () => any {
     if (!to) to = this.xmpp.fullJid!;
     return this.xmpp.handle(
