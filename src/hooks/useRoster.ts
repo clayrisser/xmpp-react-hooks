@@ -8,7 +8,7 @@ export default function useRoster(): RosterItem[] | undefined {
   const rosterService = useRosterService();
   const xmpp = useXmpp();
   const [roster, setRoster] = useStateCache<RosterItem[]>(
-    `${xmpp?.fullJid}/roster`,
+    [xmpp?.fullJid, 'roster'],
     []
   );
 

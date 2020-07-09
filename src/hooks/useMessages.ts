@@ -2,13 +2,15 @@ import useStateCache from 'use-state-cache';
 import { useEffect } from 'react';
 import useMamService from './useMamService';
 import useMessageService from './useMessageService';
+import useXmpp from './useXmpp';
 import { Message, MamMessage } from '../clients';
 
 export default function useMessage(jid: string): Message[] {
-  const messageService = useMessageService();
   const mamService = useMamService();
+  const messageService = useMessageService();
+  const xmpp = useXmpp();
   const [messages, setMessage] = useStateCache<Message[]>(
-    `messages/${jid}`,
+    [xmpp?.fullJid, 'messages', jid],
     [],
     (state: Message[], delayedState: Message[]) =>
       sortAndFilterMessages([...state, ...delayedState])
