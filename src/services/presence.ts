@@ -8,6 +8,16 @@ export default class PresenceService extends PresenceClient {
     super(xmpp);
   }
 
+  async sendAvailable() {
+    this.sendPresence();
+  }
+
+  async sendUnavailable() {
+    this.sendPresence({
+      type: PresenceType.UNAVAILABLE
+    });
+  }
+
   enabledHandlePresenceSubscribe({
     type = PresenceType.SUBSCRIBED
   }: { type?: PresenceType.SUBSCRIBED | PresenceType.UNSUBSCRIBED } = {}) {

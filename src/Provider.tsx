@@ -1,12 +1,13 @@
 import React, { FC, useState, ReactNode, useEffect } from 'react';
 import { Provider as UseStateCacheProvider } from 'use-state-cache';
-import Xmpp from './xmpp';
+import Xmpp, { Cleanup } from './xmpp';
 import XmppContext from './contexts/xmpp';
 import { PresenceService, RosterService } from './services';
 
 export interface ProviderProps {
   cache?: boolean | string;
   children: ReactNode;
+  createCleanup?: (cleanup: Cleanup) => any;
   debug?: boolean;
   domain?: string;
   hostname?: string;
@@ -21,6 +22,7 @@ const Provider: FC<ProviderProps> = (props: ProviderProps) => {
   const {
     cache,
     children,
+    createCleanup,
     debug,
     domain,
     hostname,
@@ -29,6 +31,12 @@ const Provider: FC<ProviderProps> = (props: ProviderProps) => {
     service,
     username
   } = props;
+
+  function cleanup() {
+    if (!xmpp) return;
+    const presenceService = new PresenceService(xmpp);
+    presenceService.sendUnavailable();
+  }
 
   useEffect(() => {
     (async () => {
@@ -46,7 +54,8 @@ const Provider: FC<ProviderProps> = (props: ProviderProps) => {
         presenceService.enabledHandlePresenceSubscribe();
         rosterService.enabledHandleRosterPush();
         await xmpp.start();
-        presenceService.sendPresence();
+        presenceService.sendAvailable();
+        if (createCleanup) createCleanup(cleanup);
         setXmpp(xmpp);
       }
     })();

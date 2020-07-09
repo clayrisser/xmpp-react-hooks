@@ -16,28 +16,27 @@ export default class PresenceClient extends StanzaClient {
     callback: (presence: Presence) => any,
     {
       from,
-      noType,
       show,
       to,
       type
     }: {
       from?: string;
-      noType?: boolean;
       show?: PresenceShow;
       to?: string;
-      type?: PresenceType;
+      type?: PresenceType | null;
     } = {}
   ): Cleanup {
     return this.xmpp.handle(
       (presenceElement: XmlElement) => {
         if (!to) to = this.xmpp.fullJid;
         return (
-          (!noType || !presenceElement.getAttr('type')) &&
+          (typeof type === 'undefined' ||
+            (type === null && !presenceElement.getAttr('type')) ||
+            presenceElement.getAttr('type') === type) &&
           !!presenceElement.getAttr('from') &&
           (!from || presenceElement.getAttr('from') === from) &&
           presenceElement.getAttr('to')?.split('/')[0] === to?.split('/')[0] &&
           presenceElement.name === 'presence' &&
-          (!type || presenceElement.getAttr('type') === type) &&
           (!show || presenceElement.getChild('show')?.text() === show)
         );
       },

@@ -15,43 +15,39 @@ export default function useMessage(jid: string): Message[] {
   );
 
   useEffect(() => {
-    let cleanup = () => {};
-    (async () => {
-      const id = Date.now().toString();
-      const messagesBatch: Message[] = [];
-      if (!messageService || !mamService) return;
-      const cleanupReadMamMessages = mamService.readMessages(
-        (mamMessage: MamMessage) => {
-          messagesBatch.push(mamMessage);
-          setMessage(
-            sortAndFilterMessages([...(messages || []), ...messagesBatch])
-          );
-        },
-        id
-      );
-      const cleanupReadSentMessages = messageService.readSentMessages(
-        (message: Message) => {
-          messagesBatch.push(message);
-          setMessage(
-            sortAndFilterMessages([...(messages || []), ...messagesBatch])
-          );
-        }
-      );
-      const cleanupReadMessages = messageService.readMessages(
-        (message: Message) => {
-          messagesBatch.push(message);
-          setMessage(
-            sortAndFilterMessages([...(messages || []), ...messagesBatch])
-          );
-        }
-      );
-      mamService.getMessages(jid, id);
-      cleanup = () =>
-        cleanupReadSentMessages() &&
-        cleanupReadMessages() &&
-        cleanupReadMamMessages();
-    })().catch(console.error);
-    return () => cleanup();
+    const id = Date.now().toString();
+    const messagesBatch: Message[] = [];
+    if (!messageService || !mamService) return;
+    const cleanupReadMamMessages = mamService.readMessages(
+      (mamMessage: MamMessage) => {
+        messagesBatch.push(mamMessage);
+        setMessage(
+          sortAndFilterMessages([...(messages || []), ...messagesBatch])
+        );
+      },
+      id
+    );
+    const cleanupReadSentMessages = messageService.readSentMessages(
+      (message: Message) => {
+        messagesBatch.push(message);
+        setMessage(
+          sortAndFilterMessages([...(messages || []), ...messagesBatch])
+        );
+      }
+    );
+    const cleanupReadMessages = messageService.readMessages(
+      (message: Message) => {
+        messagesBatch.push(message);
+        setMessage(
+          sortAndFilterMessages([...(messages || []), ...messagesBatch])
+        );
+      }
+    );
+    mamService.getMessages(jid, id);
+    return () =>
+      cleanupReadSentMessages() &&
+      cleanupReadMessages() &&
+      cleanupReadMamMessages();
   }, [messageService, mamService]);
 
   return messages || [];

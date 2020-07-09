@@ -1,5 +1,10 @@
 import React, { FC, useState } from 'react';
-import { useStatus, usePresenceService, PresenceType } from 'xmpp-react-hooks';
+import {
+  PresenceType,
+  useAvailable,
+  usePresenceService,
+  useStatus
+} from 'xmpp-react-hooks';
 import Loading from '../components/Loading';
 
 export interface PresenceProps {}
@@ -7,6 +12,7 @@ export interface PresenceProps {}
 const Presence: FC<PresenceProps> = (_props: PresenceProps) => {
   const [to, setTo] = useState('');
   const [type, setType] = useState<PresenceType>(PresenceType.SUBSCRIBE);
+  const available = useAvailable();
   const presenceService = usePresenceService();
   const status = useStatus();
 
@@ -14,11 +20,18 @@ const Presence: FC<PresenceProps> = (_props: PresenceProps) => {
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) {
     e.preventDefault();
-    console.log('to', to);
     presenceService?.sendPresence({
       to,
       type
     });
+  }
+
+  function handleSendUnavailable() {
+    presenceService?.sendUnavailable();
+  }
+
+  function handleSendAvailable() {
+    presenceService?.sendAvailable();
   }
 
   if (!status.isReady) return <Loading />;
@@ -26,6 +39,12 @@ const Presence: FC<PresenceProps> = (_props: PresenceProps) => {
     <div>
       <h1>Presence</h1>
       <hr />
+      <h3>Available</h3>
+      <code>{JSON.stringify(available)}</code>
+      <h3>Send Unavailable</h3>
+      <button onClick={handleSendUnavailable}>Send Unavailable</button>
+      <h3>Send Available</h3>
+      <button onClick={handleSendAvailable}>Send Available</button>
       <h3>Send Presence</h3>
       <form>
         <div style={{ paddingBottom: 10 }}>
