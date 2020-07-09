@@ -1,5 +1,5 @@
 import useStateCache from 'use-state-cache';
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import useRosterService from './useRosterService';
 import useXmpp from './useXmpp';
 import { RosterItem } from '../clients';
@@ -9,6 +9,30 @@ export default function useRoster(): RosterItem[] | undefined {
   const xmpp = useXmpp();
   const [roster, setRoster] = useStateCache<RosterItem[]>(
     [xmpp?.fullJid, 'roster'],
+    [],
+    (prevRoster: RosterItem[], nextRoster: RosterItem[]) => {
+      return nextRoster.reduce(
+        (newRoster: RosterItem[], rosterItem: RosterItem) => {
+          return updateRoster(newRoster, rosterItem);
+        },
+        prevRoster
+      );
+    }
+  );
+
+  const updateRoster = useCallback(
+    (newRoster: RosterItem[], rosterItem: RosterItem) => {
+      newRoster = [...newRoster];
+      const newRosterItem = newRoster.find(
+        ({ jid }: RosterItem) => jid === rosterItem.jid
+      );
+      if (newRosterItem) {
+        Object.assign(newRosterItem, rosterItem);
+      } else {
+        newRoster.push(rosterItem);
+      }
+      return newRoster;
+    },
     []
   );
 
@@ -18,17 +42,8 @@ export default function useRoster(): RosterItem[] | undefined {
       if (!rosterService) return;
       const roster = await rosterService.getRoster();
       setRoster(roster);
-      cleanup = rosterService!.readRosterPush((newRosterItem: RosterItem) => {
-        let newRoster = [...roster];
-        const rosterItem = newRoster.find(
-          ({ jid }: RosterItem) => jid === newRosterItem.jid
-        );
-        if (rosterItem) {
-          Object.assign(rosterItem, newRosterItem);
-        } else {
-          newRoster = [...newRoster, newRosterItem];
-        }
-        setRoster(newRoster);
+      cleanup = rosterService!.readRosterPush((rosterItem: RosterItem) => {
+        setRoster(updateRoster(roster, rosterItem));
       });
     })().catch(console.error);
     return () => cleanup();

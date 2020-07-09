@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import usePresenceService from './usePresenceService';
-import { Presence, PresenceType } from '../services';
+import { Presence } from '../services';
 
 export default function useAvailable(): string[] {
   const presenceService = usePresenceService();
@@ -8,22 +8,25 @@ export default function useAvailable(): string[] {
 
   useEffect(() => {
     if (!presenceService) return;
-    const readAvailableCleanup = presenceService.readPresence(
+    const readAvailableCleanup = presenceService.readAvailable(
       (presence: Presence) => {
-        setAvailable([...new Set([...available, presence.from])]);
-      },
-      { type: null }
+        setAvailable([...new Set([...(available || []), presence.from])]);
+      }
     );
-    const readUnavailableCleanup = presenceService.readPresence(
+    const readUnavailableCleanup = presenceService.readUnavailable(
       (presence: Presence) => {
         setAvailable(
-          available.filter((available: string) => available !== presence.from)
+          (available || []).filter(
+            (available: string) => available !== presence.from
+          )
         );
-      },
-      { type: PresenceType.UNAVAILABLE }
+      }
     );
+    // TODO: should be improved
+    presenceService.sendUnavailable();
+    presenceService.sendAvailable();
     return () => readUnavailableCleanup() && readAvailableCleanup();
   }, [presenceService]);
 
-  return available;
+  return available || [];
 }
