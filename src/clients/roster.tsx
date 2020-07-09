@@ -13,14 +13,7 @@ export default class RosterClient extends StanzaClient {
     super(xmpp, 'jabber:iq:roster');
   }
 
-  readRosterPush(
-    callback: (roster: RosterItem) => any,
-    {
-      ask
-    }: {
-      ask?: RosterAsk | boolean;
-    } = {}
-  ): () => any {
+  readRosterPush(callback: (roster: RosterItem) => any): () => any {
     return this.xmpp.handle(
       (iqElement: XmlElement) => {
         const queryElement = iqElement.getChild('query');
@@ -34,19 +27,7 @@ export default class RosterClient extends StanzaClient {
       },
       (iqElement: XmlElement) => {
         const rosterItem = this.elementToRoster(iqElement)?.[0];
-        if (rosterItem) {
-          if (typeof ask !== 'undefined') {
-            if (ask) {
-              if (!rosterItem.ask) return;
-              if (typeof ask === 'string' && ask !== rosterItem.ask) {
-                return;
-              }
-            } else if (typeof rosterItem.ask !== 'undefined') {
-              return;
-            }
-          }
-          callback(rosterItem);
-        }
+        if (rosterItem) callback(rosterItem);
       }
     );
   }

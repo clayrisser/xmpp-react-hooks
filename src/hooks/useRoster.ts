@@ -16,14 +16,22 @@ export default function useRoster(): RosterItem[] | undefined {
     let cleanup = () => {};
     (async () => {
       if (!rosterService) return;
-      const roster = await rosterService.getRoster();
+      let roster = await rosterService.getRoster();
       setRoster(roster);
-      cleanup = rosterService!.readRosterPush(
-        (rosterItem: RosterItem) => {
-          if (roster) setRoster([...roster, rosterItem]);
-        },
-        { ask: false }
-      );
+      cleanup = rosterService!.readRosterPush((rosterItem: RosterItem) => {
+        if (roster) {
+          roster = [...roster, rosterItem];
+          setRoster(
+            roster.filter(
+              (rosterItem: RosterItem) =>
+                roster.filter(
+                  (rosterSubItem: RosterItem) =>
+                    rosterItem.jid === rosterSubItem.jid
+                ).length > 1
+            )
+          );
+        }
+      });
     })().catch(console.error);
     return () => cleanup();
   }, [rosterService]);
