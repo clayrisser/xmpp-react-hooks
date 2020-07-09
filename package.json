@@ -1,6 +1,6 @@
 {
   "name": "xmpp-react-hooks",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "react hooks for xmpp",
   "keywords": [
     "xmpp-react-hooks",
@@ -45,13 +45,11 @@
   "dependencies": {
     "@babel/runtime": "^7.10.4",
     "@callstack/async-storage": "^2.0.3",
-    "@types/lodash": "^4.14.157",
     "@xmpp/client": "^0.11.1",
     "@xmpp/debug": "^0.11.0",
     "@xmpp/xml": "^0.11.0",
     "core-js": "^3.6.5",
     "event-ears": "^0.0.2",
-    "lodash": "^4.17.19",
     "ltx": "^2.9.2",
     "react": "^16.13.1",
     "use-state-cache": "^0.0.5"
