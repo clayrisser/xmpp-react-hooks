@@ -8,25 +8,30 @@ export default function useAvailable(): string[] {
 
   useEffect(() => {
     if (!presenceService) return;
+    const availableBatch = new Set<string>();
     const readAvailableCleanup = presenceService.readAvailable(
       (presence: Presence) => {
-        setAvailable([...new Set([...(available || []), presence.from])]);
+        availableBatch.add(presence.from);
+        setAvailable([...new Set([...(available || []), ...availableBatch])]);
       }
     );
     const readUnavailableCleanup = presenceService.readUnavailable(
       (presence: Presence) => {
-        setAvailable(
-          (available || []).filter(
-            (available: string) => available !== presence.from
-          )
-        );
+        availableBatch.delete(presence.from);
+        setAvailable([
+          ...new Set([
+            ...(available || []).filter(
+              (available: string) => available !== presence.from
+            ),
+            ...availableBatch
+          ])
+        ]);
       }
     );
-    // TODO: should be improved
     presenceService.sendUnavailable();
     presenceService.sendAvailable();
     return () => readUnavailableCleanup() && readAvailableCleanup();
   }, [presenceService]);
 
-  return available || [];
+  return available;
 }

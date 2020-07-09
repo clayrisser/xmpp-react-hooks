@@ -52,7 +52,7 @@
     "event-ears": "^0.0.2",
     "ltx": "^2.9.2",
     "react": "^16.13.1",
-    "use-state-cache": "^0.0.9"
+    "use-state-cache": "^0.1.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.10.4",
