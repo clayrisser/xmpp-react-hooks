@@ -43,6 +43,7 @@
     "test:watch": "make -s test-watch"
   },
   "dependencies": {
+    "@babel/runtime": "^7.10.4",
     "@callstack/async-storage": "^2.0.3",
     "@xmpp/client": "^0.11.1",
     "@xmpp/debug": "^0.11.0",

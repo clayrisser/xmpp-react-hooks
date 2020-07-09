@@ -35,13 +35,48 @@ export default class MAMClient extends StanzaClient {
     );
   }
 
-  async getMessages(withJid?: string, id?: string): Promise<MamMessage[]> {
+  async getMessages({
+    With,
+    id,
+    start,
+    end,
+    max,
+    after
+  }: {
+    With?: string;
+    id?: string;
+    start?: string;
+    end?: string;
+    max?: number;
+    after?: number;
+  } = {}): Promise<MamMessage[]> {
     if (!id) id = Date.now().toString();
-    const withField = withJid ? (
+    const withField = With ? (
       <field var="with">
-        <value>{withJid}</value>
+        <value>{With}</value>
       </field>
     ) : null;
+    const startField = start ? (
+      <field var="start">
+        <value>{start}</value>
+      </field>
+    ) : null;
+
+    const endField = end ? (
+      <field var="end">
+        <value>{end}</value>
+      </field>
+    ) : null;
+
+    const children = [];
+    if (max) {
+      children.push(<max>{max}</max>);
+      if (after) children.push(<after>{after}</after>);
+    }
+    // const limitingResults = max ? (
+    //   <set xmlns="http://jabber.org/protocol/rsm">{children}</set>
+    // ) : null;
+
     const request = (
       <iq type="set" id={id}>
         <query xmlns={this.namespaceName} queryid={id}>
@@ -50,7 +85,10 @@ export default class MAMClient extends StanzaClient {
               <value>urn:xmpp:mam:2</value>
             </field>
             {withField}
+            {startField}
+            {endField}
           </x>
+          {max && <set xmlns="http://jabber.org/protocol/rsm">{children}</set>}
         </query>
       </iq>
     );
@@ -103,7 +141,7 @@ export default class MAMClient extends StanzaClient {
     }
   }
 
-  async getPreference(id?: string): Promise<any> {
+  async getPreference({ id }: { id?: string } = {}): Promise<any> {
     if (!id) id = Date.now().toString();
     const request = (
       <iq type="get" id={id}>
@@ -141,10 +179,13 @@ export default class MAMClient extends StanzaClient {
       }, []);
   }
 
-  async updatePreferences(
-    _preferences: Preferences,
-    id?: string
-  ): Promise<void> {
+  async updatePreferences({
+    _preferences,
+    id
+  }: {
+    _preferences: Preferences;
+    id?: string;
+  }): Promise<void> {
     if (!id) id = Date.now().toString();
     const request = (
       <iq type="set" id={id}>

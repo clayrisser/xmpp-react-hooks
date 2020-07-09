@@ -15,7 +15,7 @@ export default function useMessage(jid: string): Message[] {
   );
 
   useEffect(() => {
-    const id = Date.now().toString();
+    const id: string = Date.now().toString();
     const messagesBatch: Message[] = [];
     if (!messageService || !mamService) return;
     const cleanupReadMamMessages = mamService.readMessages(
@@ -43,7 +43,7 @@ export default function useMessage(jid: string): Message[] {
         );
       }
     );
-    mamService.getMessages(jid, id);
+    mamService.getMessages({ With: jid, id });
     return () =>
       cleanupReadSentMessages() &&
       cleanupReadMessages() &&

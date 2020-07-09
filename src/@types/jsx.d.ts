@@ -19,5 +19,8 @@ declare namespace JSX {
     username: any;
     value: any;
     x: any;
+    max: any;
+    set: any;
+    after: any;
   }
 }
