@@ -41,11 +41,18 @@ export default class RosterService extends RosterClient {
     });
   }
 
+  // TODO: improve to match spec
   enabledHandleRosterPush() {
     this.disableHandleRosterPush();
     this.disableHandleRosterPush = this.readRosterPush(
-      ({ iqId }: RosterItem) => {
-        this.sendRosterQuery({ type: IqType.RESULT, id: iqId });
+      ({ iqId, from, to, ver }: RosterItem) => {
+        this.sendRosterQuery({
+          from: to,
+          id: iqId,
+          to: from,
+          type: IqType.RESULT,
+          ver
+        });
       }
     );
   }

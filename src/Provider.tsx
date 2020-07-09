@@ -45,7 +45,8 @@ const Provider: FC<ProviderProps> = (props: ProviderProps) => {
         const rosterService = new RosterService(xmpp);
         presenceService.enabledHandlePresenceSubscribe();
         rosterService.enabledHandleRosterPush();
-        await presenceService.sendPresence();
+        await xmpp.start();
+        presenceService.sendPresence();
         setXmpp(xmpp);
       }
     })();

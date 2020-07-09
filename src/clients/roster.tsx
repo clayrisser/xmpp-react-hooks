@@ -13,7 +13,14 @@ export default class RosterClient extends StanzaClient {
     super(xmpp, 'jabber:iq:roster');
   }
 
-  readRosterPush(callback: (roster: RosterItem) => any): () => any {
+  readRosterPush(
+    callback: (roster: RosterItem) => any,
+    {
+      ask
+    }: {
+      ask?: RosterAsk | boolean;
+    } = {}
+  ): () => any {
     return this.xmpp.handle(
       (iqElement: XmlElement) => {
         const queryElement = iqElement.getChild('query');
@@ -27,7 +34,19 @@ export default class RosterClient extends StanzaClient {
       },
       (iqElement: XmlElement) => {
         const rosterItem = this.elementToRoster(iqElement)?.[0];
-        if (rosterItem) callback(rosterItem);
+        if (rosterItem) {
+          if (typeof ask !== 'undefined') {
+            if (ask) {
+              if (!rosterItem.ask) return;
+              if (typeof ask === 'string' && ask !== rosterItem.ask) {
+                return;
+              }
+            } else if (typeof rosterItem.ask !== 'undefined') {
+              return;
+            }
+          }
+          callback(rosterItem);
+        }
       }
     );
   }
@@ -35,11 +54,13 @@ export default class RosterClient extends StanzaClient {
   sendRosterQuery({
     from,
     id,
+    to,
     type,
     ver
   }: {
     from?: string;
     id?: string;
+    to?: string;
     type: IqType;
     ver?: string;
   }): Promise<RosterItem[]>;
@@ -47,12 +68,14 @@ export default class RosterClient extends StanzaClient {
     from,
     id,
     rosterItem,
+    to,
     type,
     ver
   }: {
     from?: string;
     id?: string;
     rosterItem?: Partial<RosterItem>;
+    to?: string;
     type?: IqType;
     ver?: string;
   }): Promise<void>;
@@ -60,12 +83,14 @@ export default class RosterClient extends StanzaClient {
     from,
     id,
     rosterItem,
+    to,
     type,
     ver
   }: {
     from?: string;
     id?: string;
     rosterItem?: Partial<RosterItem>;
+    to?: string;
     type?: IqType;
     ver?: string;
   }): Promise<RosterItem[] | void> {
@@ -80,14 +105,14 @@ export default class RosterClient extends StanzaClient {
         <item
           jid={rosterItem.jid}
           name={rosterItem.name}
-          subscription={this.lookupSubscription(rosterItem.subscription)}
+          subscription={rosterItem.subscription}
         >
           {itemChildren}
         </item>
       );
     }
     const request = (
-      <iq from={from} id={id} type={this.lookupIqType(type)}>
+      <iq to={to} from={from} id={id} type={type}>
         <query xmlns={this.namespaceName} ver={ver}>
           {children}
         </query>
@@ -99,11 +124,13 @@ export default class RosterClient extends StanzaClient {
     return this.elementToRoster(iqElement);
   }
 
-  elementToRoster(iqElement: XmlElement): RosterItem[] {
+  private elementToRoster(iqElement: XmlElement): RosterItem[] {
     const roster: RosterItem[] = [];
     const queryElement = iqElement.getChild('query');
     if (!queryElement) return roster;
+    const from = iqElement.getAttr('from');
     const iqId = iqElement.getAttr('id');
+    const to = iqElement.getAttr('to');
     const ver = queryElement.getAttr('ver');
     if (queryElement.getAttr('xmlns') === this.namespaceName) {
       queryElement.getChildren('item').forEach((itemElement: XmlElement) => {
@@ -112,51 +139,43 @@ export default class RosterClient extends StanzaClient {
           .map((groupElement: XmlElement) => groupElement.text());
         const jid = itemElement.getAttr('jid');
         const name = itemElement.getAttr('name');
-        const subscription = this.lookupSubscription(
-          itemElement.getAttr('subscription')
-        );
+        const ask = itemElement.getAttr('ask');
+        const subscription = itemElement.getAttr('subscription');
         if (jid && iqId) {
-          roster.push({ jid, name, subscription, groups, ver, iqId });
+          roster.push({
+            ask,
+            from,
+            groups,
+            iqId,
+            jid,
+            name,
+            subscription,
+            to,
+            ver
+          });
         }
       });
     }
     return roster;
   }
-
-  protected lookupSubscription(
-    subscription?: string
-  ): RosterSubscription | undefined;
-  protected lookupSubscription(
-    subscription?: RosterSubscription
-  ): string | undefined;
-  protected lookupSubscription(
-    subscription?: RosterSubscription | string
-  ): RosterSubscription | string | undefined {
-    if (typeof subscription === 'string') {
-      switch (subscription) {
-        case 'remove':
-          return RosterSubscription.REMOVE;
-        default:
-          return;
-      }
-    }
-    switch (subscription) {
-      case RosterSubscription.REMOVE:
-        return 'remove';
-      default:
-    }
-  }
 }
 
 export interface RosterItem {
+  ask?: RosterAsk;
+  from?: string;
   groups: string[];
   iqId?: string;
   jid: string;
   name?: string;
   subscription?: RosterSubscription;
+  to?: string;
   ver?: string;
 }
 
 export enum RosterSubscription {
-  REMOVE
+  REMOVE = 'remove'
+}
+
+export enum RosterAsk {
+  SUBSCRIBE = 'subscribe'
 }
