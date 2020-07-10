@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import useXmpp from './useXmpp';
-import { MamClient } from '../clients';
+import { MamService } from '../services';
 
-export default function useRosterService(): MamClient | undefined {
+export default function useRosterService(): MamService | undefined {
   const xmpp = useXmpp();
-  const [modMam, setModMam] = useState<MamClient | undefined>();
+  const [modMam, setModMam] = useState<MamService | undefined>();
 
   useEffect(() => {
     if (!xmpp) return;
-    setModMam(new MamClient(xmpp));
+    setModMam(new MamService(xmpp));
   }, [xmpp]);
 
   return modMam;

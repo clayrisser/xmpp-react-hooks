@@ -9,7 +9,7 @@ import Xmpp, { Cleanup } from '../xmpp';
 import { Message } from './message';
 
 export default class MamClient extends StanzaClient {
-  constructor(private readonly xmpp: Xmpp) {
+  constructor(protected readonly xmpp: Xmpp) {
     super(xmpp, 'urn:xmpp:mam:2');
   }
 
@@ -205,3 +205,4 @@ export interface Preferences {
   always?: string[];
   never?: string[];
 }
+export * from '../clients/mam';

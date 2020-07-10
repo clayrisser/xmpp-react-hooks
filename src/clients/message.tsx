@@ -8,7 +8,7 @@ import StanzaClient from './stanza';
 import Xmpp, { Cleanup } from '../xmpp';
 
 export default class MessageClient extends StanzaClient {
-  constructor(private readonly xmpp: Xmpp) {
+  constructor(protected readonly xmpp: Xmpp) {
     super(xmpp, 'jabber:client');
   }
 
@@ -66,6 +66,7 @@ export default class MessageClient extends StanzaClient {
       },
       (messageElement: XmlElement) => {
         const message = this.elementToMessage(messageElement);
+        console.log('messaeSent', message);
         callback(message);
       },
       'send'
@@ -100,6 +101,7 @@ export default class MessageClient extends StanzaClient {
       },
       async (messageElement: XmlElement) => {
         const message = this.elementToMessage(messageElement);
+        console.log('messagecallback', message);
         callback(message);
       }
     );

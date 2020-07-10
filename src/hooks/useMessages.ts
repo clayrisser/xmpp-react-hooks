@@ -7,7 +7,7 @@ import { Message, MamMessage } from '../clients';
 
 export default function useMessage(jid: string): Message[] {
   const id = useMemo(() => Date.now().toString(), []);
-  console.log('ID', id);
+  // console.log('ID', id);
   const mamService = useMamService();
   const messageService = useMessageService();
   const xmpp = useXmpp();
@@ -17,6 +17,7 @@ export default function useMessage(jid: string): Message[] {
     (prevMessages: Message[], nextMessages: Message[]) =>
       sortAndFilterMessages([...prevMessages, ...nextMessages])
   );
+  console.log('hook', messages);
 
   useEffect(() => {
     if (!messageService || !mamService) return;
