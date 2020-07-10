@@ -2,6 +2,7 @@
  * @jsx xml
  * https://xmpp.org/extensions/xep-0313.html
  */
+import formatDate from 'date-fns/format';
 import xml from '@xmpp/xml';
 import { XmlElement } from '@xmpp/client';
 import StanzaClient from './stanza';
@@ -33,7 +34,6 @@ export default class MamClient extends StanzaClient {
       },
       (messageElement: XmlElement) => {
         const mamMessage = this.elementToMamMessage(messageElement);
-        console.log('MAMMMM', mamMessage);
         if (typeof mamMessage === 'undefined') return;
         return callback(mamMessage);
       }
@@ -48,15 +48,14 @@ export default class MamClient extends StanzaClient {
     start,
     withJid
   }: {
-    after?: number;
-    end?: string;
+    after?: string;
+    end?: Date;
     id?: string;
     max?: number;
-    start?: string;
+    start?: Date;
     withJid?: string;
   } = {}): Promise<MamMessage[]> {
     if (!id) id = Date.now().toString();
-    const children = [];
     const withField = withJid ? (
       <field var="with">
         <value>{withJid}</value>
@@ -64,17 +63,22 @@ export default class MamClient extends StanzaClient {
     ) : null;
     const startField = start ? (
       <field var="start">
-        <value>{start}</value>
+        <value>{formatDate(start, 'YYYY-MM-DDTHH:mm:ss.SSSZ')}</value>
       </field>
     ) : null;
     const endField = end ? (
       <field var="end">
-        <value>{end}</value>
+        <value>{formatDate(end, 'YYYY-MM-DDTHH:mm:ss.SSSZ')}</value>
       </field>
     ) : null;
+    const children = [];
     if (max) {
-      children.push(<max>{max}</max>);
-      if (after) children.push(<after>{after}</after>);
+      const setChildren = [];
+      setChildren.push(<max>{max}</max>);
+      if (after) setChildren.push(<after>{after}</after>);
+      children.push(
+        <set xmlns="http://jabber.org/protocol/rsm">{setChildren}</set>
+      );
     }
     const request = (
       <iq type="set" id={id}>
@@ -87,7 +91,7 @@ export default class MamClient extends StanzaClient {
             {startField}
             {endField}
           </x>
-          {max && <set xmlns="http://jabber.org/protocol/rsm">{children}</set>}
+          {children}
         </query>
       </iq>
     );

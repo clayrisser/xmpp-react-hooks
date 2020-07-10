@@ -7,7 +7,6 @@ import { Message, MamMessage } from '../services';
 
 export default function useMessage(jid: string): Message[] {
   const id = useMemo(() => Date.now().toString(), []);
-  // console.log('ID', id);
   const mamService = useMamService();
   const messageService = useMessageService();
   const xmpp = useXmpp();
@@ -17,22 +16,21 @@ export default function useMessage(jid: string): Message[] {
     (prevMessages: Message[], nextMessages: Message[]) =>
       sortAndFilterMessages([...prevMessages, ...nextMessages])
   );
-  console.log('hook', messages);
 
   useEffect(() => {
     if (!messageService || !mamService) return;
     const cleanupReadMamMessages = mamService.readMessages(
-      (_mamMessage: MamMessage) => {
-        // setMessage(sortAndFilterMessages([...(messages || []), mamMessage]));
+      (mamMessage: MamMessage) => {
+        setMessage(sortAndFilterMessages([...(messages || []), mamMessage]));
       },
       { queryId: id }
     );
-    const cleanupReadSentMessages = messageService.enabledHandleReadSentMessages(
+    const cleanupReadSentMessages = messageService.readSentMessages(
       (message: Message) => {
         setMessage(sortAndFilterMessages([...(messages || []), message]));
       }
     );
-    const cleanupReadMessages = messageService.enabledHandleReadMessages(
+    const cleanupReadMessages = messageService.readMessages(
       (message: Message) => {
         setMessage(sortAndFilterMessages([...(messages || []), message]));
       }
@@ -46,28 +44,35 @@ export default function useMessage(jid: string): Message[] {
   useEffect(() => {
     if (!messageService || !mamService) return;
     mamService.getMessages({ withJid: jid, id });
-  }, [messageService, mamService]);
+  }, [messageService, mamService, jid]);
 
   return messages || [];
 }
 
+export interface MessagesHashMap {
+  [key: string]: Message;
+}
+
 function sortAndFilterMessages(messages: Message[]): Message[] {
-  return messages;
-  // return messages
-  //   .filter((message: Message) => {
-  //     let { stamp } = message;
-  //     if (!stamp) return 0;
-  //     if (typeof stamp === 'string') stamp = new Date(stamp);
-  //     return JSON.stringify({
-  //       from: message.from,
-  //       stamp,
-  //       to: message.to
-  //     });
-  //   })
-  //   .sort((message: Message) => {
-  //     let { stamp } = message;
-  //     if (!stamp) return 0;
-  //     if (typeof stamp === 'string') stamp = new Date(stamp);
-  //     return stamp.getTime();
-  //   });
+  const messagesHashMap: MessagesHashMap = {};
+  messages.forEach((message: Message) => {
+    let { stamp, body } = message;
+    if (!stamp) return 0;
+    if (typeof stamp === 'string') stamp = new Date(stamp);
+    const key = JSON.stringify({
+      body,
+      from: message.from.split('/')[0],
+      stamp,
+      to: message.to.split('/')[0]
+    });
+    messagesHashMap[key] = message;
+  });
+  return Object.values(messagesHashMap)
+    .map((message: Message) => message)
+    .sort((message: Message) => {
+      let { stamp } = message;
+      if (!stamp) return 0;
+      if (typeof stamp === 'string') stamp = new Date(stamp);
+      return stamp.getTime();
+    });
 }

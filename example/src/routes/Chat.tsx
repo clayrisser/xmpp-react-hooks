@@ -10,18 +10,15 @@ export interface ChatParams {
 
 const Chat: FC<ChatProps> = (_props: ChatProps) => {
   const params = useParams<ChatParams>();
-  console.log('params jid', params);
   const [message, setMessage] = useState('');
   const messages = useMessages(params.jid);
-  console.log('messages', messages);
   const messageService = useMessageService();
-  console.log('messageService', messageService);
 
   async function handleSendMessage(
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) {
     e.preventDefault();
-    await messageService?.sendMessage({
+    messageService?.sendMessage({
       to: `${params!.jid}@test.siliconhills.dev`,
       body: message
     });

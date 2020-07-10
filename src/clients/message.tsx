@@ -66,7 +66,6 @@ export default class MessageClient extends StanzaClient {
       },
       (messageElement: XmlElement) => {
         const message = this.elementToMessage(messageElement);
-        console.log('messaeSent', message);
         callback(message);
       },
       'send'
@@ -101,7 +100,6 @@ export default class MessageClient extends StanzaClient {
       },
       async (messageElement: XmlElement) => {
         const message = this.elementToMessage(messageElement);
-        console.log('messagecallback', message);
         callback(message);
       }
     );

@@ -16,7 +16,7 @@ const Routes: FC<RoutesProps> = (_props: RoutesProps) => {
   useEffect(() => {
     const { username, password } = global;
     if (!username || !password) history.push('/');
-  }, []);
+  }, [global, history]);
 
   return (
     <>

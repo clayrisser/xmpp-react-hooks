@@ -16,7 +16,6 @@ const Message: FC<MessageProps> = (_props: MessageProps) => {
   const [to, setTo] = useState('');
   const messageService = useMessageService();
   const messages = useMessages(jid);
-  console.log('messages123', messages);
   const roster = useRoster();
   const status = useStatus();
 
