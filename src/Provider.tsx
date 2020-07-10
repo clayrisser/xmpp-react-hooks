@@ -54,6 +54,7 @@ const Provider: FC<ProviderProps> = (props: ProviderProps) => {
         presenceService.enabledHandlePresenceSubscribe();
         rosterService.enabledHandleRosterPush();
         await xmpp.start();
+        presenceService.sendUnavailable();
         presenceService.sendAvailable();
         if (createCleanup) createCleanup(cleanup);
         setXmpp(xmpp);

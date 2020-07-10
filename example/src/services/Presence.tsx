@@ -1,8 +1,10 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useState, useEffect } from 'react';
 import {
   PresenceType,
+  RosterItem,
   useAvailable,
   usePresenceService,
+  useRoster,
   useStatus
 } from 'xmpp-react-hooks';
 import Loading from '../components/Loading';
@@ -14,7 +16,12 @@ const Presence: FC<PresenceProps> = (_props: PresenceProps) => {
   const [type, setType] = useState<PresenceType>(PresenceType.SUBSCRIBE);
   const available = useAvailable();
   const presenceService = usePresenceService();
+  const roster = useRoster();
   const status = useStatus();
+
+  useEffect(() => {
+    if (!to && roster?.[0]?.jid) setTo(roster[0].jid);
+  }, [roster, to]);
 
   function handleSendPresence(
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
@@ -24,6 +31,7 @@ const Presence: FC<PresenceProps> = (_props: PresenceProps) => {
       to,
       type
     });
+    setTo('');
   }
 
   function handleSendUnavailable() {
@@ -32,6 +40,14 @@ const Presence: FC<PresenceProps> = (_props: PresenceProps) => {
 
   function handleSendAvailable() {
     presenceService?.sendAvailable();
+  }
+
+  function renderRosterOptions() {
+    return roster?.map((rosterItem: RosterItem) => (
+      <option key={rosterItem.jid} value={rosterItem.jid}>
+        {rosterItem.name || rosterItem.jid}
+      </option>
+    ));
   }
 
   if (!status.isReady) return <Loading />;
@@ -48,26 +64,27 @@ const Presence: FC<PresenceProps> = (_props: PresenceProps) => {
       <h3>Send Presence</h3>
       <form>
         <div style={{ paddingBottom: 10 }}>
-          <label htmlFor="type">Type:</label>
-          <br />
+          <label htmlFor="type">Type: </label>
           <select
             name="type"
             id="type"
             onChange={(e: any) => setType(e.target.value)}
             value={type}
           >
-            <option value="subscribe">Subscribe</option>
+            <option value={PresenceType.SUBSCRIBE}>Subscribe</option>
+            <option value={PresenceType.UNSUBSCRIBE}>Unsubscribe</option>
           </select>
         </div>
         <div style={{ paddingBottom: 10 }}>
-          <label htmlFor="to">To:</label>
-          <br />
-          <input
-            id="to"
+          <label htmlFor="to">To: </label>
+          <select
             name="to"
+            id="to"
             onChange={(e: any) => setTo(e.target.value)}
             value={to}
-          />
+          >
+            {renderRosterOptions()}
+          </select>
         </div>
         <button type="submit" onClick={handleSendPresence}>
           Send Presence

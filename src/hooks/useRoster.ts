@@ -1,40 +1,97 @@
 import useStateCache from 'use-state-cache';
-import { useEffect } from 'react';
-import useXmpp from './useXmpp';
+import { useEffect, useCallback } from 'react';
 import useRosterService from './useRosterService';
+import useXmpp from './useXmpp';
 import { RosterItem } from '../clients';
+import { RosterSubscription } from '../services';
 
 export default function useRoster(): RosterItem[] | undefined {
+  const rosterService = useRosterService();
   const xmpp = useXmpp();
   const [roster, setRoster] = useStateCache<RosterItem[]>(
-    `${xmpp?.fullJid}/roster`,
-    []
+    [xmpp?.fullJid, 'roster'],
+    [],
+    (prevRoster: RosterItem[], nextRoster: RosterItem[]) => {
+      return [
+        ...prevRoster.reduce(
+          (newRoster: RosterItem[], prevRosterItem: RosterItem) => {
+            const newRosterItem = newRoster.find(
+              (newRosterItem: RosterItem) =>
+                newRosterItem.jid === prevRosterItem.jid
+            );
+            const nextRosterItem = nextRoster.find(
+              (nextRosterItem: RosterItem) =>
+                nextRosterItem.jid === prevRosterItem.jid
+            );
+            if (nextRosterItem) {
+              Object.assign(newRosterItem, nextRosterItem);
+            } else {
+              newRoster = newRoster.filter(
+                (newRosterItem: RosterItem) =>
+                  newRosterItem.jid !== prevRosterItem.jid
+              );
+            }
+            return newRoster;
+          },
+          [...prevRoster]
+        ),
+        ...nextRoster.reduce(
+          (newRoster: RosterItem[], nextRosterItem: RosterItem) => {
+            if (
+              !prevRoster.find(
+                (prevRosterItem: RosterItem) =>
+                  prevRosterItem.jid === nextRosterItem.jid
+              )
+            ) {
+              newRoster.push(nextRosterItem);
+            }
+            return newRoster;
+          },
+          []
+        )
+      ];
+    }
   );
-  const rosterService = useRosterService();
+
+  const updateRoster = useCallback(
+    (newRoster: RosterItem[], rosterItem: RosterItem) => {
+      newRoster = [...newRoster];
+      const newRosterItem = newRoster.find(
+        ({ jid }: RosterItem) => jid === rosterItem.jid
+      );
+      if (rosterItem.subscription === RosterSubscription.REMOVE) {
+        newRoster = newRoster.filter(
+          (newRosterItem: RosterItem) => newRosterItem.jid !== rosterItem.jid
+        );
+      } else if (newRosterItem) {
+        Object.assign(newRosterItem, rosterItem);
+      } else {
+        newRoster.push(rosterItem);
+      }
+      return newRoster;
+    },
+    [roster]
+  );
+
+  useEffect(() => {
+    (async () => {
+      if (!rosterService) return;
+      const newRoster = await rosterService.getRoster();
+      setRoster(newRoster);
+    })().catch(console.error);
+  }, [rosterService]);
 
   useEffect(() => {
     let cleanup = () => {};
     (async () => {
       if (!rosterService) return;
-      let roster = await rosterService.getRoster();
-      setRoster(roster);
       cleanup = rosterService!.readRosterPush((rosterItem: RosterItem) => {
-        if (roster) {
-          roster = [...roster, rosterItem];
-          setRoster(
-            roster.filter(
-              (rosterItem: RosterItem) =>
-                roster.filter(
-                  (rosterSubItem: RosterItem) =>
-                    rosterItem.jid === rosterSubItem.jid
-                ).length > 1
-            )
-          );
-        }
+        const newRoster = updateRoster(roster || [], rosterItem);
+        setRoster(newRoster);
       });
     })().catch(console.error);
     return () => cleanup();
-  }, [rosterService]);
+  }, [rosterService, roster]);
 
   return roster;
 }

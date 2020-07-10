@@ -8,14 +8,18 @@ import StanzaClient from './stanza';
 import Xmpp, { Cleanup } from '../xmpp';
 import { Message } from './message';
 
-export default class MAMClient extends StanzaClient {
+export default class MamClient extends StanzaClient {
   constructor(private readonly xmpp: Xmpp) {
     super(xmpp, 'urn:xmpp:mam:2');
   }
 
   readMessages(
     callback: (message: MamMessage) => any,
-    queryId?: string
+    {
+      queryId
+    }: {
+      queryId?: string;
+    }
   ): Cleanup {
     return this.xmpp.handle(
       (messageElement: XmlElement) => {
@@ -27,33 +31,35 @@ export default class MAMClient extends StanzaClient {
           (!queryId || resultElement.getAttr('queryid') === queryId)
         );
       },
-      (iqElement: XmlElement) => {
-        const mamMessage = this.elementToMamMessage(iqElement);
-        if (typeof mamMessage === 'undefined') return () => {};
+      (messageElement: XmlElement) => {
+        const mamMessage = this.elementToMamMessage(messageElement);
+        console.log('MAMMMM', mamMessage);
+        if (typeof mamMessage === 'undefined') return;
         return callback(mamMessage);
       }
     );
   }
 
   async getMessages({
-    With,
-    id,
-    start,
+    after,
     end,
+    id,
     max,
-    after
+    start,
+    withJid
   }: {
-    With?: string;
-    id?: string;
-    start?: string;
-    end?: string;
-    max?: number;
     after?: number;
+    end?: string;
+    id?: string;
+    max?: number;
+    start?: string;
+    withJid?: string;
   } = {}): Promise<MamMessage[]> {
     if (!id) id = Date.now().toString();
-    const withField = With ? (
+    const children = [];
+    const withField = withJid ? (
       <field var="with">
-        <value>{With}</value>
+        <value>{withJid}</value>
       </field>
     ) : null;
     const startField = start ? (
@@ -66,16 +72,10 @@ export default class MAMClient extends StanzaClient {
         <value>{end}</value>
       </field>
     ) : null;
-
-    const children = [];
     if (max) {
       children.push(<max>{max}</max>);
       if (after) children.push(<after>{after}</after>);
     }
-    // const limitingResults = max ? (
-    //   <set xmlns="http://jabber.org/protocol/rsm">{children}</set>
-    // ) : null;
-
     const request = (
       <iq type="set" id={id}>
         <query xmlns={this.namespaceName} queryid={id}>
@@ -94,7 +94,7 @@ export default class MAMClient extends StanzaClient {
     const mamMessages: MamMessage[] = [];
     const cleanup = this.readMessages(
       (mamMessage: MamMessage) => mamMessages.push(mamMessage),
-      id
+      { queryId: id }
     );
     const iqElement = await this.xmpp.query(request, [this.namespaceName, id]);
     cleanup();
@@ -105,35 +105,27 @@ export default class MAMClient extends StanzaClient {
 
   elementToMamMessage(messageElement: XmlElement): MamMessage | void {
     const resultElement = messageElement.getChild('result');
-    if (typeof resultElement === 'undefined') return;
+    if (!resultElement) return;
+    const queryId = resultElement.getAttr('queryid');
     const forwardedElement = resultElement.getChild('forwarded');
-    if (typeof forwardedElement === 'undefined') return;
+    if (!forwardedElement) return;
     const childMessageElement = forwardedElement.getChild('message');
     const deleyElement = forwardedElement.getChild('delay');
-    if (
-      typeof childMessageElement === 'undefined' ||
-      typeof deleyElement === 'undefined'
-    ) {
-      return;
-    }
+    if (!childMessageElement || !deleyElement) return;
     const from = childMessageElement.getAttr('from');
-    const id = messageElement.getAttr('id');
+    const id = childMessageElement.getAttr('id');
     const stamp = new Date(deleyElement.getAttr('stamp'));
     const to = childMessageElement.getAttr('to');
-    const header =
-      childMessageElement.getChild('header')?.getText() || undefined;
-    const body = childMessageElement
-      .getChildren('body')
-      .reduce((body: string, bodyElement: XmlElement) => {
-        return [body, bodyElement.text()].join('\n');
-      }, '');
-    if (id && body && from && to) {
+    const header = childMessageElement.getChild('header')?.getText();
+    const body = childMessageElement.getChild('body')?.text();
+    if (id && typeof body !== 'undefined' && from && to) {
       return {
         body,
         from,
         header,
         id,
         mam: true,
+        queryId,
         stamp,
         to
       };
@@ -206,6 +198,7 @@ export default class MAMClient extends StanzaClient {
 
 export interface MamMessage extends Message {
   mam: boolean;
+  queryId?: string;
 }
 
 export interface Preferences {
