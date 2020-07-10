@@ -21,7 +21,7 @@ const Chat: FC<ChatProps> = (_props: ChatProps) => {
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) {
     e.preventDefault();
-    messageService?.sendMessage({
+    await messageService?.sendMessage({
       to: `${params!.jid}@test.siliconhills.dev`,
       body: message
     });

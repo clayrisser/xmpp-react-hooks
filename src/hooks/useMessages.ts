@@ -3,7 +3,7 @@ import { useEffect, useMemo } from 'react';
 import useMamService from './useMamService';
 import useMessageService from './useMessageService';
 import useXmpp from './useXmpp';
-import { Message, MamMessage } from '../clients';
+import { Message, MamMessage } from '../services';
 
 export default function useMessage(jid: string): Message[] {
   const id = useMemo(() => Date.now().toString(), []);
@@ -27,12 +27,12 @@ export default function useMessage(jid: string): Message[] {
       },
       { queryId: id }
     );
-    const cleanupReadSentMessages = messageService.readSentMessages(
+    const cleanupReadSentMessages = messageService.enabledHandleReadSentMessages(
       (message: Message) => {
         setMessage(sortAndFilterMessages([...(messages || []), message]));
       }
     );
-    const cleanupReadMessages = messageService.readMessages(
+    const cleanupReadMessages = messageService.enabledHandleReadMessages(
       (message: Message) => {
         setMessage(sortAndFilterMessages([...(messages || []), message]));
       }

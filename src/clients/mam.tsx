@@ -205,4 +205,3 @@ export interface Preferences {
   always?: string[];
   never?: string[];
 }
-export * from '../clients/mam';

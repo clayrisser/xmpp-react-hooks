@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import useXmpp from './useXmpp';
-// import { MessageClient } from '../clients';
 import { MessageService } from '../services';
 
 export default function useMessageService(): MessageService | undefined {

@@ -44,3 +44,4 @@ export default class MamService extends MamClient {
     return this.getMessages({ after, end, id, max, start, withJid });
   }
 }
+export * from '../clients/mam';

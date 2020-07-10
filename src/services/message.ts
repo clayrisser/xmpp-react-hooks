@@ -41,33 +41,33 @@ export default class MessageService extends MessageClient {
   // }
 
   enabledHandleReadMessages(
-    callback: (message: Message) => any,
-    { from, to }: { from?: string; to?: string } = {}
-  ) {
+    callback: (message: Message) => any
+    // { from, to }: { from?: string; to?: string } = {}
+  ): Cleanup {
     this.disableHandleReadMessages();
-    this.disableHandleReadMessages = this.readMessages(
+    return (this.disableHandleReadMessages = this.readMessages(
       (message: Message) => {
         if (message.from.split('/')[0] !== this.xmpp.bareJid) {
           callback(message);
         }
       },
       { to: this.xmpp.fullJid }
-    );
+    ));
   }
 
   enabledHandleReadSentMessages(
-    callback: (message: Message) => any,
-    { from, to }: { from?: string; to?: string } = {}
-  ) {
+    callback: (message: Message) => any
+    // { from, to }: { from?: string; to?: string } = {}
+  ): Cleanup {
     this.disableHandleReadSentMessages();
-    this.disableHandleReadSentMessages = this.readSentMessages(
+    return (this.disableHandleReadSentMessages = this.readSentMessages(
       (message: Message) => {
-        if (message.from.split('/')[0] === this.xmpp.bareJid) {
+        if (message.to.split('/')[0] !== this.xmpp.bareJid) {
           callback(message);
         }
       },
       { from: this.xmpp.fullJid }
-    );
+    ));
   }
 }
 
