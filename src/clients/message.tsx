@@ -29,11 +29,12 @@ export default class MessageClient extends StanzaClient {
     const request = xml(
       'message',
       {
+        'xml:lang': lang,
         from,
         id,
         to,
         type: 'chat',
-        'xml:lang': lang
+        xmlns: this.namespaceName
       },
       <body>{body}</body>
     );

@@ -29,7 +29,7 @@ export default function useMessage(jid: string): Message[] {
       (message: Message) => {
         setMessage(sortAndFilterMessages([...(messages || []), message]));
       },
-      { from: jid }
+      { to: jid }
     );
     const cleanupReadMessages = messageService.readMessages(
       (message: Message) => {
@@ -58,16 +58,7 @@ export interface MessagesHashMap {
 function sortAndFilterMessages(messages: Message[]): Message[] {
   const messagesHashMap: MessagesHashMap = {};
   messages.forEach((message: Message) => {
-    let { stamp, body } = message;
-    if (!stamp) return 0;
-    if (typeof stamp === 'string') stamp = new Date(stamp);
-    const key = JSON.stringify({
-      body,
-      from: message.from.split('/')[0],
-      stamp,
-      to: message.to.split('/')[0]
-    });
-    messagesHashMap[key] = message;
+    messagesHashMap[message.id] = message;
   });
   return Object.values(messagesHashMap)
     .map((message: Message) => message)
