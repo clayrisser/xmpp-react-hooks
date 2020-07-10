@@ -21,11 +21,11 @@ export default function useMessage(jid: string): Message[] {
     const messagesBatch: Message[] = [];
     if (!messageService || !mamService) return;
     const cleanupReadMamMessages = mamService.readMessages(
-      (mamMessage: MamMessage) => {
-        messagesBatch.push(mamMessage);
-        setMessage(
-          sortAndFilterMessages([...(messages || []), ...messagesBatch])
-        );
+      (_mamMessage: MamMessage) => {
+        // messagesBatch.push(mamMessage);
+        // setMessage(
+        //   sortAndFilterMessages([...(messages || []), ...messagesBatch])
+        // );
       },
       id
     );
@@ -56,21 +56,22 @@ export default function useMessage(jid: string): Message[] {
 }
 
 function sortAndFilterMessages(messages: Message[]): Message[] {
-  return messages
-    .filter((message: Message) => {
-      let { stamp } = message;
-      if (!stamp) return 0;
-      if (typeof stamp === 'string') stamp = new Date(stamp);
-      return JSON.stringify({
-        from: message.from,
-        stamp,
-        to: message.to
-      });
-    })
-    .sort((message: Message) => {
-      let { stamp } = message;
-      if (!stamp) return 0;
-      if (typeof stamp === 'string') stamp = new Date(stamp);
-      return stamp.getTime();
-    });
+  return messages;
+  // return messages
+  //   .filter((message: Message) => {
+  //     let { stamp } = message;
+  //     if (!stamp) return 0;
+  //     if (typeof stamp === 'string') stamp = new Date(stamp);
+  //     return JSON.stringify({
+  //       from: message.from,
+  //       stamp,
+  //       to: message.to
+  //     });
+  //   })
+  //   .sort((message: Message) => {
+  //     let { stamp } = message;
+  //     if (!stamp) return 0;
+  //     if (typeof stamp === 'string') stamp = new Date(stamp);
+  //     return stamp.getTime();
+  //   });
 }

@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import { useStatus } from 'xmpp-react-hooks';
 import Loading from '../components/Loading';
-import { Presence, Roster } from '../services';
+import { Message, Presence, Roster } from '../services';
 
 export interface InfoProps {}
 
@@ -13,6 +13,7 @@ const Info: FC<InfoProps> = (_props: InfoProps) => {
     <>
       <Roster />
       <Presence />
+      <Message />
     </>
   );
 };

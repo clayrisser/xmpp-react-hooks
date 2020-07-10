@@ -1,4 +1,5 @@
 import React, { FC, useState } from 'react';
+import { BrowserRouter as Router } from 'react-router-dom';
 import { Provider as XmppProvider } from 'xmpp-react-hooks';
 import GlobalContext, { Global } from './contexts/global';
 import Routes from './routes';
@@ -17,7 +18,9 @@ const App: FC<AppProps> = (_props: AppProps) => {
         password={global.password}
         username={global.username}
       >
-        <Routes />
+        <Router>
+          <Routes />
+        </Router>
       </XmppProvider>
     </GlobalContext.Provider>
   );

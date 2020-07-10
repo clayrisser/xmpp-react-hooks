@@ -12,25 +12,6 @@ export default class MessageClient extends StanzaClient {
     super(xmpp, 'jabber:client');
   }
 
-  // sendMessages(to: string, body: string, lang?: string, from?: string) {
-  //   if (!from) from = this.xmpp.fullJid!;
-  //   if (!lang) lang = this.xmpp.lang;
-  //   const id = Date.now().toString();
-  //   const request = xml(
-  //     'message',
-  //     {
-  //       from,
-  //       id,
-  //       to,
-  //       type: 'chat',
-  //       'xml:lang': lang
-  //     },
-  //     <body>{body}</body>
-  //   );
-  //   // TODO: resolve query on server ack
-  //   this.xmpp.query(request);
-  // }
-
   sendMessage({
     to,
     body,
@@ -74,13 +55,12 @@ export default class MessageClient extends StanzaClient {
     return this.xmpp.handle(
       (messageElement: XmlElement) => {
         return (
-          !messageElement.getChild('result') &&
           messageElement.getAttr('type') === 'chat' &&
           messageElement.getAttr('xmlns') === this.namespaceName &&
           messageElement.name === 'message' &&
           messageElement.getAttr('from')?.split('/')[0] ===
             from?.split('/')[0] &&
-          (!to?.length ||
+          (!to ||
             messageElement.getAttr('to')?.split('/')[0] === to?.split('/')[0])
         );
       },
@@ -106,13 +86,11 @@ export default class MessageClient extends StanzaClient {
     return this.xmpp.handle(
       (messageElement: XmlElement) => {
         return (
-          !messageElement.getChildByAttr('xmlns', 'urn:xmpp:mam:2') &&
-          /* !messageElement.getChild('result') && */
           messageElement.getAttr('to')?.split('/')[0] === to?.split('/')[0] &&
           messageElement.getAttr('type') === 'chat' &&
-          /* messageElement.getAttr('xmlns') === this.namespaceName && */
+          messageElement.getAttr('xmlns') === this.namespaceName &&
           messageElement.name === 'message' &&
-          (!from?.length ||
+          (!from ||
             messageElement.getAttr('from')?.split('/')[0] ===
               from?.split('/')[0])
         );
@@ -125,10 +103,13 @@ export default class MessageClient extends StanzaClient {
   }
 
   elementToMessage(messageElement: XmlElement): Message {
+    const archivedElement = messageElement.getChild('archived');
     const from = messageElement.getAttr('from');
     const header = messageElement.getChild('header')?.text() || undefined;
     const id = messageElement.getAttr('id');
     const stamp = new Date();
+    const lang = messageElement.getAttr('xml:lang');
+    const archivedId = archivedElement?.getAttr('id');
     const to = messageElement.getAttr('to');
     const body = messageElement
       .getChildren('body')
@@ -136,17 +117,19 @@ export default class MessageClient extends StanzaClient {
         return [body, bodyElement.text()].join('\n');
       }, '');
     if (body && from && to && id) {
-      return { body, from, to, header, stamp, id };
+      return { body, from, to, header, stamp, id, archivedId, lang };
     }
     throw new Error('invalid message stanza');
   }
 }
 
 export interface Message {
+  archivedId?: string;
   body: string;
   from: string;
   header?: string;
   id: string;
+  lang?: string;
   stamp?: Date;
   to: string;
 }
