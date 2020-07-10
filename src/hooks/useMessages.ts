@@ -28,12 +28,14 @@ export default function useMessage(jid: string): Message[] {
     const cleanupReadSentMessages = messageService.readSentMessages(
       (message: Message) => {
         setMessage(sortAndFilterMessages([...(messages || []), message]));
-      }
+      },
+      { from: jid }
     );
     const cleanupReadMessages = messageService.readMessages(
       (message: Message) => {
         setMessage(sortAndFilterMessages([...(messages || []), message]));
-      }
+      },
+      { from: jid }
     );
     return () =>
       cleanupReadSentMessages() &&

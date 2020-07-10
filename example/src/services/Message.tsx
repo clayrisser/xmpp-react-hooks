@@ -33,7 +33,6 @@ const Message: FC<MessageProps> = (_props: MessageProps) => {
       body
     });
     setBody('');
-    setTo('');
   }
 
   function renderRosterOptions() {

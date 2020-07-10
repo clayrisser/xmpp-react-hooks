@@ -31,7 +31,6 @@ const Presence: FC<PresenceProps> = (_props: PresenceProps) => {
       to,
       type
     });
-    setTo('');
   }
 
   function handleSendUnavailable() {

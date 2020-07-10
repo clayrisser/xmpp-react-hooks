@@ -22,7 +22,6 @@ const Roster: FC<RosterProps> = (_props: RosterProps) => {
     if (!jid && !customJid) return;
     rosterService?.setRosterItem({ jid: jid || customJid, name });
     setCustomJid('');
-    setJid('');
     setName('');
   }
 
