@@ -20,8 +20,8 @@ const Presence: FC<PresenceProps> = (_props: PresenceProps) => {
   const status = useStatus();
 
   useEffect(() => {
-    if (!to) setTo(roster?.[0]?.jid || '');
-  }, [roster]);
+    if (!to && roster?.[0]?.jid) setTo(roster[0].jid);
+  }, [roster, to]);
 
   function handleSendPresence(
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>

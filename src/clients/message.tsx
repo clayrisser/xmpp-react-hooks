@@ -5,7 +5,7 @@
 import xml from '@xmpp/xml';
 import { XmlElement } from '@xmpp/client';
 import StanzaClient from './stanza';
-import Xmpp from '../xmpp';
+import Xmpp, { Cleanup } from '../xmpp';
 
 export default class MessageClient extends StanzaClient {
   constructor(private readonly xmpp: Xmpp) {
@@ -50,7 +50,7 @@ export default class MessageClient extends StanzaClient {
       to?: string;
       from?: string;
     } = {}
-  ): () => any {
+  ): Cleanup {
     if (!from) from = this.xmpp.fullJid!;
     return this.xmpp.handle(
       (messageElement: XmlElement) => {
@@ -81,15 +81,18 @@ export default class MessageClient extends StanzaClient {
       from?: string;
       to?: string;
     } = {}
-  ): () => any {
+  ): Cleanup {
     if (!to) to = this.xmpp.fullJid!;
     return this.xmpp.handle(
       (messageElement: XmlElement) => {
+        const resultElement = messageElement.getChild('result');
         return (
           messageElement.getAttr('to')?.split('/')[0] === to?.split('/')[0] &&
           messageElement.getAttr('type') === 'chat' &&
           messageElement.getAttr('xmlns') === this.namespaceName &&
           messageElement.name === 'message' &&
+          (!resultElement?.getAttr('xmlns') ||
+            resultElement?.getAttr('xmlns') !== 'urn:xmpp:mam:2') &&
           (!from ||
             messageElement.getAttr('from')?.split('/')[0] ===
               from?.split('/')[0])

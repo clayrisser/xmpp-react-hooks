@@ -12,8 +12,8 @@ const Roster: FC<RosterProps> = (_props: RosterProps) => {
   const rosterService = useRosterService();
 
   useEffect(() => {
-    if (!removeJid) setRemoveJid(roster?.[0]?.jid || '');
-  }, [roster]);
+    if (!removeJid && roster?.[0]?.jid) setRemoveJid(roster[0].jid);
+  }, [roster, removeJid]);
 
   async function handleSetRosterItem(
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
