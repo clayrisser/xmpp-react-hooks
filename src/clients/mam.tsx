@@ -61,7 +61,6 @@ export default class MAMClient extends StanzaClient {
         <value>{start}</value>
       </field>
     ) : null;
-
     const endField = end ? (
       <field var="end">
         <value>{end}</value>
