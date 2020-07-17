@@ -1,6 +1,6 @@
 {
   "name": "xmpp-react-hooks",
-  "version": "0.0.14",
+  "version": "0.0.19",
   "description": "react hooks for xmpp",
   "keywords": [
     "xmpp-react-hooks",
@@ -43,7 +43,7 @@
     "test:watch": "make -s test-watch"
   },
   "dependencies": {
-    "@babel/runtime": "^7.10.4",
+    "@babel/runtime": "^7.10.5",
     "@callstack/async-storage": "^2.0.3",
     "@xmpp/client": "^0.11.1",
     "@xmpp/debug": "^0.11.0",
@@ -52,8 +52,10 @@
     "date-fns": "^2.14.0",
     "event-ears": "^0.0.2",
     "ltx": "^2.9.2",
-    "react": "^16.13.1",
     "use-state-cache": "^0.1.0"
+  },
+  "peerDependencies": {
+    "react": "^16.13.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.10.4",
@@ -62,6 +64,7 @@
     "@babel/plugin-proposal-class-properties": "^7.10.4",
     "@babel/plugin-proposal-decorators": "^7.10.4",
     "@babel/plugin-proposal-optional-chaining": "^7.10.4",
+    "@babel/plugin-transform-runtime": "^7.10.5",
     "@babel/preset-env": "^7.10.4",
     "@babel/preset-react": "^7.10.4",
     "@babel/preset-typescript": "^7.10.4",
@@ -84,6 +87,7 @@
     "majestic": "^1.7.0",
     "pnpm": "^5.3.0",
     "prettier": "^2.0.5",
+    "react": "^16.13.1",
     "typescript": "^3.9.6"
   },
   "engines": {
