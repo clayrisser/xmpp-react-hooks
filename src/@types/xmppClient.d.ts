@@ -6,7 +6,7 @@ declare module '@xmpp/client' {
   export function client(options: {
     service?: string;
     domain?: string;
-    resource?: string;
+    resource?: number;
     username?: string;
     password?: string;
     credentials?: (
@@ -19,7 +19,7 @@ declare module '@xmpp/client' {
     domain: string;
     fullJid: string;
     jid: string;
-    resource: string;
+    resource: number;
     send: (...args: any) => Promise<any>;
     start: () => Promise<any>;
     stop: () => Promise<any>;

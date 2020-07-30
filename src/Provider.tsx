@@ -12,7 +12,7 @@ export interface ProviderProps {
   domain?: string;
   hostname?: string;
   password?: string;
-  resource?: string;
+  resource?: number;
   service?: string;
   username?: string;
 }

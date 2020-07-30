@@ -3,6 +3,7 @@
  * */
 import xmppDebug from '@xmpp/debug';
 import { XmppClient, client as xmppClient, XmlElement } from '@xmpp/client';
+import AsyncStorage from '@callstack/async-storage';
 
 export default class Xmpp {
   public client?: XmppClient;
@@ -82,10 +83,12 @@ export default class Xmpp {
 
   async login(username: string, password: string) {
     const domain = this.config.domain || this.config.hostname;
-    const resource = this.config.resource || (await this.getResource());
+    // const resource = this.config.resource || (await this.getResource());
+    const resource = this.config.resource || (await this.Resource());
     const service = this.config.service || `wss://${this.config.hostname}/ws`;
     this.bareJid = `${username}@${domain}`;
     this.fullJid = `${this.bareJid}/${resource}`;
+    console.log('fulljidddd', this.fullJid);
     this.client = xmppClient({
       password,
       username,
@@ -179,6 +182,21 @@ export default class Xmpp {
     // TODO: get resource from xmpp server (if xmpp server does not support getting resource then generate from hashed user agent or hashed mac address)
     return 'abc';
   }
+
+  async Resource() {
+    const get_resource = await AsyncStorage.getItem('resource');
+    if (get_resource) return get_resource;
+
+    const value = Math.floor(Math.random() * 100 + 1);
+    await AsyncStorage.setItem('resource', value)
+      .then(() => {
+        console.log('set');
+      })
+      .catch((err: any) => {
+        console.log('err', err);
+      });
+    return value;
+  }
 }
 
 export interface Config {
@@ -186,7 +204,7 @@ export interface Config {
   domain?: string;
   hostname?: string;
   lang?: string;
-  resource?: string;
+  resource?: number;
   service?: string;
 }
 
