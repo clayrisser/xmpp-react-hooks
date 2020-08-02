@@ -4,7 +4,7 @@
  * https://xmpp.org/extensions/xep-0237.html
  */
 import xml from '@xmpp/xml';
-import { XmlElement } from '@xmpp/client';
+import { Element as XmlElement } from 'ltx';
 import StanzaClient, { IqType } from './stanza';
 import Xmpp from '../xmpp';
 

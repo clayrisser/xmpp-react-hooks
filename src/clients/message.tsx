@@ -2,8 +2,8 @@
  * @jsx xml
  * https://xmpp.org/rfcs/rfc6120.html#stanzas
  */
-import xml from '@xmpp/xml';
-import { XmlElement } from '@xmpp/client';
+import xml, { ElementChild } from '@xmpp/xml';
+import { Element as XmlElement } from 'ltx';
 import StanzaClient from './stanza';
 import Xmpp, { Cleanup } from '../xmpp';
 
@@ -36,7 +36,7 @@ export default class MessageClient extends StanzaClient {
         type: 'chat',
         xmlns: this.namespaceName
       },
-      <body>{body}</body>
+      xml('body', {}, body as ElementChild)
     );
     // TODO: resolve query on server ack
     this.xmpp.query(request);

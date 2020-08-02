@@ -4,7 +4,7 @@
  */
 import formatDate from 'date-fns/format';
 import xml from '@xmpp/xml';
-import { XmlElement } from '@xmpp/client';
+import { Element as XmlElement } from 'ltx';
 import StanzaClient from './stanza';
 import Xmpp, { Cleanup } from '../xmpp';
 import { Message } from './message';

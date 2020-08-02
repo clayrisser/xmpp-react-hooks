@@ -3,7 +3,6 @@
  * https://xmpp.org/extensions/xep-0077.html
  */
 import xml from '@xmpp/xml';
-import { XmlElement } from '@xmpp/client';
 import StanzaClient from './stanza';
 import Xmpp from '../xmpp';
 
