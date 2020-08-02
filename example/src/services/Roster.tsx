@@ -1,5 +1,10 @@
 import React, { FC, useState, useEffect } from 'react';
-import { RosterItem, useRoster, useRosterService } from 'xmpp-react-hooks';
+import {
+  RosterItem,
+  useNewRosterService,
+  useRoster,
+  useRosterService
+} from 'xmpp-react-hooks';
 
 export interface RosterProps {}
 
@@ -8,8 +13,10 @@ const Roster: FC<RosterProps> = (_props: RosterProps) => {
   const [jid, setJid] = useState('');
   const [name, setName] = useState('');
   const [removeJid, setRemoveJid] = useState('');
+  const [newRoster, setNewRoster] = useState<string>('');
   const roster = useRoster();
   const rosterService = useRosterService();
+  const newRosterService = useNewRosterService();
 
   useEffect(() => {
     if (!removeJid && roster?.[0]?.jid) setRemoveJid(roster[0].jid);
@@ -23,6 +30,12 @@ const Roster: FC<RosterProps> = (_props: RosterProps) => {
     rosterService?.setRosterItem({ jid: jid || customJid, name });
     setCustomJid('');
     setName('');
+  }
+
+  async function handleGetNewRoster() {
+    if (!newRosterService) return;
+    const newRoster = await newRosterService.get();
+    setNewRoster(JSON.stringify(newRoster, null, 2));
   }
 
   async function handleRemoveRosterItem(
@@ -101,6 +114,9 @@ const Roster: FC<RosterProps> = (_props: RosterProps) => {
           Remove Roster Item
         </button>
       </form>
+      <h1>New Roster</h1>
+      {newRoster}
+      <button onClick={handleGetNewRoster}>Get New Roster</button>
     </div>
   );
 };

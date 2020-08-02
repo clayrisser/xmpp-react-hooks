@@ -2,6 +2,7 @@ import useAvailable from './useAvailable';
 import useMamService from './useMamService';
 import useMessageService from './useMessageService';
 import useMessages from './useMessages';
+import useNewRosterService from './useNewRosterService';
 import usePresenceService from './usePresenceService';
 import useRegisterService from './useRegisterService';
 import useRoster from './useRoster';
@@ -14,6 +15,7 @@ export {
   useMamService,
   useMessageService,
   useMessages,
+  useNewRosterService,
   usePresenceService,
   useRegisterService,
   useRoster,
