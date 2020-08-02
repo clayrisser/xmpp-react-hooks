@@ -2,7 +2,7 @@ import React, { FC, useState, ReactNode, useEffect } from 'react';
 import { Provider as UseStateCacheProvider } from 'use-state-cache';
 import Xmpp, { Cleanup } from './xmpp';
 import XmppContext from './contexts/xmpp';
-import { PresenceService, RosterService } from './services';
+import { PresenceService } from './services';
 
 export interface ProviderProps {
   cache?: boolean | string;
@@ -50,9 +50,7 @@ const Provider: FC<ProviderProps> = (props: ProviderProps) => {
         });
         await xmpp.login(username, password);
         const presenceService = new PresenceService(xmpp);
-        const rosterService = new RosterService(xmpp);
         presenceService.enabledHandlePresenceSubscribe();
-        rosterService.enabledHandleRosterPush();
         await xmpp.start();
         presenceService.sendUnavailable();
         presenceService.sendAvailable();

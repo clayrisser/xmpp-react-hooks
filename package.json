@@ -45,8 +45,8 @@
   "dependencies": {
     "@babel/runtime": "^7.11.0",
     "@callstack/async-storage": "^2.0.3",
-    "@xmpp-ts/roster": "^0.0.21",
-    "@xmpp-ts/types": "0.0.21",
+    "@xmpp-ts/roster": "^0.0.25",
+    "@xmpp-ts/types": "0.0.25",
     "@xmpp/client": "^0.11.1",
     "@xmpp/debug": "^0.11.0",
     "@xmpp/events": "^0.11.0",

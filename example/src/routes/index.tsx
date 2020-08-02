@@ -5,6 +5,7 @@ import ChatList from './ChatList';
 import GlobalContext from '../contexts/global';
 import Home from './Home';
 import Info from './Info';
+import Roster from './Roster';
 import { Footer, Header } from '../containers';
 
 export interface RoutesProps {}
@@ -30,6 +31,9 @@ const Routes: FC<RoutesProps> = (_props: RoutesProps) => {
         </Route>
         <Route path="/info">
           <Info />
+        </Route>
+        <Route path="/roster">
+          <Roster />
         </Route>
         <Route path="/chat/:jid">
           <Chat />
