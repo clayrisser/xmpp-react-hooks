@@ -14,7 +14,7 @@ const Home: FC<HomeProps> = (_props: HomeProps) => {
   function handleClick(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     e.preventDefault();
     setGlobal({ username, password });
-    history.push('/chat-list');
+    history.push('/roster');
   }
 
   return (

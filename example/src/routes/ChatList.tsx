@@ -1,6 +1,6 @@
 import React, { FC, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { useRoster, RosterItem, useRosterService } from 'xmpp-react-hooks';
+import { useRoster, RosterItem /* useRosterService */ } from 'xmpp-react-hooks';
 import Loading from '../components/Loading';
 
 export interface ChatListProps {}
@@ -10,7 +10,7 @@ const ChatList: FC<ChatListProps> = (_props: ChatListProps) => {
   const [name, setName] = useState<string>('');
   const history = useHistory();
   const roster = useRoster();
-  const rosterService = useRosterService();
+  /* const rosterService = useRosterService(); */
 
   function handleRosterItemClick(rosterItem: string) {
     history.push(`/chat/${rosterItem}`);
@@ -20,28 +20,28 @@ const ChatList: FC<ChatListProps> = (_props: ChatListProps) => {
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) {
     e.preventDefault();
-    await rosterService?.setRosterItem({ jid, name });
+    /* await rosterService?.setRosterItem({ jid, name }); */
   }
 
-  function renderRosterItem(rosterItem: RosterItem) {
-    const displayName = rosterItem.name || rosterItem.jid.split('@')[0];
-    return (
-      <div key={rosterItem.jid}>
-        <button
-          onClick={() => handleRosterItemClick(rosterItem.jid)}
-          style={{ fontWeight: 'bold' }}
-        >
-          {displayName}
-        </button>
-        <span style={{ fontStyle: 'italic' }}>&nbsp;{rosterItem.jid}</span>
-        <hr />
-      </div>
-    );
-  }
+  /* function renderRosterItem(rosterItem: RosterItem) {
+   *   const displayName = rosterItem.name || rosterItem.jid.split('@')[0];
+   *   return (
+   *     <div key={rosterItem.jid}>
+   *       <button
+   *         onClick={() => handleRosterItemClick(rosterItem.jid)}
+   *         style={{ fontWeight: 'bold' }}
+   *       >
+   *         {displayName}
+   *       </button>
+   *       <span style={{ fontStyle: 'italic' }}>&nbsp;{rosterItem.jid}</span>
+   *       <hr />
+   *     </div>
+   *   );
+   * } */
 
-  function renderRoster(roster: RosterItem[]) {
-    return roster.map((rosterItem: RosterItem) => renderRosterItem(rosterItem));
-  }
+  /* function renderRoster(roster: RosterItem[]) {
+   *   return roster.map((rosterItem: RosterItem) => renderRosterItem(rosterItem));
+   * } */
 
   if (!roster) return <Loading />;
   return (
@@ -74,7 +74,7 @@ const ChatList: FC<ChatListProps> = (_props: ChatListProps) => {
           Register
         </button>
       </form>
-      {renderRoster(roster)}
+      {/* {renderRoster(roster)} */}
     </>
   );
 };

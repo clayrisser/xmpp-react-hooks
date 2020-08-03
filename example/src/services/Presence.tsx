@@ -20,7 +20,7 @@ const Presence: FC<PresenceProps> = (_props: PresenceProps) => {
   const status = useStatus();
 
   useEffect(() => {
-    if (!to && roster?.[0]?.jid) setTo(roster[0].jid);
+    /* if (!to && roster?.[0]?.jid) setTo(roster[0].jid); */
   }, [roster, to]);
 
   function handleSendPresence(
@@ -42,7 +42,7 @@ const Presence: FC<PresenceProps> = (_props: PresenceProps) => {
   }
 
   function renderRosterOptions() {
-    return roster?.map((rosterItem: RosterItem) => (
+    return [].map((rosterItem: RosterItem) => (
       <option key={rosterItem.jid} value={rosterItem.jid}>
         {rosterItem.name || rosterItem.jid}
       </option>

@@ -20,8 +20,8 @@ const Message: FC<MessageProps> = (_props: MessageProps) => {
   const status = useStatus();
 
   useEffect(() => {
-    if (!to && roster?.[0]?.jid) setTo(roster[0].jid);
-    if (!jid && roster?.[0]?.jid) setJid(roster[0].jid);
+    /* if (!to && roster?.[0]?.jid) setTo(roster[0].jid);
+     * if (!jid && roster?.[0]?.jid) setJid(roster[0].jid); */
   }, [roster, to, jid]);
 
   function handleSendMessage(
@@ -36,7 +36,7 @@ const Message: FC<MessageProps> = (_props: MessageProps) => {
   }
 
   function renderRosterOptions() {
-    return roster?.map((rosterItem: RosterItem) => (
+    return [].map((rosterItem: RosterItem) => (
       <option key={rosterItem.jid} value={rosterItem.jid}>
         {rosterItem.name || rosterItem.jid}
       </option>

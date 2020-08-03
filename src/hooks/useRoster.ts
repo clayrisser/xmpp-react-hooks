@@ -1,55 +1,71 @@
-import EventEars from 'event-ears';
 import useStateCache from 'use-state-cache';
 import { JID } from '@xmpp/jid';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { RosterItem, Roster } from '@xmpp-ts/roster';
 import useRosterService from './useRosterService';
 import useXmpp from './useXmpp';
 
-export default function useRoster(): Roster | undefined {
+export default function useRosterGlobal(): Roster | undefined {
   const rosterService = useRosterService();
   const xmpp = useXmpp();
-  const [roster, setRoster] = useStateCache<Roster | undefined>(
-    [xmpp?.fullJid, 'roster'],
-    undefined,
-    reconcileRoster
-  );
+  const [roster, setRoster] = useState<Roster | undefined>();
+  // const [roster, setRoster] = useStateCache<Roster>(
+  //   [xmpp?.fullJid, 'roster'],
+  //   { items: [], version: '' },
+  //   reconcileRoster
+  // );
 
   useEffect(() => {
     (async () => {
       if (!rosterService) return;
       const roster = await rosterService.get();
-      setRoster(roster);
+      if (roster) setRoster(roster);
     })().catch(console.error);
   }, [rosterService]);
 
   useEffect(() => {
     if (!rosterService) return () => {};
-    rosterService.on;
-    const eventEars = new EventEars(rosterService, {
-      push({ item, version }: { item: RosterItem; version: string }) {
-        setRoster(updateRoster(item, version));
-      },
-      set({ item, version }: { item: RosterItem; version: string }) {
-        setRoster(updateRoster(item, version));
-      },
-      remove({ jid, version }: { jid: JID; version: string }) {
-        if (version !== roster?.version) {
-          throw new RosterVersionMismatchError(roster?.version, version);
-        }
-        setRoster(
-          (roster?.items || []).reduce(
-            (roster: Roster, rosterItem: RosterItem) => {
-              if (rosterItem.jid.equals(jid)) return roster;
-              roster.items.push(rosterItem);
-              return roster;
-            },
-            { version: roster?.version, items: [] as RosterItem[] } as Roster
-          )
-        );
+    function handlePush({
+      item,
+      version
+    }: {
+      item: RosterItem;
+      version: string;
+    }) {
+      setRoster(updateRoster(item, version));
+    }
+    function handleSet({
+      item,
+      version
+    }: {
+      item: RosterItem;
+      version: string;
+    }) {
+      setRoster(updateRoster(item, version));
+    }
+    function handleRemove({ jid, version }: { jid: JID; version: string }) {
+      if (version !== roster?.version) {
+        throw new RosterVersionMismatchError(roster?.version, version);
       }
-    });
-    return eventEars.cleanup;
+      setRoster(
+        (roster?.items || []).reduce(
+          (roster: Roster, rosterItem: RosterItem) => {
+            if (rosterItem.jid.equals(jid)) return roster;
+            roster.items.push(rosterItem);
+            return roster;
+          },
+          { version: roster?.version, items: [] as RosterItem[] } as Roster
+        )
+      );
+    }
+    // rosterService.on('push', handlePush)
+    rosterService.on('remove', handleRemove);
+    rosterService.on('set', handleSet);
+    return () => {
+      // rosterService.removeListener('push', handlePush)
+      rosterService.removeListener('remove', handleRemove);
+      rosterService.removeListener('set', handleSet);
+    };
   }, [rosterService, roster]);
 
   function updateRoster(rosterItem: RosterItem, version?: string) {
