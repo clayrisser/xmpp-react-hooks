@@ -1,10 +1,7 @@
 import React, { FC, useContext, useEffect } from 'react';
 import { Switch, Route, useHistory } from 'react-router-dom';
-import Chat from './Chat';
-import ChatList from './ChatList';
 import GlobalContext from '../contexts/global';
 import Home from './Home';
-import Info from './Info';
 import Roster from './Roster';
 import { Footer, Header } from '../containers';
 
@@ -26,17 +23,8 @@ const Routes: FC<RoutesProps> = (_props: RoutesProps) => {
         <Route exact path="/">
           <Home />
         </Route>
-        <Route path="/chat-list">
-          <ChatList />
-        </Route>
-        <Route path="/info">
-          <Info />
-        </Route>
         <Route path="/roster">
           <Roster />
-        </Route>
-        <Route path="/chat/:jid">
-          <Chat />
         </Route>
       </Switch>
       <Footer />

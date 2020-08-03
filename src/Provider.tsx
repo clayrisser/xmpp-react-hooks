@@ -1,26 +1,30 @@
 import React, { FC, useState, ReactNode, useEffect } from 'react';
-import { Provider as UseStateCacheProvider } from 'use-state-cache';
+import { Provider as ReduxProvider } from 'react-redux';
+import Events from './Events';
+import Services from './services';
+import ServicesContext from './contexts/services';
 import Xmpp, { Cleanup } from './xmpp';
 import XmppContext from './contexts/xmpp';
-import { PresenceService } from './services';
+import { createStore } from './store';
+
+const store = createStore();
 
 export interface ProviderProps {
-  cache?: boolean | string;
   children: ReactNode;
   createCleanup?: (cleanup: Cleanup) => any;
   debug?: boolean;
   domain?: string;
   hostname?: string;
   password?: string;
-  resource?: number;
+  resource: string;
   service?: string;
   username?: string;
 }
 
 const Provider: FC<ProviderProps> = (props: ProviderProps) => {
+  const [services, setServices] = useState<Services | undefined>();
   const [xmpp, setXmpp] = useState<Xmpp | undefined>();
   const {
-    cache,
     children,
     createCleanup,
     debug,
@@ -34,8 +38,6 @@ const Provider: FC<ProviderProps> = (props: ProviderProps) => {
 
   function cleanup() {
     if (!xmpp) return;
-    const presenceService = new PresenceService(xmpp);
-    presenceService.sendUnavailable();
   }
 
   useEffect(() => {
@@ -49,11 +51,8 @@ const Provider: FC<ProviderProps> = (props: ProviderProps) => {
           service
         });
         await xmpp.login(username, password);
-        const presenceService = new PresenceService(xmpp);
-        presenceService.enabledHandlePresenceSubscribe();
+        setServices(xmpp.services);
         await xmpp.start();
-        presenceService.sendUnavailable();
-        presenceService.sendAvailable();
         if (createCleanup) createCleanup(cleanup);
         setXmpp(xmpp);
       }
@@ -61,21 +60,16 @@ const Provider: FC<ProviderProps> = (props: ProviderProps) => {
   }, [username, password]);
 
   return (
-    <XmppContext.Provider value={xmpp}>
-      <UseStateCacheProvider
-        enabled={!!cache}
-        namespace={typeof cache === 'string' ? cache : 'xmpp-react-hooks'}
-        silence={false}
-        strict={false}
-      >
-        {children}
-      </UseStateCacheProvider>
-    </XmppContext.Provider>
+    <ReduxProvider store={store}>
+      <XmppContext.Provider value={xmpp}>
+        <ServicesContext.Provider value={services}>
+          <Events>{children}</Events>
+        </ServicesContext.Provider>
+      </XmppContext.Provider>
+    </ReduxProvider>
   );
 };
 
-Provider.defaultProps = {
-  cache: false
-};
+Provider.defaultProps = {};
 
 export default Provider;

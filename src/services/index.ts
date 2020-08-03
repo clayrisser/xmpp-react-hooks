@@ -1,11 +1,14 @@
-import PresenceService from './presence';
+import { XmppClient } from '@xmpp/client';
 import RosterService from './roster';
-import MessageService from './message';
-import MamService from './mam';
 
-export { PresenceService, RosterService, MessageService, MamService };
+export default class Services {
+  roster: RosterService;
 
-export * from './presence';
+  constructor(client: XmppClient) {
+    this.roster = new RosterService(client);
+  }
+}
+
+export { RosterService };
+
 export * from './roster';
-export * from './message';
-export * from './mam';

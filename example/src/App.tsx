@@ -12,10 +12,10 @@ const App: FC<AppProps> = (_props: AppProps) => {
   return (
     <GlobalContext.Provider value={[global, setGlobal]}>
       <XmppProvider
-        cache
         debug
         hostname="test.siliconhills.dev"
         password={global.password}
+        resource="abc"
         username={global.username}
       >
         <Router>

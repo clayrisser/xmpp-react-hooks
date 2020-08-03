@@ -3,22 +3,20 @@
  * */
 import xmppDebug from '@xmpp/debug';
 import { XmppClient, client as xmppClient, XmlElement } from '@xmpp/client';
-import AsyncStorage from '@callstack/async-storage';
+import Services from './services';
 
 export default class Xmpp {
-  public client?: XmppClient;
+  client?: XmppClient;
 
-  public fullJid?: string;
+  isOnline = false;
 
-  public isOnline = false;
+  isReady = false;
 
-  public isReady = false;
+  readonly config: Config;
 
-  public bareJid?: string;
+  readonly lang: string;
 
-  public readonly config: Config;
-
-  public readonly lang: string;
+  services?: Services;
 
   constructor(config: Config) {
     if (!config.hostname && !config.domain) {
@@ -83,12 +81,8 @@ export default class Xmpp {
 
   async login(username: string, password: string) {
     const domain = this.config.domain || this.config.hostname;
-    // const resource = this.config.resource || (await this.getResource());
-    const resource = this.config.resource || (await this.Resource());
+    const { resource } = this.config;
     const service = this.config.service || `wss://${this.config.hostname}/ws`;
-    this.bareJid = `${username}@${domain}`;
-    this.fullJid = `${this.bareJid}/${resource}`;
-    console.log('fulljidddd', this.fullJid);
     this.client = xmppClient({
       password,
       username,
@@ -101,6 +95,7 @@ export default class Xmpp {
     this.client.on('online', this.handleOnline.bind(this));
     this.client.on('stanza', this.handleStanza.bind(this));
     if (this.config.debug) xmppDebug(this.client, true);
+    this.services = new Services(this.client);
   }
 
   async start() {
@@ -177,26 +172,6 @@ export default class Xmpp {
       }
     });
   }
-
-  async getResource() {
-    // TODO: get resource from xmpp server (if xmpp server does not support getting resource then generate from hashed user agent or hashed mac address)
-    return 'abc';
-  }
-
-  async Resource() {
-    const get_resource = await AsyncStorage.getItem('resource');
-    if (get_resource) return get_resource;
-
-    const value = Math.floor(Math.random() * 100 + 1);
-    await AsyncStorage.setItem('resource', value)
-      .then(() => {
-        console.log('set');
-      })
-      .catch((err: any) => {
-        console.log('err', err);
-      });
-    return value;
-  }
 }
 
 export interface Config {
@@ -204,7 +179,7 @@ export interface Config {
   domain?: string;
   hostname?: string;
   lang?: string;
-  resource?: number;
+  resource: string;
   service?: string;
 }
 

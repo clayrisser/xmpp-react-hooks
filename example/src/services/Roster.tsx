@@ -19,7 +19,7 @@ const RosterService: FC<RosterProps> = (_props: RosterProps) => {
   ) {
     e.preventDefault();
     await rosterService?.set({
-      jid,
+      jid: jid || customJid,
       name
     });
   }

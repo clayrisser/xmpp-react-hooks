@@ -45,8 +45,8 @@
   "dependencies": {
     "@babel/runtime": "^7.11.0",
     "@callstack/async-storage": "^2.0.3",
-    "@xmpp-ts/roster": "^0.0.28",
-    "@xmpp-ts/types": "^0.0.28",
+    "@xmpp-ts/roster": "^0.0.30",
+    "@xmpp-ts/types": "^0.0.30",
     "@xmpp/client": "^0.11.1",
     "@xmpp/debug": "^0.11.0",
     "@xmpp/events": "^0.11.0",
@@ -55,6 +55,11 @@
     "date-fns": "^2.15.0",
     "event-ears": "^0.0.2",
     "ltx": "^2.9.2",
+    "react-redux": "^7.2.1",
+    "redux": "^4.0.5",
+    "redux-devtools-extension": "^2.13.8",
+    "redux-observable": "^1.2.0",
+    "rxjs": "^6.6.2",
     "use-state-cache": "^0.1.0"
   },
   "peerDependencies": {
@@ -76,6 +81,8 @@
     "@types/jest": "^26.0.8",
     "@types/ltx": "^2.8.1",
     "@types/react": "^16.9.44",
+    "@types/react-redux": "^7.1.9",
+    "@types/redux-devtools-extension": "^2.13.2",
     "@typescript-eslint/eslint-plugin": "^3.7.1",
     "@typescript-eslint/parser": "^3.7.1",
     "cspell": "^4.0.63",
