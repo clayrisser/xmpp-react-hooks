@@ -1,37 +1,53 @@
 import { Roster, RosterItem } from '@xmpp-ts/roster';
+import { JID } from '@xmpp/jid';
 import { Action } from '../types';
 
 export interface RosterPayload {
-  item: RosterItem;
+  item?: RosterItem;
+  items: RosterItem[];
   version?: string;
 }
 
 export enum RosterActions {
-  AddRosterItem = 'ADD_ROSTER_ITEM',
   RemoveRosterItem = 'REMOVE_ROSTER_ITEM',
-  UpdateRosterItem = 'UPDATE_ROSTER_ITEM'
+  SetRoster = 'SET_ROSTER',
+  SetRosterItem = 'SET_ROSTER_ITEM'
 }
 
 export default function rosterReducer(
   state: Roster | null = null,
-  { type, payload }: Action<RosterPayload>
+  { type, payload }: Action<RosterPayload | RosterItem | JID>
 ) {
-  const version = state?.version || payload?.version;
   switch (type) {
-    case RosterActions.AddRosterItem: {
+    case RosterActions.SetRosterItem: {
+      const { jid } = payload as RosterItem;
+      const roster: Roster | null = state ? { ...state } : null;
+      const rosterItem: RosterItem | undefined = roster?.items.find(
+        (rosterItem: RosterItem) => jid && rosterItem.jid.equals(jid)
+      );
+      if (rosterItem) {
+        Object.assign(rosterItem, payload);
+        return roster;
+      }
       return {
-        ...(version ? { version } : {}),
+        ...(state?.version ? { version: state.version } : {}),
         items: [
           ...(state?.items || []),
-          ...(payload?.item ? [payload.item] : [])
+          ...((payload as RosterItem) ? [payload as RosterItem] : [])
         ]
       };
     }
-    case RosterActions.UpdateRosterItem: {
-      return state;
+    case RosterActions.SetRoster: {
+      return payload;
     }
     case RosterActions.RemoveRosterItem: {
-      return state;
+      const jid = payload as JID;
+      return {
+        version: state?.version,
+        items: state?.items.filter((rosterItem: RosterItem) => {
+          return !rosterItem.jid.equals(jid);
+        })
+      };
     }
   }
   return state;

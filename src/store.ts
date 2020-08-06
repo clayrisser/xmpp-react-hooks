@@ -1,10 +1,10 @@
+import { Epic, createEpicMiddleware } from 'redux-observable';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import {
   createStore as reduxCreateStore,
   applyMiddleware,
   Action
 } from 'redux';
-import { Epic, createEpicMiddleware } from 'redux-observable';
 import { defaultState } from './state';
 import reducers from './reducers';
 import epics from './epics';
@@ -17,6 +17,7 @@ export function createStore() {
   const rootReducer = reducers;
   const store = reduxCreateStore(
     rootReducer,
+    // @ts-ignore
     defaultState,
     composeEnhancers(applyMiddleware(epicMiddleware))
   );

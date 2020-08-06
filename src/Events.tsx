@@ -2,8 +2,8 @@ import React, { FC, ReactNode, useEffect } from 'react';
 import { RosterItem } from '@xmpp-ts/roster';
 import { useDispatch } from 'react-redux';
 import { JID } from '@xmpp/jid';
-import { addRosterItem, removeRosterItem } from './actions/roster';
-import { useServices } from './hooks';
+import { removeRosterItem, setRoster, setRosterItem } from './actions/roster';
+import { useServices, useStatus } from './hooks';
 
 export interface EventsProps {
   children: ReactNode;
@@ -12,22 +12,27 @@ export interface EventsProps {
 const Events: FC<EventsProps> = (props: EventsProps) => {
   const dispatch = useDispatch();
   const services = useServices();
+  const status = useStatus();
 
   useEffect(() => {
-    if (!services) return () => {};
+    if (!services || !status.isReady) return () => {};
     function handleRemove({ jid }: { jid: JID; version?: string }) {
       dispatch(removeRosterItem(jid));
     }
     function handleSet({ item }: { item: RosterItem; version?: string }) {
-      dispatch(addRosterItem(item));
+      dispatch(setRosterItem(item));
     }
     services.roster.on('remove', handleRemove);
     services.roster.on('set', handleSet);
+    (async () => {
+      const roster = await services.roster.get();
+      dispatch(setRoster(roster || null));
+    })().catch(console.error);
     return () => {
       services.roster.removeListener('remove', handleRemove);
       services.roster.removeListener('set', handleSet);
     };
-  }, [services]);
+  }, [services, status.isReady]);
 
   return <>{props.children}</>;
 };
