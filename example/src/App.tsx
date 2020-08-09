@@ -1,4 +1,5 @@
 import React, { FC, useState } from 'react';
+import storage from 'redux-persist/lib/storage';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { Provider as XmppProvider } from 'xmpp-react-hooks';
 import GlobalContext, { Global } from './contexts/global';
@@ -16,6 +17,7 @@ const App: FC<AppProps> = (_props: AppProps) => {
         hostname="test.siliconhills.dev"
         password={global.password}
         resource="abc"
+        storage={storage}
         username={global.username}
       >
         <Router>

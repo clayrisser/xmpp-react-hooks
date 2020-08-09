@@ -1,26 +1,45 @@
 import { Epic, createEpicMiddleware } from 'redux-observable';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import {
-  createStore as reduxCreateStore,
+  Persistor,
+  Storage,
+  persistReducer,
+  persistStore
+} from 'redux-persist';
+import {
+  Action,
+  Store,
   applyMiddleware,
-  Action
+  createStore as reduxCreateStore
 } from 'redux';
-import { defaultState } from './state';
-import reducers from './reducers';
 import epics from './epics';
+import reducers from './reducers';
+import { defaultState, State } from './state';
 
 const rootEpic = (epics as unknown) as Epic<Action>;
 
-export function createStore() {
+export function createPersistorStore(
+  storage: Storage,
+  storageKey?: string
+): PersistorStore {
+  const rootReducer = persistReducer(
+    { key: storageKey || 'xmpp', storage },
+    reducers
+  );
   const composeEnhancers = composeWithDevTools({});
   const epicMiddleware = createEpicMiddleware();
-  const rootReducer = reducers;
-  const store = reduxCreateStore(
+  const store: Store<State> = reduxCreateStore(
     rootReducer,
     // @ts-ignore
     defaultState,
     composeEnhancers(applyMiddleware(epicMiddleware))
   );
   epicMiddleware.run(rootEpic);
-  return store;
+  const persistor = persistStore(store);
+  return { store, persistor };
+}
+
+export interface PersistorStore {
+  store: Store;
+  persistor: Persistor;
 }

@@ -1,6 +1,8 @@
-import { Roster, RosterItem } from '@xmpp-ts/roster';
+import { RosterItem } from '@xmpp-ts/roster';
 import { JID } from '@xmpp/jid';
 import { Action } from '../types';
+import { RosterState, RosterItemState } from '../state';
+import { parseJid } from '../helpers';
 
 export interface RosterPayload {
   item?: RosterItem;
@@ -15,15 +17,16 @@ export enum RosterActions {
 }
 
 export default function rosterReducer(
-  state: Roster | null = null,
+  state: RosterState | null = null,
   { type, payload }: Action<RosterPayload | RosterItem | JID>
 ) {
   switch (type) {
     case RosterActions.SetRosterItem: {
       const { jid } = payload as RosterItem;
-      const roster: Roster | null = state ? { ...state } : null;
-      const rosterItem: RosterItem | undefined = roster?.items.find(
-        (rosterItem: RosterItem) => jid && rosterItem.jid.equals(jid)
+      const roster: RosterState | null = state ? { ...state } : null;
+      const rosterItem: RosterItemState | undefined = roster?.items.find(
+        (rosterItem: RosterItemState) =>
+          jid && parseJid(rosterItem.jid).equals(jid)
       );
       if (rosterItem) {
         Object.assign(rosterItem, payload);
@@ -44,8 +47,8 @@ export default function rosterReducer(
       const jid = payload as JID;
       return {
         version: state?.version,
-        items: state?.items.filter((rosterItem: RosterItem) => {
-          return !rosterItem.jid.equals(jid);
+        items: state?.items.filter((rosterItem: RosterItemState) => {
+          return !parseJid(rosterItem.jid).equals(jid);
         })
       };
     }
