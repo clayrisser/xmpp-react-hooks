@@ -2,6 +2,7 @@ import React, { FC, useContext, useEffect } from 'react';
 import { Switch, Route, useHistory } from 'react-router-dom';
 import GlobalContext from '../contexts/global';
 import Home from './Home';
+import Presence from './Presence';
 import Roster from './Roster';
 import { Footer, Header } from '../containers';
 
@@ -25,6 +26,9 @@ const Routes: FC<RoutesProps> = (_props: RoutesProps) => {
         </Route>
         <Route path="/roster">
           <Roster />
+        </Route>
+        <Route path="/presence">
+          <Presence />
         </Route>
       </Switch>
       <Footer />

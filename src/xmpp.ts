@@ -95,7 +95,7 @@ export default class Xmpp {
     this.client.on('online', this.handleOnline.bind(this));
     this.client.on('stanza', this.handleStanza.bind(this));
     if (this.config.debug) xmppDebug(this.client, true);
-    this.services = new Services(this.client);
+    this.services = new Services(this.client, { debug: this.config.debug });
   }
 
   async start() {
@@ -113,6 +113,7 @@ export default class Xmpp {
         reject(err);
       }
     });
+    this.services?.presence.send();
   }
 
   handle(

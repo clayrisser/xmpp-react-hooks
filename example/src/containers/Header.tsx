@@ -12,6 +12,9 @@ const Header: FC<HeaderProps> = (_props: HeaderProps) => {
       <div style={{ padding: 10 }}>
         <Link to="/roster">roster</Link>
       </div>
+      <div style={{ padding: 10 }}>
+        <Link to="/presence">presence</Link>
+      </div>
     </div>
   );
 };

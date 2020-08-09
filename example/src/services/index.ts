@@ -1,3 +1,4 @@
+import Presence from './Presence';
 import Roster from './Roster';
 
-export { Roster };
+export { Presence, Roster };

@@ -1,6 +1,7 @@
-import { useContext } from 'react';
-import ServicesContext, { ServicesContextResult } from '../contexts/services';
+import Services from '../services';
+import useXmpp from './useXmpp';
 
-export default function useServices(): ServicesContextResult {
-  return useContext<ServicesContextResult>(ServicesContext);
+export default function useServices(): Services | undefined {
+  const xmpp = useXmpp();
+  return xmpp?.services;
 }
