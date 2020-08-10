@@ -1,11 +1,18 @@
 import Jid from '@xmpp-ts/jid';
 import React, { FC, ReactNode, useEffect } from 'react';
+import { Message } from '@xmpp-ts/message';
 import { Presence } from '@xmpp-ts/presence';
 import { RosterItem } from '@xmpp-ts/roster';
 import { useDispatch } from 'react-redux';
 import { removeRosterItem, setRoster, setRosterItem } from './actions/roster';
 import { setAvailable, setUnavailable } from './actions/available';
-import { useServices, useStatus } from './hooks';
+import { recieveMessage } from './actions/messages';
+import {
+  useStatus,
+  useMessageService,
+  useRosterService,
+  usePresenceService
+} from './hooks';
 
 export interface EventsProps {
   children: ReactNode;
@@ -13,44 +20,57 @@ export interface EventsProps {
 
 const Events: FC<EventsProps> = (props: EventsProps) => {
   const dispatch = useDispatch();
-  const services = useServices();
+  const messageService = useMessageService();
+  const presenceService = usePresenceService();
+  const rosterService = useRosterService();
   const status = useStatus();
 
   useEffect(() => {
-    if (!services?.roster || !status.isReady) return () => {};
+    if (!rosterService || !status.isReady) return () => {};
     function handleRemove({ jid }: { jid: Jid; version?: string }) {
       dispatch(removeRosterItem(jid));
     }
     function handleSet({ item }: { item: RosterItem; version?: string }) {
       dispatch(setRosterItem(item));
     }
-    services.roster.on('remove', handleRemove);
-    services.roster.on('set', handleSet);
+    rosterService.on('remove', handleRemove);
+    rosterService.on('set', handleSet);
     (async () => {
-      const roster = await services.roster.get();
+      const roster = await rosterService.get();
       dispatch(setRoster(roster || null));
     })().catch(console.error);
     return () => {
-      services.roster.removeListener('remove', handleRemove);
-      services.roster.removeListener('set', handleSet);
+      rosterService.removeListener('remove', handleRemove);
+      rosterService.removeListener('set', handleSet);
     };
-  }, [services?.roster, status.isReady]);
+  }, [rosterService, status.isReady]);
 
   useEffect(() => {
-    if (!services?.presence || !status.isReady) return () => {};
+    if (!presenceService || !status.isReady) return () => {};
     function handleAvailable(presence: Presence) {
       dispatch(setAvailable(presence.from));
     }
     function handleUnavailable(presence: Presence) {
       dispatch(setUnavailable(presence.from));
     }
-    services.presence.on('available', handleAvailable);
-    services.presence.on('unavailable', handleUnavailable);
+    presenceService.on('available', handleAvailable);
+    presenceService.on('unavailable', handleUnavailable);
     return () => {
-      services.presence.removeListener('available', handleAvailable);
-      services.presence.removeListener('unavailable', handleUnavailable);
+      presenceService.removeListener('available', handleAvailable);
+      presenceService.removeListener('unavailable', handleUnavailable);
     };
-  }, [services?.presence, status.isReady]);
+  }, [presenceService, status.isReady]);
+
+  useEffect(() => {
+    if (!messageService || !status.isReady) return () => {};
+    function handleMessage(message: Message) {
+      dispatch(recieveMessage(message));
+    }
+    messageService.on('message', handleMessage);
+    return () => {
+      messageService.removeListener('message', handleMessage);
+    };
+  }, [messageService]);
 
   return <>{props.children}</>;
 };

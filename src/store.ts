@@ -23,6 +23,7 @@ export function createStoreEpicMiddleware(
 ): [Store, EpicMiddleware<any>] {
   const composeEnhancers = composeWithDevTools({});
   const epicMiddleware = createEpicMiddleware();
+  // @ts-ignore
   const store: Store<State> = reduxCreateStore(
     rootReducer,
     // @ts-ignore
