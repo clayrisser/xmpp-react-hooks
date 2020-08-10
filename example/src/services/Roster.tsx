@@ -1,7 +1,7 @@
+import Jid from '@xmpp-ts/jid';
 import React, { FC, useState, useEffect } from 'react';
 import { Roster, RosterItem } from '@xmpp-ts/roster';
 import { useRosterService, useRoster } from 'xmpp-react-hooks';
-import { JID } from '@xmpp/jid';
 
 export interface RosterProps {}
 
@@ -52,7 +52,7 @@ const RosterService: FC<RosterProps> = (_props: RosterProps) => {
     e.preventDefault();
     if (!removeJid) return;
     await rosterService?.remove(
-      new JID(
+      new Jid(
         removeJid.split('@')?.[0],
         removeJid.split('@')?.[1]?.split('/')?.[0],
         removeJid.split('@')?.[1]?.split('/')?.[1]

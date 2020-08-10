@@ -1,14 +1,9 @@
+import { JidObject } from '@xmpp-ts/jid';
 import { PreloadedState } from 'redux';
 import { Roster, RosterItem } from '@xmpp-ts/roster';
 
-export interface JIDState {
-  _domain: string;
-  _local: string;
-  _resource: string;
-}
-
 export interface RosterItemState extends Omit<RosterItem, 'jid'> {
-  jid: JIDState;
+  jid: JidObject;
 }
 
 export interface RosterState extends Omit<Roster, 'items'> {

@@ -1,5 +1,5 @@
+import Jid from '@xmpp-ts/jid';
 import React, { FC, ReactNode, useEffect } from 'react';
-import { JID } from '@xmpp/jid';
 import { RosterItem } from '@xmpp-ts/roster';
 import { useDispatch } from 'react-redux';
 
@@ -17,7 +17,7 @@ const Events: FC<EventsProps> = (props: EventsProps) => {
 
   useEffect(() => {
     if (!services || !status.isReady) return () => {};
-    function handleRemove({ jid }: { jid: JID; version?: string }) {
+    function handleRemove({ jid }: { jid: Jid; version?: string }) {
       dispatch(removeRosterItem(jid));
     }
     function handleSet({ item }: { item: RosterItem; version?: string }) {

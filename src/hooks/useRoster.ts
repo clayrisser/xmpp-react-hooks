@@ -1,7 +1,7 @@
+import Jid from '@xmpp-ts/jid';
 import { Roster, RosterItem } from '@xmpp-ts/roster';
 import { useSelector } from 'react-redux';
 import { State, RosterItemState } from '../state';
-import { parseJid } from '../helpers';
 
 export default function useRoster(): Roster | null {
   const roster = useSelector((state: State) => state.roster);
@@ -11,7 +11,7 @@ export default function useRoster(): Roster | null {
     items: roster.items.map<RosterItem>((rosterItem: RosterItemState) => {
       return {
         ...rosterItem,
-        jid: parseJid(rosterItem.jid)
+        jid: new Jid(rosterItem.jid)
       };
     })
   };

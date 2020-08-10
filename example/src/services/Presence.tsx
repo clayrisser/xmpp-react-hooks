@@ -1,5 +1,5 @@
+import Jid from '@xmpp-ts/jid';
 import React, { FC, useState, useEffect } from 'react';
-import { JID } from '@xmpp/jid';
 import { PresenceType } from '@xmpp-ts/presence';
 import { RosterItem } from '@xmpp-ts/roster';
 import { usePresenceService, useRoster } from 'xmpp-react-hooks';
@@ -7,7 +7,7 @@ import { usePresenceService, useRoster } from 'xmpp-react-hooks';
 export interface PresenceProps {}
 
 const PresenceService: FC<PresenceProps> = (_props: PresenceProps) => {
-  const [to, setTo] = useState<JID>();
+  const [to, setTo] = useState<Jid>();
   const [type, setType] = useState<PresenceType>(PresenceType.SUBSCRIBE);
   const presenceService = usePresenceService();
   const roster = useRoster();
@@ -62,7 +62,7 @@ const PresenceService: FC<PresenceProps> = (_props: PresenceProps) => {
             onChange={(e: any) =>
               setTo(
                 e.target.value?.split('@')?.[1]
-                  ? new JID(
+                  ? new Jid(
                       e.target.value.split('@')?.[0],
                       e.target.value.split('@')?.[1]
                     )
