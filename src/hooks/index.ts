@@ -1,3 +1,4 @@
+import useAvailable from './useAvailable';
 import usePresenceService from './usePresenceService';
 import useRoster from './useRoster';
 import useRosterService from './useRosterService';
@@ -7,6 +8,7 @@ import useXmpp from './useXmpp';
 import useXmppClient from './useXmppClient';
 
 export {
+  useAvailable,
   usePresenceService,
   useRoster,
   useRosterService,

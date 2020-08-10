@@ -44,7 +44,7 @@ export function createPersistorStore(
   storageKey?: string
 ): PersistorStore {
   const rootReducer = persistReducer(
-    { key: storageKey || 'xmpp', storage },
+    { key: storageKey || 'xmpp', storage, blacklist: ['available'] },
     reducers
   );
   const [store, epicMiddleware] = createStoreEpicMiddleware(rootReducer);

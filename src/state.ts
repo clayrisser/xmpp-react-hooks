@@ -11,9 +11,11 @@ export interface RosterState extends Omit<Roster, 'items'> {
 }
 
 export interface State {
+  available: string[];
   roster: RosterState | null;
 }
 
 export const defaultState: PreloadedState<State> = {
+  available: [],
   roster: null
 };

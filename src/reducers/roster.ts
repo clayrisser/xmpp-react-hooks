@@ -15,7 +15,7 @@ export enum RosterActions {
   SetRosterItem = 'SET_ROSTER_ITEM'
 }
 
-export default function rosterReducer(
+export default function roster(
   state: RosterState | null = null,
   { type, payload }: Action<RosterPayload | RosterItem | Jid>
 ) {

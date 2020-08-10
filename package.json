@@ -1,6 +1,6 @@
 {
   "name": "xmpp-react-hooks",
-  "version": "0.0.22",
+  "version": "0.0.23",
   "description": "react hooks for xmpp",
   "keywords": [
     "xmpp-react-hooks",
@@ -45,10 +45,10 @@
   "dependencies": {
     "@babel/runtime": "^7.11.0",
     "@callstack/async-storage": "^2.0.3",
-    "@xmpp-ts/jid": "^0.0.41",
-    "@xmpp-ts/presence": "^0.0.40",
-    "@xmpp-ts/roster": "^0.0.40",
-    "@xmpp-ts/types": "^0.0.40",
+    "@xmpp-ts/jid": "^0.0.45",
+    "@xmpp-ts/presence": "^0.0.45",
+    "@xmpp-ts/roster": "^0.0.45",
+    "@xmpp-ts/types": "^0.0.45",
     "@xmpp/client": "^0.11.1",
     "@xmpp/debug": "^0.11.0",
     "@xmpp/events": "^0.11.0",

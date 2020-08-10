@@ -2,13 +2,14 @@ import Jid from '@xmpp-ts/jid';
 import React, { FC, useState, useEffect } from 'react';
 import { PresenceType } from '@xmpp-ts/presence';
 import { RosterItem } from '@xmpp-ts/roster';
-import { usePresenceService, useRoster } from 'xmpp-react-hooks';
+import { usePresenceService, useRoster, useAvailable } from 'xmpp-react-hooks';
 
 export interface PresenceProps {}
 
 const PresenceService: FC<PresenceProps> = (_props: PresenceProps) => {
   const [to, setTo] = useState<Jid>();
   const [type, setType] = useState<PresenceType>(PresenceType.SUBSCRIBE);
+  const available = useAvailable();
   const presenceService = usePresenceService();
   const roster = useRoster();
 
@@ -28,6 +29,14 @@ const PresenceService: FC<PresenceProps> = (_props: PresenceProps) => {
     }
   }
 
+  function handleSendUnavailable() {
+    presenceService?.unavailable();
+  }
+
+  function handleSendAvailable() {
+    presenceService?.available();
+  }
+
   function renderRosterOptions() {
     return (roster?.items || []).map((rosterItem: RosterItem) => (
       <option key={rosterItem.jid.toString()} value={rosterItem.jid.toString()}>
@@ -40,6 +49,12 @@ const PresenceService: FC<PresenceProps> = (_props: PresenceProps) => {
     <div>
       <h1>Presence</h1>
       <hr />
+      <h3>Available</h3>
+      <code>{JSON.stringify(available)}</code>
+      <h3>Send Unavailable</h3>
+      <button onClick={handleSendUnavailable}>Send Unavailable</button>
+      <h3>Send Available</h3>
+      <button onClick={handleSendAvailable}>Send Available</button>
       <h3>Send Presence</h3>
       <form>
         <div style={{ paddingBottom: 10 }}>
