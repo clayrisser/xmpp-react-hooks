@@ -1,5 +1,7 @@
 include node_modules/gnumake/gnumake.mk
 
+SED := $(SHX) sed
+
 COLLECT_COVERAGE_FROM := ["src/**/*.{js,jsx,ts,tsx}"]
 
 .PHONY: all
@@ -12,7 +14,7 @@ node_modules: package.json
 
 .PHONY: prepare
 prepare:
-	@sed -i "s/ComponentPropsWithRef<C>/any/g" node_modules/@types/react/index.d.ts
+	@$(SED) -i "s/ComponentPropsWithRef<C>/any/g" node_modules/@types/react/index.d.ts
 
 .PHONY: format
 format: install
