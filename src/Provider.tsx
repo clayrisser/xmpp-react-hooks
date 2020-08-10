@@ -1,5 +1,4 @@
 import React, { FC, useState, ReactNode, useEffect, ReactElement } from 'react';
-import useConstructor from 'use-constructor';
 import { PersistGate } from 'redux-persist/integration/react';
 import { Persistor, Storage } from 'redux-persist';
 import { Provider as ReduxProvider } from 'react-redux';
@@ -7,7 +6,7 @@ import { Store } from 'redux';
 import Events from './Events';
 import Xmpp, { Cleanup } from './xmpp';
 import XmppContext from './contexts/xmpp';
-import { createPersistorStore } from './store';
+import { createPersistorStore, createStore } from './store';
 
 export interface ProviderProps {
   children: ReactNode;
@@ -40,15 +39,19 @@ const Provider: FC<ProviderProps> = (props: ProviderProps) => {
     username
   } = props;
 
+  const [persistor, setPersistor] = useState<Persistor>();
+  const [store, setStore] = useState<Store>(createStore());
   const [xmpp, setXmpp] = useState<Xmpp | undefined>();
-  let [persistor, setPersistor] = useState<Persistor>();
-  let [store, setStore] = useState<Store>();
 
-  useConstructor(() => {
-    ({ persistor, store } = createPersistorStore(storage, storageKey));
+  useEffect(() => {
+    if (!username || !(hostname || domain)) return;
+    const { persistor, store } = createPersistorStore(
+      storage,
+      `${storageKey}:${username}@${hostname || domain}`
+    );
     setPersistor(persistor);
     setStore(store);
-  });
+  }, [username, hostname, domain]);
 
   function cleanup() {
     if (!xmpp) return;
@@ -72,12 +75,21 @@ const Provider: FC<ProviderProps> = (props: ProviderProps) => {
     })();
   }, [username, password]);
 
+  function renderXmppProvider() {
+    return (
+      <XmppContext.Provider value={xmpp}>
+        <Events>{children}</Events>
+      </XmppContext.Provider>
+    );
+  }
+
+  if (!persistor) {
+    return <ReduxProvider store={store}>{renderXmppProvider()}</ReduxProvider>;
+  }
   return (
-    <ReduxProvider store={store!}>
-      <PersistGate loading={loading} persistor={persistor!}>
-        <XmppContext.Provider value={xmpp}>
-          <Events>{children}</Events>
-        </XmppContext.Provider>
+    <ReduxProvider store={store}>
+      <PersistGate loading={loading} persistor={persistor}>
+        {renderXmppProvider()}
       </PersistGate>
     </ReduxProvider>
   );

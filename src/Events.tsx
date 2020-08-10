@@ -1,7 +1,8 @@
 import React, { FC, ReactNode, useEffect } from 'react';
+import { JID } from '@xmpp/jid';
 import { RosterItem } from '@xmpp-ts/roster';
 import { useDispatch } from 'react-redux';
-import { JID } from '@xmpp/jid';
+
 import { removeRosterItem, setRoster, setRosterItem } from './actions/roster';
 import { useServices, useStatus } from './hooks';
 
