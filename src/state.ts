@@ -3,6 +3,10 @@ import { Message } from '@xmpp-ts/message';
 import { PreloadedState } from 'redux';
 import { Roster, RosterItem } from '@xmpp-ts/roster';
 
+export interface Messages {
+  [jid: string]: Message[];
+}
+
 export interface RosterItemState extends Omit<RosterItem, 'jid'> {
   jid: JidObject;
 }
@@ -13,12 +17,12 @@ export interface RosterState extends Omit<Roster, 'items'> {
 
 export interface State {
   available: string[];
-  messages: Message[];
-  roster: RosterState | null;
+  messages: Messages;
+  roster: RosterState;
 }
 
 export const defaultState: PreloadedState<State> = {
   available: [],
-  messages: [],
-  roster: null
+  messages: {},
+  roster: { items: [] }
 };

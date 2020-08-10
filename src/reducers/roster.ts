@@ -16,13 +16,13 @@ export enum RosterActions {
 }
 
 export default function roster(
-  state: RosterState | null = null,
+  state: RosterState = { items: [] },
   { type, payload }: Action<RosterPayload | RosterItem | Jid>
 ) {
   switch (type) {
     case RosterActions.SetRosterItem: {
       const { jid } = payload as RosterItem;
-      const roster: RosterState | null = state ? { ...state } : null;
+      const roster = { ...state };
       const rosterItem: RosterItemState | undefined = roster?.items.find(
         (rosterItem: RosterItemState) =>
           jid && new Jid(rosterItem?.jid).equals(jid)

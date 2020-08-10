@@ -1,21 +1,29 @@
+import Jid from '@xmpp-ts/jid';
 import { Message } from '@xmpp-ts/message';
 import { Action } from '../types';
+import { Messages } from '../state';
 
 export enum MessageActions {
-  ReceiveMessage = 'RECEIVE_MESSAGE',
-  SendMessage = 'SEND_MESSAGE'
+  AddMessage = 'ADD_MESSAGE'
+}
+
+export interface MessagePayload {
+  jid: Jid;
+  message: Message;
 }
 
 export default function messages(
-  state: Message[] = [],
-  { type, payload }: Action<Message>
+  state: Messages = {},
+  { type, payload }: Action<MessagePayload>
 ) {
   switch (type) {
-    case MessageActions.SendMessage: {
-      return payload;
-    }
-    case MessageActions.ReceiveMessage: {
-      return payload;
+    case MessageActions.AddMessage: {
+      const messages = { ...state };
+      const { jid, message } = payload;
+      const key = jid.bare().toString();
+      if (!messages[key]) messages[key] = [];
+      messages[key].push(message);
+      return messages;
     }
   }
   return state;

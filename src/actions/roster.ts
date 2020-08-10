@@ -11,6 +11,6 @@ export function removeRosterItem(jid: Jid): Action<Jid> {
   return { payload: jid, type: RosterActions.RemoveRosterItem };
 }
 
-export function setRoster(roster: Roster | null): Action<Roster | null> {
+export function setRoster(roster: Roster): Action<Roster> {
   return { payload: roster, type: RosterActions.SetRoster };
 }

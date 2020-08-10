@@ -1,11 +1,8 @@
+import Jid from '@xmpp-ts/jid';
 import { Message } from '@xmpp-ts/message';
 import { Action } from '../types';
-import { MessageActions } from '../reducers/messages';
+import { MessageActions, MessagePayload } from '../reducers/messages';
 
-export function sendMessage(message: Message): Action<Message> {
-  return { payload: message, type: MessageActions.SendMessage };
-}
-
-export function receiveMessage(message: Message): Action<Message> {
-  return { payload: message, type: MessageActions.ReceiveMessage };
+export function addMessage(jid: Jid, message: Message): Action<MessagePayload> {
+  return { payload: { jid, message }, type: MessageActions.AddMessage };
 }

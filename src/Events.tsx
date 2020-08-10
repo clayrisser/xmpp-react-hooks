@@ -6,12 +6,13 @@ import { RosterItem } from '@xmpp-ts/roster';
 import { useDispatch } from 'react-redux';
 import { removeRosterItem, setRoster, setRosterItem } from './actions/roster';
 import { setAvailable, setUnavailable } from './actions/available';
-import { receiveMessage } from './actions/messages';
+import { addMessage } from './actions/messages';
 import {
-  useStatus,
   useMessageService,
+  usePresenceService,
   useRosterService,
-  usePresenceService
+  useStatus,
+  useXmppClient
 } from './hooks';
 
 export interface EventsProps {
@@ -24,6 +25,7 @@ const Events: FC<EventsProps> = (props: EventsProps) => {
   const presenceService = usePresenceService();
   const rosterService = useRosterService();
   const status = useStatus();
+  const xmppClient = useXmppClient();
 
   useEffect(() => {
     if (!rosterService || !status.isReady) return () => {};
@@ -37,7 +39,7 @@ const Events: FC<EventsProps> = (props: EventsProps) => {
     rosterService.on('set', handleSet);
     (async () => {
       const roster = await rosterService.get();
-      dispatch(setRoster(roster || null));
+      if (roster) dispatch(setRoster(roster));
     })().catch(console.error);
     return () => {
       rosterService.removeListener('remove', handleRemove);
@@ -64,13 +66,16 @@ const Events: FC<EventsProps> = (props: EventsProps) => {
   useEffect(() => {
     if (!messageService || !status.isReady) return () => {};
     function handleMessage(message: Message) {
-      dispatch(receiveMessage(message));
+      const jid = xmppClient?.jid.equals(message.from)
+        ? message.to
+        : message.from;
+      dispatch(addMessage(jid, message));
     }
     messageService.on('message', handleMessage);
     return () => {
       messageService.removeListener('message', handleMessage);
     };
-  }, [messageService]);
+  }, [messageService, status.isReady]);
 
   return <>{props.children}</>;
 };
