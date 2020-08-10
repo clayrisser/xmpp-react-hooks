@@ -6,7 +6,7 @@ import { RosterItem } from '@xmpp-ts/roster';
 import { useDispatch } from 'react-redux';
 import { removeRosterItem, setRoster, setRosterItem } from './actions/roster';
 import { setAvailable, setUnavailable } from './actions/available';
-import { recieveMessage } from './actions/messages';
+import { receiveMessage } from './actions/messages';
 import {
   useStatus,
   useMessageService,
@@ -64,7 +64,7 @@ const Events: FC<EventsProps> = (props: EventsProps) => {
   useEffect(() => {
     if (!messageService || !status.isReady) return () => {};
     function handleMessage(message: Message) {
-      dispatch(recieveMessage(message));
+      dispatch(receiveMessage(message));
     }
     messageService.on('message', handleMessage);
     return () => {

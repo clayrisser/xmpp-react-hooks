@@ -9,8 +9,11 @@ export interface ServicesOptions {
 
 export default class Services {
   message: MessageService;
+
   options: ServicesOptions;
+
   presence: PresenceService;
+
   roster: RosterService;
 
   constructor(client: XmppClient, options: Partial<ServicesOptions> = {}) {

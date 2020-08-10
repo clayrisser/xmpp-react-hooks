@@ -1,3 +1,3 @@
 export * from './available';
-export * from './message';
+export * from './messages';
 export * from './roster';

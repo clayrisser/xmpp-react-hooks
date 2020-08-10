@@ -6,6 +6,6 @@ export function sendMessage(message: Message): Action<Message> {
   return { payload: message, type: MessageActions.SendMessage };
 }
 
-export function recieveMessage(message: Message): Action<Message> {
-  return { payload: message, type: MessageActions.RecieveMessage };
+export function receiveMessage(message: Message): Action<Message> {
+  return { payload: message, type: MessageActions.ReceiveMessage };
 }
