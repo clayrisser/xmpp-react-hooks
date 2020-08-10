@@ -2,6 +2,7 @@ import React, { FC, useContext, useEffect } from 'react';
 import { Switch, Route, useHistory } from 'react-router-dom';
 import GlobalContext from '../contexts/global';
 import Home from './Home';
+import Login from './Login';
 import Message from './Message';
 import Presence from './Presence';
 import Roster from './Roster';
@@ -15,7 +16,7 @@ const Routes: FC<RoutesProps> = (_props: RoutesProps) => {
 
   useEffect(() => {
     const { username, password } = global;
-    if (!username || !password) history.push('/');
+    if (!username || !password) history.push('/login');
   }, [global, history]);
 
   return (
@@ -24,6 +25,9 @@ const Routes: FC<RoutesProps> = (_props: RoutesProps) => {
       <Switch>
         <Route exact path="/">
           <Home />
+        </Route>
+        <Route path="/login">
+          <Login />
         </Route>
         <Route path="/roster">
           <Roster />

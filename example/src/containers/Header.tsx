@@ -7,7 +7,7 @@ const Header: FC<HeaderProps> = (_props: HeaderProps) => {
   return (
     <div style={{ display: 'flex' }}>
       <div style={{ padding: 10 }}>
-        <Link to="/info">info</Link>
+        <Link to="/login">login</Link>
       </div>
       <div style={{ padding: 10 }}>
         <Link to="/roster">roster</Link>
