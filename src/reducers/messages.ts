@@ -22,6 +22,11 @@ export default function messages(
       const { jid, message } = payload;
       const key = jid.bare().toString();
       if (!messages[key]) messages[key] = [];
+      if (
+        messages[key].some((state_message) => state_message.id === message.id)
+      ) {
+        return messages;
+      }
       messages[key].push(message);
       return messages;
     }
