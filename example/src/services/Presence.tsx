@@ -8,7 +8,6 @@ export interface PresenceProps {}
 
 const PresenceService: FC<PresenceProps> = (_props: PresenceProps) => {
   const [to, setTo] = useState<Jid>();
-  console.log('to', to);
   const [type, setType] = useState<PresenceType>(PresenceType.SUBSCRIBE);
   const available = useAvailable();
   const presenceService = usePresenceService();
@@ -85,7 +84,6 @@ const PresenceService: FC<PresenceProps> = (_props: PresenceProps) => {
                       )
                     : undefined
                 )
-              // console.log('e', e.target.value)
             }
             value={to?.toString()}
           >
