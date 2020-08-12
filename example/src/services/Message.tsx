@@ -10,7 +10,9 @@ const Message: FC<MessageProps> = (_props: MessageProps) => {
   const [jid, setJid] = useState('');
   const [to, setTo] = useState('');
   const messageService = useMessageService();
+  console.log('jid', jid);
   const messages = useMessages(new Jid(jid));
+  console.log('messages', messages);
   const roster = useRoster();
 
   useEffect(() => {

@@ -11,6 +11,7 @@ const RosterService: FC<RosterProps> = (_props: RosterProps) => {
   const [name, setName] = useState('');
   const [removeJid, setRemoveJid] = useState('');
   const roster = useRoster();
+  console.log('useRoster', roster);
   const rosterService = useRosterService();
   const [getRosterState, setGetRosterState] = useState<Roster | undefined>(
     undefined
