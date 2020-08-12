@@ -18,7 +18,13 @@ export default function messages(
 ) {
   switch (type) {
     case MessageActions.AddMessage: {
-      const messages = { ...state };
+      const messages = Object.entries(state).reduce(
+        (messages: Messages, [key, value]: [string, Message[]]) => {
+          messages[key] = [...value];
+          return messages;
+        },
+        {}
+      );
       const { jid, message } = payload;
       const key = jid.bare().toString();
       if (!messages[key]) messages[key] = [];
