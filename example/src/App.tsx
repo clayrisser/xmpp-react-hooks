@@ -5,6 +5,8 @@ import { Provider as XmppProvider } from 'xmpp-react-hooks';
 import GlobalContext, { Global } from './contexts/global';
 import Routes from './routes';
 
+const { REACT_APP_XMPP_HOSTNAME } = process.env;
+
 export interface AppProps {}
 
 const App: FC<AppProps> = (_props: AppProps) => {
@@ -14,7 +16,7 @@ const App: FC<AppProps> = (_props: AppProps) => {
     <GlobalContext.Provider value={[global, setGlobal]}>
       <XmppProvider
         debug
-        hostname="test.siliconhills.dev"
+        hostname={REACT_APP_XMPP_HOSTNAME}
         password={global.password}
         resource="abc"
         storage={storage}
