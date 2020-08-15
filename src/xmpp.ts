@@ -102,7 +102,6 @@ export default class Xmpp {
     if (!this.client) throw new Error('login to create xmpp client');
     await new Promise((resolve, reject) => {
       const handleOnline = async () => {
-        await new Promise((r) => setTimeout(r, 1000));
         this.client!.removeListener('online', handleOnline);
         resolve();
       };
