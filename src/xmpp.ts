@@ -116,9 +116,10 @@ export default class Xmpp {
   }
 
   async stop() {
-    this.client.restart = () => {};
+    if (!this.client) return;
     this.services?.presence.unavailable();
-    await this.client?.disconnect(500);
+    this.client.restart = async () => {};
+    await this.client.disconnect(500);
   }
 
   handle(
