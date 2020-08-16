@@ -4,13 +4,12 @@ import { Persistor, Storage } from 'redux-persist';
 import { Provider as ReduxProvider } from 'react-redux';
 import { Store } from 'redux';
 import Events from './Events';
-import Xmpp, { Cleanup } from './xmpp';
+import Xmpp from './xmpp';
 import XmppContext from './contexts/xmpp';
 import { createPersistorStore, createStore } from './store';
 
 export interface ProviderProps {
   children: ReactNode;
-  createCleanup?: (cleanup: Cleanup) => any;
   debug?: boolean;
   domain?: string;
   hostname?: string;
@@ -26,7 +25,6 @@ export interface ProviderProps {
 const Provider: FC<ProviderProps> = (props: ProviderProps) => {
   const {
     children,
-    createCleanup,
     debug,
     domain,
     hostname,
@@ -43,6 +41,14 @@ const Provider: FC<ProviderProps> = (props: ProviderProps) => {
   const [store, setStore] = useState<Store>(createStore());
   const [xmpp, setXmpp] = useState<Xmpp | undefined>();
 
+  useEffect(
+    () => () => {
+      if (!xmpp) return;
+      xmpp.stop();
+    },
+    [xmpp]
+  );
+
   useEffect(() => {
     if (!username || !(hostname || domain)) return;
     const { persistor, store } = createPersistorStore(
@@ -52,10 +58,6 @@ const Provider: FC<ProviderProps> = (props: ProviderProps) => {
     setPersistor(persistor);
     setStore(store);
   }, [username, hostname, domain]);
-
-  function cleanup() {
-    if (!xmpp) return;
-  }
 
   useEffect(() => {
     (async () => {
@@ -69,7 +71,6 @@ const Provider: FC<ProviderProps> = (props: ProviderProps) => {
         });
         await xmpp.login(username, password);
         await xmpp.start();
-        if (createCleanup) createCleanup(cleanup);
         setXmpp(xmpp);
       }
     })();
