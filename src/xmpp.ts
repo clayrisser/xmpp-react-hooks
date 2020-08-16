@@ -115,6 +115,12 @@ export default class Xmpp {
     this.services?.presence.send();
   }
 
+  async stop() {
+    this.client.restart = () => {};
+    this.services?.presence.unavailable();
+    await this.client?.disconnect(500);
+  }
+
   handle(
     condition: CheckCondition | string | string[],
     readCallback: ReadCallback,

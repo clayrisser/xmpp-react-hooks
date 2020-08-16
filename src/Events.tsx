@@ -49,6 +49,7 @@ const Events: FC<EventsProps> = (props: EventsProps) => {
 
   useEffect(() => {
     if (!presenceService || !status.isReady) return () => {};
+    presenceService.available();
     function handleAvailable(presence: Presence) {
       dispatch(setAvailable(presence.from));
     }
@@ -58,6 +59,7 @@ const Events: FC<EventsProps> = (props: EventsProps) => {
     presenceService.on('available', handleAvailable);
     presenceService.on('unavailable', handleUnavailable);
     return () => {
+      presenceService.unavailable();
       presenceService.removeListener('available', handleAvailable);
       presenceService.removeListener('unavailable', handleUnavailable);
     };
