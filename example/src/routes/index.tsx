@@ -7,6 +7,7 @@ import Message from './Message';
 import Presence from './Presence';
 import Roster from './Roster';
 import { Footer, Header } from '../containers';
+import VCard from './vCard';
 
 export interface RoutesProps {}
 
@@ -37,6 +38,9 @@ const Routes: FC<RoutesProps> = (_props: RoutesProps) => {
         </Route>
         <Route path="/message">
           <Message />
+        </Route>
+        <Route path="/vcard">
+          <VCard />
         </Route>
       </Switch>
       <Footer />

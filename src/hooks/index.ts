@@ -8,6 +8,7 @@ import useServices from './useServices';
 import useStatus from './useStatus';
 import useXmpp from './useXmpp';
 import useXmppClient from './useXmppClient';
+import usevCard from './usevCard';
 
 export {
   useAvailable,
@@ -19,5 +20,6 @@ export {
   useServices,
   useStatus,
   useXmpp,
-  useXmppClient
+  useXmppClient,
+  usevCard
 };
