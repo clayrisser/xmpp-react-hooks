@@ -12,8 +12,11 @@ import {
   usePresenceService,
   useRosterService,
   useStatus,
-  useXmppClient
+  useXmppClient,
+  useRoster,
+  useVCardService
 } from './hooks';
+import { setVCard } from './actions/vCard';
 
 export interface EventsProps {
   children: ReactNode;
@@ -26,6 +29,8 @@ const Events: FC<EventsProps> = (props: EventsProps) => {
   const rosterService = useRosterService();
   const status = useStatus();
   const xmppClient = useXmppClient();
+  const rosterItems = useRoster();
+  const vCardService = useVCardService();
 
   useEffect(() => {
     if (!rosterService || !status.isReady) return () => {};
@@ -39,6 +44,7 @@ const Events: FC<EventsProps> = (props: EventsProps) => {
     rosterService.on('set', handleSet);
     (async () => {
       const roster = await rosterService.get();
+      console.log('rosterrrr', roster);
       if (roster) dispatch(setRoster(roster));
     })().catch(console.error);
     return () => {
@@ -46,6 +52,57 @@ const Events: FC<EventsProps> = (props: EventsProps) => {
       rosterService.removeListener('set', handleSet);
     };
   }, [rosterService, status.isReady]);
+
+  useEffect(() => {
+    console.log('roster items', rosterItems.items, xmppClient?.jid);
+    const { items } = rosterItems;
+
+    const roster = items.map(async (item: any) => {
+      // console.log('item.jid._local', item.jid._local, xmppClient?.jid?.local);
+      // (async () => {
+      const img = await vCardService?.get({
+        from: `${xmppClient?.jid?.local}@xmpp.staging.desklessworkers.com`,
+        to: `${item.jid._local}@${item.jid._domain}`
+      });
+      console.log('sds', img);
+      if (img === undefined) return;
+      if (img.profileImage === undefined) return;
+
+      if (img.profileImage === undefined) {
+        dispatch(
+          setVCard(
+            new Jid(`${item.jid._local}@xmpp.staging.desklessworkers.com`),
+
+            {
+              profileImage: ''
+            }
+          )
+        );
+      } else {
+        dispatch(
+          setVCard(
+            new Jid(`${item.jid._local}@xmpp.staging.desklessworkers.com`),
+
+            {
+              profileImage: img.profileImage
+            }
+          )
+        );
+      }
+    });
+    // })().catch(console.error);
+    // });
+
+    // (async () => {
+    //   const img = await vCardService?.get({});
+    //   console.log('sds', img);
+    //   dispatch(
+    //     setVCard(new Jid('NZQXM6LBBI@xmpp.staging.desklessworkers.com'), {
+    //       profileImage: img.profileImage
+    //     })
+    //   );
+    // })().catch(console.error);
+  }, [vCardService]);
 
   useEffect(() => {
     if (!presenceService || !status.isReady) return () => {};

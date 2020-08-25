@@ -19,7 +19,7 @@ const Header: FC<HeaderProps> = (_props: HeaderProps) => {
         <Link to="/message">message</Link>
       </div>
       <div style={{ padding: 10 }}>
-        <Link to="/vcard">VCard</Link>
+        <Link to="/vcard">vCard</Link>
       </div>
     </div>
   );
