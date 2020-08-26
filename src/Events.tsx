@@ -4,6 +4,7 @@ import { Message } from '@xmpp-ts/message';
 import { Presence } from '@xmpp-ts/presence';
 import { RosterItem } from '@xmpp-ts/roster';
 import { useDispatch } from 'react-redux';
+import { vCard } from '@xmpp-ts/vcard';
 import { removeRosterItem, setRoster, setRosterItem } from './actions/roster';
 import { setAvailable, setUnavailable } from './actions/available';
 import { addMessage } from './actions/messages';
@@ -55,8 +56,17 @@ const Events: FC<EventsProps> = (props: EventsProps) => {
 
   useEffect(() => {
     console.log('roster items', rosterItems.items, xmppClient?.jid);
+    if (!vCardService || !status.isReady) return () => {};
+    function handleVCard(vCard: vCard) {
+      console.log('handle', vCard);
+      dispatch(
+        setVCard(
+          new Jid(`${xmppClient?.jid?.local}@xmpp.staging.desklessworkers.com`),
+          vCard
+        )
+      );
+    }
     const { items } = rosterItems;
-
     const roster = items.map(async (item: any) => {
       // console.log('item.jid._local', item.jid._local, xmppClient?.jid?.local);
       // (async () => {
@@ -68,28 +78,18 @@ const Events: FC<EventsProps> = (props: EventsProps) => {
       if (img === undefined) return;
       if (img.profileImage === undefined) return;
 
-      if (img.profileImage === undefined) {
-        dispatch(
-          setVCard(
-            new Jid(`${item.jid._local}@xmpp.staging.desklessworkers.com`),
-
-            {
-              profileImage: ''
-            }
-          )
-        );
-      } else {
-        dispatch(
-          setVCard(
-            new Jid(`${item.jid._local}@xmpp.staging.desklessworkers.com`),
-
-            {
-              profileImage: img.profileImage
-            }
-          )
-        );
-      }
+      dispatch(
+        setVCard(
+          new Jid(`${item.jid._local}@xmpp.staging.desklessworkers.com`),
+          img
+        )
+      );
     });
+
+    vCardService.on('vcard', handleVCard);
+    return () => {
+      vCardService.removeListener('vcard', handleVCard);
+    };
     // })().catch(console.error);
     // });
 
@@ -102,7 +102,7 @@ const Events: FC<EventsProps> = (props: EventsProps) => {
     //     })
     //   );
     // })().catch(console.error);
-  }, [vCardService]);
+  }, [vCardService, status.isReady]);
 
   useEffect(() => {
     if (!presenceService || !status.isReady) return () => {};
