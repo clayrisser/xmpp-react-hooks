@@ -22,8 +22,9 @@ export default function vcard(
   switch (type) {
     case VCardActions.SetVCard: {
       const vcard_data = Object.entries(state).reduce(
-        (vcard_data: vCardData, [key, value]: [string, vCard[]]) => {
-          vcard_data[key] = [...value];
+        (vcard_data: vCardData, [key, value]: [string, vCard]) => {
+          console.log('valueee', value);
+          vcard_data[key] = value;
           return vcard_data;
         },
         {}
@@ -31,14 +32,16 @@ export default function vcard(
       const { jid, vCard } = payload;
       const key = jid.bare().toString();
 
-      console.log('key', key);
-      if (!vcard_data[key]) vcard_data[key] = [];
+      console.log('key', key, vcard_data);
+      if (!vcard_data[key]) vcard_data[key] = {};
       // if (
-      //   vcard_data[key].some((state_message) => state_message.id === message.id)
+      //   vcard_data[key].some(
+      //     (state_message) => state_message.profileImage === vCard.profileImage
+      //   )
       // ) {
-      //   return messages;
+      //   return vcard_data;
       // }
-      vcard_data[key].push(vCard);
+      vcard_data[key] = vCard;
       console.log('vcard_datassss', vcard_data);
       return vcard_data;
       //   const { jid } = payload as RosterItem;

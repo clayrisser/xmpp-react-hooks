@@ -10,7 +10,7 @@ import { vCard } from '@xmpp-ts/vcard';
 import { useSelector } from 'react-redux';
 import { State } from '../state';
 
-export default function useVCard(jid: Jid): vCard[] {
+export default function useVCard(jid: Jid): vCard {
   return useSelector((state: State) => {
     console.log('jid.bare', jid.bare().toString());
     return state.vCard[jid.bare().toString()];

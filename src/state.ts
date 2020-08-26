@@ -31,5 +31,5 @@ export const defaultState: PreloadedState<State> = {
 };
 
 export interface vCardData {
-  [jid: string]: vCard[];
+  [jid: string]: vCard;
 }
