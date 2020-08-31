@@ -1,8 +1,8 @@
 import Jid from '@xmpp-ts/jid';
-import { vCard } from '@xmpp-ts/vcard';
+import { VCard } from '@xmpp-ts/vcard';
 import { Action } from '../types';
-import { VCardActions, vCardPayload } from '../reducers/vCard';
+import { VCardActions, VCardPayload } from '../reducers/vCard';
 
-export function setVCard(jid: Jid, vCard: vCard): Action<vCardPayload> {
+export function setVCard(jid: Jid, vCard: VCard): Action<VCardPayload> {
   return { payload: { jid, vCard }, type: VCardActions.SetVCard };
 }
