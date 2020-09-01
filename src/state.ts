@@ -2,7 +2,7 @@ import { JidObject } from '@xmpp-ts/jid';
 import { Message } from '@xmpp-ts/message';
 import { PreloadedState } from 'redux';
 import { Roster, RosterItem } from '@xmpp-ts/roster';
-import { vCard } from '@xmpp-ts/vcard';
+import { VCard } from '@xmpp-ts/vcard';
 
 export interface Messages {
   [jid: string]: Message[];
@@ -20,7 +20,7 @@ export interface State {
   available: string[];
   messages: Messages;
   roster: RosterState;
-  vCard: vCardData;
+  vCard: VCardData;
 }
 
 export const defaultState: PreloadedState<State> = {
@@ -30,6 +30,6 @@ export const defaultState: PreloadedState<State> = {
   vCard: {}
 };
 
-export interface vCardData {
-  [jid: string]: vCard;
+export interface VCardData {
+  [jid: string]: VCard;
 }
