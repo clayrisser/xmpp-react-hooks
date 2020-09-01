@@ -1,7 +1,12 @@
 import React, { FC, useState } from 'react';
 import { RosterItem } from '@xmpp-ts/roster';
 import Jid from '@xmpp-ts/jid';
-import { useVCard, useVCardService, useRoster } from 'xmpp-react-hooks';
+import {
+  useVCard,
+  useVCardService,
+  useRoster,
+  useXmppClient
+} from 'xmpp-react-hooks';
 
 export interface vCardProps {}
 
@@ -12,6 +17,8 @@ const VCard: FC<vCardProps> = (_props: vCardProps) => {
   console.log('vCard', vCard);
   const roster = useRoster();
   const vCardService = useVCardService();
+  const [value, setValue] = useState();
+  const xmppClient = useXmppClient();
 
   async function handleSetVCard(
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
@@ -20,6 +27,14 @@ const VCard: FC<vCardProps> = (_props: vCardProps) => {
     await vCardService?.set({
       image: avtar
     });
+  }
+
+  async function handleGetVCard(
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) {
+    e.preventDefault();
+    const image = await vCardService?.get({});
+    setValue(image);
   }
 
   function renderRosterOptions() {
@@ -37,7 +52,7 @@ const VCard: FC<vCardProps> = (_props: vCardProps) => {
     <div>
       <h1>vCard</h1>
       <hr />
-      <h3>Get vCard</h3>
+      <h3>Get vCard of Roster Items</h3>
 
       <select
         name="jid"
@@ -45,6 +60,12 @@ const VCard: FC<vCardProps> = (_props: vCardProps) => {
         onChange={(e: any) => setJid(e.target.value)}
         value={jid}
       >
+        <option
+          selected={true}
+          value={`${xmppClient?.jid?.local}@${xmppClient?.jid?.domain}`}
+        >
+          {`${xmppClient?.jid?.local}@${xmppClient?.jid?.domain}`}
+        </option>
         {renderRosterOptions()}
       </select>
       {JSON.stringify(vCard)}
@@ -58,6 +79,10 @@ const VCard: FC<vCardProps> = (_props: vCardProps) => {
       />
 
       <button onClick={(e: any) => handleSetVCard(e)}>Set vCard</button>
+      <br />
+      <br />
+      <button onClick={(e: any) => handleGetVCard(e)}>Get vCard</button>
+      {JSON.stringify(value)}
       <br />
       <br />
     </div>
