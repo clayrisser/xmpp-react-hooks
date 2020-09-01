@@ -2,7 +2,7 @@ import { XmppClient } from '@xmpp/client';
 import MessageService from './message';
 import PresenceService from './presence';
 import RosterService from './roster';
-import vCardService from './vCard';
+import VCardService from './vCard';
 
 export interface ServicesOptions {
   debug: boolean;
@@ -17,7 +17,7 @@ export default class Services {
 
   roster: RosterService;
 
-  vCard: vCardService;
+  vCard: VCardService;
 
   constructor(client: XmppClient, options: Partial<ServicesOptions> = {}) {
     this.options = {
@@ -27,11 +27,11 @@ export default class Services {
     this.message = new MessageService(client, { debug: this.options.debug });
     this.presence = new PresenceService(client, { debug: this.options.debug });
     this.roster = new RosterService(client);
-    this.vCard = new vCardService(client);
+    this.vCard = new VCardService(client);
   }
 }
 
-export { MessageService, PresenceService, RosterService, vCardService };
+export { MessageService, PresenceService, RosterService, VCardService };
 
 export * from './message';
 export * from './presence';
