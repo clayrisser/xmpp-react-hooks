@@ -14,7 +14,6 @@ const VCard: FC<vCardProps> = (_props: vCardProps) => {
   const [avtar, setImage] = useState('');
   const [jid, setJid] = useState('');
   const vCard = useVCard(new Jid(jid));
-  console.log('vCard', vCard);
   const roster = useRoster();
   const vCardService = useVCardService();
   const [value, setValue] = useState();
