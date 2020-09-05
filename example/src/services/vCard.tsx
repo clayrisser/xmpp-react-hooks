@@ -13,9 +13,8 @@ export interface vCardProps {}
 const VCard: FC<vCardProps> = (_props: vCardProps) => {
   const [avtar, setImage] = useState('');
   const [jid, setJid] = useState('');
-  const vCard = useVCard(new Jid(jid));
-  console.log('vCard', vCard);
   const roster = useRoster();
+  const vCard = useVCard(new Jid(jid), null);
   const vCardService = useVCardService();
   const [value, setValue] = useState();
   const xmppClient = useXmppClient();
@@ -30,8 +29,6 @@ const VCard: FC<vCardProps> = (_props: vCardProps) => {
   const [number, setNumber] = useState('');
   const [id, setJabberId] = useState('');
   const [email, setEmail] = useState('');
-
-  console.log('kjdds', xmppClient?.jid.bare().toString());
 
   async function handleSetVCard(
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
@@ -92,7 +89,7 @@ const VCard: FC<vCardProps> = (_props: vCardProps) => {
         </option>
         {renderRosterOptions()}
       </select>
-      {JSON.stringify(vCard)}
+      {JSON.stringify(vCard[0])}
       <h3>Set vCard</h3>
       <div style={{ display: 'flex', flexDirection: 'column' }}>
         <form style={{ width: 500 }}>
@@ -217,16 +214,7 @@ const VCard: FC<vCardProps> = (_props: vCardProps) => {
             />
           </div>
           <br />
-          {/* <div>
-            <label>JabberId:</label>
-            <input
-              id="jabberid"
-              name="jabberid"
-              onChange={(e: any) => setJabberId(e.target.value)}
-              value={email}
-              style={{ width: 250 }}
-            />
-          </div> */}
+
           <br />
           <button onClick={(e: any) => handleSetVCard(e)}>Set vCard</button>
         </form>
