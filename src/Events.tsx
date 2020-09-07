@@ -87,6 +87,27 @@ const Events: FC<EventsProps> = (props: EventsProps) => {
   }, [vCardService, status.isReady]);
 
   useEffect(() => {
+    if (!rosterItems) return;
+    const { items } = rosterItems;
+    const roster = items.map(async (item: any) => {
+      const img = await vCardService?.get({
+        from: `${xmppClient?.jid?.local}@xmpp.staging.desklessworkers.com`,
+        to: `${item.jid._local}@${item.jid._domain}`
+      });
+      console.log('img', img);
+      if (img === undefined) return;
+      if (img.profileImage === undefined) return;
+
+      dispatch(
+        setVCard(
+          new Jid(`${item.jid._local}@xmpp.staging.desklessworkers.com`),
+          img
+        )
+      );
+    });
+  });
+
+  useEffect(() => {
     if (!presenceService || !status.isReady) return () => {};
     presenceService.available();
     function handleAvailable(presence: Presence) {
