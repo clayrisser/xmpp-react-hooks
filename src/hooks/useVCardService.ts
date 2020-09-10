@@ -5,4 +5,3 @@ export default function useVCardService(): vCardService | undefined {
   const services = useServices();
   return services?.vCard;
 }
-

@@ -74,16 +74,15 @@ const PresenceService: FC<PresenceProps> = (_props: PresenceProps) => {
           <select
             name="to"
             id="to"
-            onChange={
-              (e: any) =>
-                setTo(
-                  e.target.value?.split('@')?.[1]
-                    ? new Jid(
-                        e.target.value.split('@')?.[0],
-                        e.target.value.split('@')?.[1]
-                      )
-                    : undefined
-                )
+            onChange={(e: any) =>
+              setTo(
+                e.target.value?.split('@')?.[1]
+                  ? new Jid(
+                      e.target.value.split('@')?.[0],
+                      e.target.value.split('@')?.[1]
+                    )
+                  : undefined
+              )
             }
             value={to?.toString()}
           >
