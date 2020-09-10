@@ -39,7 +39,7 @@ node_modules: package.json
 
 .PHONY: prepare
 prepare:
-	@
+	@sed -i "s/ComponentPropsWithRef<C>/any/g" node_modules/@types/react/index.d.ts
 
 .PHONY: format +format _format ~format
 format: _format ~format
