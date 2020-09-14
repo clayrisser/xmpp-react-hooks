@@ -8,6 +8,8 @@ import Xmpp from './xmpp';
 import XmppContext from './contexts/xmpp';
 import { createPersistorStore, createStore } from './store';
 
+let xmppSingleton: Xmpp;
+
 export interface ProviderProps {
   children: ReactNode;
   debug?: boolean;
@@ -20,6 +22,7 @@ export interface ProviderProps {
   storage: Storage;
   storageKey?: string;
   username?: string;
+  singleton?: boolean;
 }
 
 const Provider: FC<ProviderProps> = (props: ProviderProps) => {
@@ -62,15 +65,19 @@ const Provider: FC<ProviderProps> = (props: ProviderProps) => {
   useEffect(() => {
     (async () => {
       if (username?.length && password?.length) {
-        const xmpp = new Xmpp({
-          debug,
-          domain,
-          hostname,
-          resource,
-          service
-        });
-        await xmpp.login(username, password);
-        await xmpp.start();
+        let xmpp = xmppSingleton;
+        if (!xmpp || !props.singleton) {
+          xmpp = new Xmpp({
+            debug,
+            domain,
+            hostname,
+            resource,
+            service
+          });
+          xmppSingleton = xmpp;
+          await xmpp.login(username, password);
+          await xmpp.start();
+        }
         setXmpp(xmpp);
       }
     })();

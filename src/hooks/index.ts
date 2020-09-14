@@ -10,7 +10,7 @@ import useXmpp from './useXmpp';
 import useXmppClient from './useXmppClient';
 import useVCard from './useVCard';
 import useVCardService from './useVCardService';
-import useLastMessage from './useLastMessage';
+// import useLastMessage from './useLastMessage';
 
 export {
   useAvailable,
@@ -24,6 +24,6 @@ export {
   useXmpp,
   useXmppClient,
   useVCard,
-  useVCardService,
-  useLastMessage
+  useVCardService
+  // useLastMessage
 };

@@ -10,8 +10,8 @@ const RosterService: FC<RosterProps> = (_props: RosterProps) => {
   const [jid, setJid] = useState('');
   const [name, setName] = useState('');
   const [removeJid, setRemoveJid] = useState('');
-  const lastMessage = useLastMessage();
-  console.log('last messages', lastMessage);
+  // const lastMessage = useLastMessage();
+  // console.log('last messages', lastMessage);
   const roster = useRoster();
   const rosterService = useRosterService();
   const [getRosterState, setGetRosterState] = useState<Roster | undefined>(
