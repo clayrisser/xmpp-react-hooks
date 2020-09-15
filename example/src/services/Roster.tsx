@@ -1,7 +1,7 @@
 import Jid from '@xmpp-ts/jid';
 import React, { FC, useState, useEffect } from 'react';
 import { Roster, RosterItem } from '@xmpp-ts/roster';
-import { useRosterService, useLastMessage, useRoster } from 'xmpp-react-hooks';
+import { useRosterService, useRoster } from 'xmpp-react-hooks';
 
 export interface RosterProps {}
 
@@ -10,8 +10,7 @@ const RosterService: FC<RosterProps> = (_props: RosterProps) => {
   const [jid, setJid] = useState('');
   const [name, setName] = useState('');
   const [removeJid, setRemoveJid] = useState('');
-  // const lastMessage = useLastMessage();
-  // console.log('last messages', lastMessage);
+
   const roster = useRoster();
   const rosterService = useRosterService();
   const [getRosterState, setGetRosterState] = useState<Roster | undefined>(
