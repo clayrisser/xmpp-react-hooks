@@ -71,7 +71,7 @@ const Events: FC<EventsProps> = (props: EventsProps) => {
       });
       if (img === undefined) return;
       if (img.profileImage === undefined) return;
-
+      console.log('image', img);
       dispatch(
         setVCard(
           new Jid(`${item.jid._local}@xmpp.staging.desklessworkers.com`),
