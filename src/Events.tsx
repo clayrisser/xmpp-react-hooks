@@ -126,6 +126,16 @@ const Events: FC<EventsProps> = (props: EventsProps) => {
   }, [presenceService, status.isReady]);
 
   useEffect(() => {
+    console.log('app closed not pre');
+
+    // returned function will be called on component unmount
+    return () => {
+      presenceService?.unavailable();
+      console.log('app closed pre');
+    };
+  }, []);
+
+  useEffect(() => {
     if (!messageService || !status.isReady) return () => {};
     function handleMessage(message: Message) {
       const jid = xmppClient?.jid.equals(message.from)
