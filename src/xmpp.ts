@@ -58,6 +58,7 @@ export default class Xmpp {
   }
 
   private handleError(err: Error) {
+    console.log('xmpp handle error method called', err.message);
     switch (err.message) {
       default: {
         throw err;
@@ -66,6 +67,7 @@ export default class Xmpp {
   }
 
   private handleOnline() {
+    console.log('xmpp handleOnline method called');
     this.isOnline = true;
     this.isReady = true;
   }
@@ -80,6 +82,7 @@ export default class Xmpp {
   }
 
   async login(username: string, password: string) {
+    console.log('xmpp login method called');
     const domain = this.config.domain || this.config.hostname;
     const { resource } = this.config;
     const service = this.config.service || `wss://${this.config.hostname}/ws`;
@@ -99,6 +102,7 @@ export default class Xmpp {
   }
 
   async start() {
+    console.log('xmpp connection started');
     if (!this.client) throw new Error('login to create xmpp client');
     await new Promise((resolve, reject) => {
       const handleOnline = async () => {
@@ -108,6 +112,7 @@ export default class Xmpp {
       this.client!.on('online', handleOnline);
       try {
         this.client!.start();
+        console.log('xmpp client started');
       } catch (err) {
         reject(err);
       }
