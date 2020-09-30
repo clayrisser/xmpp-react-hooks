@@ -101,13 +101,9 @@ export default class Xmpp {
   async start() {
     if (!this.client) throw new Error('login to create xmpp client');
     await new Promise((resolve, reject) => {
-      console.log('xmpp promise', resolve);
       const handleOnline = async () => {
-        console.log('xmpp handle online method');
         this.client!.removeListener('online', handleOnline);
-        console.log('xmpp handle online removed');
         resolve();
-        console.log('xmpp resolve', resolve);
       };
       this.client!.on('online', handleOnline);
       try {
@@ -117,7 +113,6 @@ export default class Xmpp {
       }
     });
     this.services?.presence.send();
-    console.log('xmpp sevices called');
   }
 
   async stop() {

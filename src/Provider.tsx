@@ -67,7 +67,6 @@ const Provider: FC<ProviderProps> = (props: ProviderProps) => {
       if (username?.length && password?.length) {
         let xmpp = xmppSingleton;
         if (!xmpp || !props.singleton) {
-          // console.log('xmpp server username and password', username, password);
           xmpp = new Xmpp({
             debug,
             domain,
@@ -78,8 +77,6 @@ const Provider: FC<ProviderProps> = (props: ProviderProps) => {
           xmppSingleton = xmpp;
           await xmpp.login(username, password);
           await xmpp.start();
-
-          console.log('xmpp singleton connected once', xmppSingleton);
         }
 
         setXmpp(xmpp);
@@ -88,7 +85,6 @@ const Provider: FC<ProviderProps> = (props: ProviderProps) => {
   }, [username, password]);
 
   function renderXmppProvider() {
-    // console.log('xmpp hooks render provider');
     return (
       <XmppContext.Provider value={xmpp}>
         <Events>{children}</Events>

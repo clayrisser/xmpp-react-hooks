@@ -46,17 +46,10 @@ const Events: FC<EventsProps> = (props: EventsProps) => {
 
     if (!eventNames.includes('remove')) {
       rosterService.on('remove', handleRemove);
-      console.log('xmpp events added only once remove');
     }
-
-    console.log(
-      'xmpp events remove event present or not',
-      !eventNames.includes('set')
-    );
 
     if (!eventNames.includes('set')) {
       rosterService.on('set', handleSet);
-      console.log('xmpp events added only once set');
     }
 
     (async () => {
@@ -67,12 +60,10 @@ const Events: FC<EventsProps> = (props: EventsProps) => {
       const eventNames = rosterService.eventNames();
       if (eventNames.includes('remove')) {
         rosterService.removeListener('remove', handleRemove);
-        console.log('xmpp remove listener removed');
       }
 
       if (eventNames.includes('set')) {
         rosterService.removeListener('set', handleSet);
-        console.log('xmpp set listener removed', rosterService.eventNames());
       }
     };
   }, [rosterService, status.isReady]);
@@ -107,7 +98,6 @@ const Events: FC<EventsProps> = (props: EventsProps) => {
 
     if (!eventNames.includes('vcard')) {
       vCardService.on('vcard', handleVCard);
-      console.log('xmpp event listener vcard added');
     }
 
     return () => {
@@ -115,7 +105,6 @@ const Events: FC<EventsProps> = (props: EventsProps) => {
 
       if (eventNames.includes('vcard')) {
         vCardService.removeListener('vcard', handleVCard);
-        console.log('xmpp event listener vcard removed');
       }
     };
   });
@@ -167,7 +156,6 @@ const Events: FC<EventsProps> = (props: EventsProps) => {
 
       if (eventNames.includes('available')) {
         presenceService.removeListener('available', handleAvailable);
-        console.log('xmpp event presence removed');
       }
       if (eventNames.includes('unavailable')) {
         presenceService.removeListener('unavailable', handleUnavailable);
@@ -192,7 +180,6 @@ const Events: FC<EventsProps> = (props: EventsProps) => {
     const eventNames = messageService.eventNames();
     if (!eventNames.includes('message')) {
       messageService.on('message', handleMessage);
-      console.log('xmpp message listener added');
     }
 
     return () => {
@@ -200,7 +187,6 @@ const Events: FC<EventsProps> = (props: EventsProps) => {
 
       if (eventNames.includes('message')) {
         messageService.removeListener('message', handleMessage);
-        console.log('xmpp message listener removed');
       }
     };
   }, [messageService, status.isReady]);
