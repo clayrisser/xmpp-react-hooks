@@ -41,15 +41,39 @@ const Events: FC<EventsProps> = (props: EventsProps) => {
     function handleSet({ item }: { item: RosterItem; version?: string }) {
       dispatch(setRosterItem(item));
     }
-    rosterService.on('remove', handleRemove);
-    rosterService.on('set', handleSet);
+
+    const eventNames = rosterService.eventNames();
+
+    if (!eventNames.includes('remove')) {
+      rosterService.on('remove', handleRemove);
+      console.log('xmpp events added only once remove');
+    }
+
+    console.log(
+      'xmpp events remove event present or not',
+      !eventNames.includes('set')
+    );
+
+    if (!eventNames.includes('set')) {
+      rosterService.on('set', handleSet);
+      console.log('xmpp events added only once set');
+    }
+
     (async () => {
       const roster = await rosterService.get();
       if (roster) dispatch(setRoster(roster));
     })().catch(console.error);
     return () => {
-      rosterService.removeListener('remove', handleRemove);
-      rosterService.removeListener('set', handleSet);
+      const eventNames = rosterService.eventNames();
+      if (eventNames.includes('remove')) {
+        rosterService.removeListener('remove', handleRemove);
+        console.log('xmpp remove listener removed');
+      }
+
+      if (eventNames.includes('set')) {
+        rosterService.removeListener('set', handleSet);
+        console.log('xmpp set listener removed', rosterService.eventNames());
+      }
     };
   }, [rosterService, status.isReady]);
 
@@ -71,7 +95,6 @@ const Events: FC<EventsProps> = (props: EventsProps) => {
       });
       if (img === undefined) return;
       if (img.profileImage === undefined) return;
-      console.log('image', img);
       dispatch(
         setVCard(
           new Jid(`${item.jid._local}@xmpp.staging.desklessworkers.com`),
@@ -80,32 +103,43 @@ const Events: FC<EventsProps> = (props: EventsProps) => {
       );
     });
 
-    vCardService.on('vcard', handleVCard);
+    const eventNames = vCardService.eventNames();
+
+    if (!eventNames.includes('vcard')) {
+      vCardService.on('vcard', handleVCard);
+      console.log('xmpp event listener vcard added');
+    }
+
     return () => {
-      vCardService.removeListener('vcard', handleVCard);
+      const eventNames = vCardService.eventNames();
+
+      if (eventNames.includes('vcard')) {
+        vCardService.removeListener('vcard', handleVCard);
+        console.log('xmpp event listener vcard removed');
+      }
     };
-  }, [vCardService, status.isReady]);
-
-  useEffect(() => {
-    if (!rosterItems) return;
-    const { items } = rosterItems;
-    const roster = items.map(async (item: any) => {
-      const img = await vCardService?.get({
-        from: `${xmppClient?.jid?.local}@xmpp.staging.desklessworkers.com`,
-        to: `${item.jid._local}@${item.jid._domain}`
-      });
-      console.log('img', img);
-      if (img === undefined) return;
-      if (img.profileImage === undefined) return;
-
-      dispatch(
-        setVCard(
-          new Jid(`${item.jid._local}@xmpp.staging.desklessworkers.com`),
-          img
-        )
-      );
-    });
   });
+
+  // useEffect(() => {
+  //   if (!rosterItems) return;
+  //   const { items } = rosterItems;
+  //   const roster = items.map(async (item: any) => {
+  //     const img = await vCardService?.get({
+  //       from: `${xmppClient?.jid?.local}@xmpp.staging.desklessworkers.com`,
+  //       to: `${item.jid._local}@${item.jid._domain}`
+  //     });
+  //     if (img === undefined) return;
+  //     if (img.profileImage === undefined) return;
+  //     function handleVcard() {
+  //       dispatch(
+  //         setVCard(
+  //           new Jid(`${item.jid._local}@xmpp.staging.desklessworkers.com`),
+  //           img
+  //         )
+  //       );
+  //     }
+  //   });
+  // });
 
   useEffect(() => {
     if (!presenceService || !status.isReady) return () => {};
@@ -116,22 +150,34 @@ const Events: FC<EventsProps> = (props: EventsProps) => {
     function handleUnavailable(presence: Presence) {
       dispatch(setUnavailable(presence.from));
     }
-    presenceService.on('available', handleAvailable);
-    presenceService.on('unavailable', handleUnavailable);
+
+    const eventNames = presenceService.eventNames();
+
+    if (!eventNames.includes('available')) {
+      presenceService.on('available', handleAvailable);
+    }
+
+    if (!eventNames.includes('unavailable')) {
+      presenceService.on('unavailable', handleUnavailable);
+    }
+
     return () => {
       presenceService.unavailable();
-      presenceService.removeListener('available', handleAvailable);
-      presenceService.removeListener('unavailable', handleUnavailable);
+      const eventNames = presenceService.eventNames();
+
+      if (eventNames.includes('available')) {
+        presenceService.removeListener('available', handleAvailable);
+        console.log('xmpp event presence removed');
+      }
+      if (eventNames.includes('unavailable')) {
+        presenceService.removeListener('unavailable', handleUnavailable);
+      }
     };
   }, [presenceService, status.isReady]);
 
   useEffect(() => {
-    console.log('app closed not pre');
-
-    // returned function will be called on component unmount
     return () => {
       presenceService?.unavailable();
-      console.log('app closed pre');
     };
   }, []);
 
@@ -143,9 +189,19 @@ const Events: FC<EventsProps> = (props: EventsProps) => {
         : message.from;
       dispatch(addMessage(jid, message));
     }
-    messageService.on('message', handleMessage);
+    const eventNames = messageService.eventNames();
+    if (!eventNames.includes('message')) {
+      messageService.on('message', handleMessage);
+      console.log('xmpp message listener added');
+    }
+
     return () => {
-      messageService.removeListener('message', handleMessage);
+      const eventNames = messageService.eventNames();
+
+      if (eventNames.includes('message')) {
+        messageService.removeListener('message', handleMessage);
+        console.log('xmpp message listener removed');
+      }
     };
   }, [messageService, status.isReady]);
 

@@ -45,6 +45,7 @@
   "dependencies": {
     "@babel/runtime": "^7.11.0",
     "@callstack/async-storage": "^2.0.3",
+    "@types/xmpp-jid": "^1.2.0",
     "@xmpp-ts/jid": "^0.0.59",
     "@xmpp-ts/message": "^0.0.59",
     "@xmpp-ts/presence": "^0.0.59",
@@ -60,6 +61,7 @@
     "core-js": "^3.6.5",
     "date-fns": "^2.15.0",
     "event-ears": "^0.0.2",
+    "geteventlisteners": "^1.1.0",
     "ltx": "^2.9.2",
     "react-redux": "^7.2.1",
     "redux": "^4.0.5",

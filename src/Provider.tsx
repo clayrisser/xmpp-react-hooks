@@ -47,7 +47,6 @@ const Provider: FC<ProviderProps> = (props: ProviderProps) => {
   useEffect(
     () => () => {
       if (!xmpp) return;
-      console.log('xmpp component will unmount xmpp');
       xmpp.stop();
     },
     [xmpp]
@@ -68,7 +67,7 @@ const Provider: FC<ProviderProps> = (props: ProviderProps) => {
       if (username?.length && password?.length) {
         let xmpp = xmppSingleton;
         if (!xmpp || !props.singleton) {
-          console.log('xmpp server username and password', username, password);
+          // console.log('xmpp server username and password', username, password);
           xmpp = new Xmpp({
             debug,
             domain,
@@ -89,7 +88,7 @@ const Provider: FC<ProviderProps> = (props: ProviderProps) => {
   }, [username, password]);
 
   function renderXmppProvider() {
-    console.log('xmpp hooks render provider');
+    // console.log('xmpp hooks render provider');
     return (
       <XmppContext.Provider value={xmpp}>
         <Events>{children}</Events>
