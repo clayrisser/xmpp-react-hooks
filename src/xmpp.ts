@@ -116,6 +116,7 @@ export default class Xmpp {
   }
 
   async stop() {
+    console.warn('!WARNING: xmpp.stop() has dangerous side effects');
     if (!this.client) return;
     this.services?.presence.unavailable();
     this.client.restart = async () => {};
