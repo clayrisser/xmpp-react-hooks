@@ -47,7 +47,7 @@ const Provider: FC<ProviderProps> = (props: ProviderProps) => {
   useEffect(
     () => () => {
       if (!xmpp) return;
-      xmpp.stop();
+      if (!props.singleton) xmpp.stop();
     },
     [xmpp]
   );
@@ -104,7 +104,8 @@ const Provider: FC<ProviderProps> = (props: ProviderProps) => {
 };
 
 Provider.defaultProps = {
-  storageKey: 'xmpp'
+  storageKey: 'xmpp',
+  singleton: true
 };
 
 export default Provider;
