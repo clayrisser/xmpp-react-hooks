@@ -47,7 +47,7 @@ const Provider: FC<ProviderProps> = (props: ProviderProps) => {
   useEffect(
     () => () => {
       if (!xmpp) return;
-      xmpp.stop();
+      if (!props.singleton) xmpp.stop();
     },
     [xmpp]
   );

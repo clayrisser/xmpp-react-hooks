@@ -50,7 +50,7 @@
     "@xmpp-ts/message": "^0.0.59",
     "@xmpp-ts/presence": "^0.0.59",
     "@xmpp-ts/roster": "^0.0.59",
-    "@xmpp-ts/types": "^0.0.59",
+    "@xmpp-ts/types": "0.0.59",
     "@xmpp-ts/vcard": "^0.0.59",
     "@xmpp/client": "^0.11.1",
     "@xmpp/debug": "^0.11.0",
