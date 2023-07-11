@@ -3,6 +3,7 @@
 [![GitHub stars](https://img.shields.io/github/stars/codejamninja/xmpp-react-hooks.svg?style=social&label=Stars)](https://github.com/codejamninja/xmpp-react-hooks)
 
 > react hooks for xmpp
+![](assets/xmpp-react-hooks.png)
 
 Please ★ this repo if you found it useful ★ ★ ★
 
