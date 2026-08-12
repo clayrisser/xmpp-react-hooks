@@ -1,8 +1,7 @@
-import Jid from '@xmpp-ts/jid';
-import React, { FC, useState, useEffect } from 'react';
+import { type FC, type MouseEvent as ReactMouseEvent, useState, useEffect } from 'react';
 import { PresenceType } from '@xmpp-ts/presence';
-import { RosterItem } from '@xmpp-ts/roster';
-import { usePresenceService, useRoster, useAvailable } from 'xmpp-react-hooks';
+import type { RosterItem } from '@xmpp-ts/roster';
+import { Jid, usePresenceService, useRoster, useAvailable } from 'xmpp-react-hooks';
 
 export interface PresenceProps {}
 
@@ -17,9 +16,7 @@ const PresenceService: FC<PresenceProps> = (_props: PresenceProps) => {
     if (!to && roster?.items?.[0]?.jid) setTo(roster.items[0].jid);
   }, [roster, to]);
 
-  function handleSendPresence(
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) {
+  function handleSendPresence(e: ReactMouseEvent<HTMLButtonElement>) {
     e.preventDefault();
     if (to) {
       presenceService?.send({
@@ -59,12 +56,7 @@ const PresenceService: FC<PresenceProps> = (_props: PresenceProps) => {
       <form>
         <div style={{ paddingBottom: 10 }}>
           <label htmlFor="type">Type: </label>
-          <select
-            name="type"
-            id="type"
-            onChange={(e: any) => setType(e.target.value)}
-            value={type}
-          >
+          <select name="type" id="type" onChange={(e: any) => setType(e.target.value)} value={type}>
             <option value={PresenceType.SUBSCRIBE}>Subscribe</option>
             <option value={PresenceType.UNSUBSCRIBE}>Unsubscribe</option>
           </select>
@@ -77,10 +69,7 @@ const PresenceService: FC<PresenceProps> = (_props: PresenceProps) => {
             onChange={(e: any) =>
               setTo(
                 e.target.value?.split('@')?.[1]
-                  ? new Jid(
-                      e.target.value.split('@')?.[0],
-                      e.target.value.split('@')?.[1]
-                    )
+                  ? new Jid(e.target.value.split('@')?.[0], e.target.value.split('@')?.[1])
                   : undefined
               )
             }
@@ -96,7 +85,5 @@ const PresenceService: FC<PresenceProps> = (_props: PresenceProps) => {
     </div>
   );
 };
-
-PresenceService.defaultProps = {};
 
 export default PresenceService;

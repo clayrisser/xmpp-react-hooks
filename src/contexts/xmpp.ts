@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import Xmpp from '../xmpp';
+import type Xmpp from '../xmpp.js';
 
 export type XmppContextResult = Xmpp | undefined;
 

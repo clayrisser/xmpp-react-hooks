@@ -1,7 +1,7 @@
-import Jid from '@xmpp-ts/jid';
-import { RosterItem } from '@xmpp-ts/roster';
-import { Action } from '../types';
-import { RosterState, RosterItemState } from '../state';
+import { Jid } from '../xmppTs.js';
+import type { Roster, RosterItem } from '@xmpp-ts/roster';
+import type { Action } from '../types.js';
+import type { RosterItemState, RosterState } from '../state.js';
 
 export interface RosterPayload {
   item?: RosterItem;
@@ -15,42 +15,45 @@ export enum RosterActions {
   SetRosterItem = 'SET_ROSTER_ITEM'
 }
 
+const emptyRoster: RosterState = { items: [] };
+
 export default function roster(
-  state: RosterState = { items: [] },
-  { type, payload }: Action<RosterPayload | RosterItem | Jid>
-) {
+  state: RosterState = emptyRoster,
+  { type, payload }: Action<Roster | RosterItem | Jid>
+): RosterState {
   switch (type) {
     case RosterActions.SetRosterItem: {
-      const { jid } = payload as RosterItem;
-      const roster = { ...state };
-      const rosterItem: RosterItemState | undefined = roster?.items.find(
-        (rosterItem: RosterItemState) =>
-          jid && new Jid(rosterItem?.jid).equals(jid)
+      const item = payload as RosterItem;
+      if (!item?.jid) return state;
+      const jid = new Jid(item.jid);
+      const items = state.items.map((rosterItem: RosterItemState) =>
+        new Jid(rosterItem.jid).equals(jid)
+          ? ({ ...rosterItem, ...item } as unknown as RosterItemState)
+          : rosterItem
       );
-      if (rosterItem) {
-        Object.assign(rosterItem, payload);
-        return roster;
+      // A push for a contact we have not seen yet is an add, not an update.
+      if (!items.some((rosterItem) => new Jid(rosterItem.jid).equals(jid))) {
+        items.push(item as unknown as RosterItemState);
       }
-      return {
-        ...(state?.version ? { version: state.version } : {}),
-        items: [
-          ...(state?.items || []),
-          ...((payload as RosterItem) ? [payload as RosterItem] : [])
-        ]
-      };
+      return { ...state, items };
     }
     case RosterActions.SetRoster: {
-      return payload;
+      const next = payload as Roster;
+      return {
+        ...(next.version ? { version: next.version } : {}),
+        items: (next.items ?? []) as unknown as RosterItemState[]
+      };
     }
     case RosterActions.RemoveRosterItem: {
       const jid = payload as Jid;
       return {
-        version: state?.version,
-        items: state?.items.filter((rosterItem: RosterItemState) => {
-          return !new Jid(rosterItem.jid).equals(jid);
-        })
+        ...state,
+        items: state.items.filter(
+          (rosterItem: RosterItemState) => !new Jid(rosterItem.jid).equals(jid)
+        )
       };
     }
+    default:
+      return state;
   }
-  return state;
 }

@@ -1,27 +1,24 @@
-import Jid from '@xmpp-ts/jid';
-import { Action } from '../types';
+import type { Jid } from '../xmppTs.js';
+import type { Action } from '../types.js';
 
 export enum AvailableActions {
   SetAvailable = 'SET_AVAILABLE',
   SetUnavailable = 'SET_UNAVAILABLE'
 }
 
-export default function available(
-  state: string[] = [],
-  { type, payload }: Action<Jid>
-) {
-  const jid = payload;
+export default function available(state: string[] = [], { type, payload }: Action<Jid>): string[] {
   switch (type) {
     case AvailableActions.SetAvailable: {
       const availableSet = new Set(state);
-      availableSet.add(jid.bare().toString());
+      availableSet.add(payload.bare().toString());
       return [...availableSet];
     }
     case AvailableActions.SetUnavailable: {
       const availableSet = new Set(state);
-      availableSet.delete(jid.bare().toString());
+      availableSet.delete(payload.bare().toString());
       return [...availableSet];
     }
+    default:
+      return state;
   }
-  return state;
 }

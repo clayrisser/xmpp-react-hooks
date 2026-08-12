@@ -1,0 +1,22 @@
+name: ${COMPOSE_PROJECT_NAME:-xmpp-react-hooks}
+
+services:
+  # Test-only image, so it is built here rather than published via bake.
+  # Ports are shifted off the XMPP defaults because a developer machine
+  # may already have another project's server bound to 5222/5280.
+  prosody:
+    build:
+      context: ./prosody
+    image: xmpp-react-hooks-prosody:latest
+    ports:
+      - '${XMPP_C2S_PORT:-15222}:5222'
+      - '${XMPP_WS_PORT:-15280}:5280'
+    environment:
+      XMPP_DOMAIN: ${XMPP_DOMAIN:-localhost}
+      XMPP_USERS: ${XMPP_USERS:-alice:alicepass bob:bobpass carol:carolpass}
+    healthcheck:
+      test: ['CMD-SHELL', "prosodyctl status | grep -q 'is running'"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+      start_period: 5s

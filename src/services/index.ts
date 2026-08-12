@@ -1,8 +1,8 @@
-import { XmppClient } from '@xmpp/client';
-import MessageService from './message';
-import PresenceService from './presence';
-import RosterService from './roster';
-import VCardService from './vCard';
+import type { Client as XmppClient } from '@xmpp/client';
+import MessageService from './message.js';
+import PresenceService from './presence.js';
+import RosterService from './roster.js';
+import VCardService from './vCard.js';
 
 export interface ServicesOptions {
   debug: boolean;
@@ -20,10 +20,9 @@ export default class Services {
   vCard: VCardService;
 
   constructor(client: XmppClient, options: Partial<ServicesOptions> = {}) {
-    this.options = {
-      debug: false,
-      ...options
-    };
+    // `?? false` rather than a spread default: callers routinely pass an
+    // explicit `debug: undefined`, which a spread would let win.
+    this.options = { debug: options.debug ?? false };
     this.message = new MessageService(client, { debug: this.options.debug });
     this.presence = new PresenceService(client, { debug: this.options.debug });
     this.roster = new RosterService(client);
@@ -33,7 +32,7 @@ export default class Services {
 
 export { MessageService, PresenceService, RosterService, VCardService };
 
-export * from './message';
-export * from './presence';
-export * from './roster';
-export * from './vCard';
+export * from './message.js';
+export * from './presence.js';
+export * from './roster.js';
+export * from './vCard.js';

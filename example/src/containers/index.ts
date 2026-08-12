@@ -1,4 +1,4 @@
-import Footer from './Footer';
-import Header from './Header';
+import Footer from './Footer.js';
+import Header from './Header.js';
 
 export { Footer, Header };

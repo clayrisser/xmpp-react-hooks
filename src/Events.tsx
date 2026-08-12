@@ -1,40 +1,43 @@
-import Jid from '@xmpp-ts/jid';
-import React, { FC, ReactNode, useEffect } from 'react';
-import { Message } from '@xmpp-ts/message';
-import { Presence } from '@xmpp-ts/presence';
-import { RosterItem } from '@xmpp-ts/roster';
+import { Jid } from './xmppTs.js';
+import { useEffect } from 'react';
+import type { FC, ReactNode } from 'react';
+import type { Message } from '@xmpp-ts/message';
+import type { Presence } from '@xmpp-ts/presence';
+import type { RosterItem } from '@xmpp-ts/roster';
 import { useDispatch } from 'react-redux';
-import { VCard } from '@xmpp-ts/vcard';
-import { removeRosterItem, setRoster, setRosterItem } from './actions/roster';
-import { setAvailable, setUnavailable } from './actions/available';
-import { addMessage } from './actions/messages';
+import { removeRosterItem, setRoster, setRosterItem } from './actions/roster.js';
+import { setAvailable, setUnavailable } from './actions/available.js';
+import { addMessage } from './actions/messages.js';
+import { setVCard } from './actions/vCard.js';
 import {
   useMessageService,
   usePresenceService,
+  useRoster,
   useRosterService,
   useStatus,
-  useXmppClient,
-  useRoster,
-  useVCardService
-} from './hooks';
-import { setVCard } from './actions/vCard';
+  useVCardService,
+  useXmppClient
+} from './hooks/index.js';
 
 export interface EventsProps {
   children: ReactNode;
 }
 
-const Events: FC<EventsProps> = (props: EventsProps) => {
+/**
+ * Bridges stanza events onto the redux store. Rendered by `Provider`.
+ */
+const Events: FC<EventsProps> = ({ children }: EventsProps) => {
   const dispatch = useDispatch();
   const messageService = useMessageService();
   const presenceService = usePresenceService();
   const rosterService = useRosterService();
   const status = useStatus();
   const xmppClient = useXmppClient();
-  const rosterItems = useRoster();
+  const roster = useRoster();
   const vCardService = useVCardService();
 
   useEffect(() => {
-    if (!rosterService || !status.isReady) return () => {};
+    if (!rosterService || !status.isReady) return undefined;
     function handleRemove({ jid }: { jid: Jid; version?: string }) {
       dispatch(removeRosterItem(jid));
     }
@@ -43,72 +46,20 @@ const Events: FC<EventsProps> = (props: EventsProps) => {
     }
     rosterService.on('remove', handleRemove);
     rosterService.on('set', handleSet);
+    // Fetching the roster also marks this resource "interested", which is
+    // what makes the server send roster pushes at all (RFC 6121 §2.1.2).
     (async () => {
-      const roster = await rosterService.get();
-      if (roster) dispatch(setRoster(roster));
+      const fetched = await rosterService.get();
+      if (fetched) dispatch(setRoster(fetched));
     })().catch(console.error);
     return () => {
       rosterService.removeListener('remove', handleRemove);
       rosterService.removeListener('set', handleSet);
     };
-  }, [rosterService, status.isReady]);
+  }, [dispatch, rosterService, status.isReady]);
 
   useEffect(() => {
-    if (!vCardService || !status.isReady) return () => {};
-    function handleVCard(vCard: VCard) {
-      dispatch(
-        setVCard(
-          new Jid(`${xmppClient?.jid?.local}@xmpp.staging.desklessworkers.com`),
-          vCard
-        )
-      );
-    }
-    const { items } = rosterItems;
-    const roster = items.map(async (item: any) => {
-      const img = await vCardService?.get({
-        from: `${xmppClient?.jid?.local}@xmpp.staging.desklessworkers.com`,
-        to: `${item.jid._local}@${item.jid._domain}`
-      });
-      if (img === undefined) return;
-      if (img.profileImage === undefined) return;
-
-      dispatch(
-        setVCard(
-          new Jid(`${item.jid._local}@xmpp.staging.desklessworkers.com`),
-          img
-        )
-      );
-    });
-
-    vCardService.on('vcard', handleVCard);
-    return () => {
-      vCardService.removeListener('vcard', handleVCard);
-    };
-  }, [vCardService, status.isReady]);
-
-  useEffect(() => {
-    if (!rosterItems) return;
-    const { items } = rosterItems;
-    const roster = items.map(async (item: any) => {
-      const img = await vCardService?.get({
-        from: `${xmppClient?.jid?.local}@xmpp.staging.desklessworkers.com`,
-        to: `${item.jid._local}@${item.jid._domain}`
-      });
-      console.log('img', img);
-      if (img === undefined) return;
-      if (img.profileImage === undefined) return;
-
-      dispatch(
-        setVCard(
-          new Jid(`${item.jid._local}@xmpp.staging.desklessworkers.com`),
-          img
-        )
-      );
-    });
-  });
-
-  useEffect(() => {
-    if (!presenceService || !status.isReady) return () => {};
+    if (!presenceService || !status.isReady) return undefined;
     presenceService.available();
     function handleAvailable(presence: Presence) {
       dispatch(setAvailable(presence.from));
@@ -123,25 +74,50 @@ const Events: FC<EventsProps> = (props: EventsProps) => {
       presenceService.removeListener('available', handleAvailable);
       presenceService.removeListener('unavailable', handleUnavailable);
     };
-  }, [presenceService, status.isReady]);
+  }, [dispatch, presenceService, status.isReady]);
 
   useEffect(() => {
-    if (!messageService || !status.isReady) return () => {};
+    if (!messageService || !status.isReady) return undefined;
     function handleMessage(message: Message) {
-      const jid = xmppClient?.jid.equals(message.from)
-        ? message.to
-        : message.from;
+      // Group a conversation under the peer, whichever side sent it.
+      const jid = xmppClient?.jid?.equals(message.from) ? message.to : message.from;
       dispatch(addMessage(jid, message));
     }
     messageService.on('message', handleMessage);
     return () => {
       messageService.removeListener('message', handleMessage);
     };
-  }, [messageService, status.isReady]);
+  }, [dispatch, messageService, status.isReady, xmppClient]);
 
-  return <>{props.children}</>;
+  // No listener for the service's `vcard` event: `@xmpp-ts/vcard`'s
+  // `parseVCard` is a stub that returns true without ever emitting, so cards
+  // only arrive through the explicit fetch below.
+  const rosterJids = roster.items
+    .map((item: RosterItem) => item.jid.bare().toString())
+    .toSorted()
+    .join(',');
+
+  useEffect(() => {
+    if (!vCardService || !status.isReady || !rosterJids) return;
+    let cancelled = false;
+    (async () => {
+      for (const jid of rosterJids.split(',')) {
+        const vCard = await vCardService.get({ to: jid }).catch(() => undefined);
+        // Keyed by the contact the card belongs to. This used to key every
+        // card under a hardcoded deployment's domain, so all contacts
+        // overwrote one another.
+        if (!cancelled && vCard) dispatch(setVCard(new Jid(jid), vCard));
+      }
+    })().catch(console.error);
+    return () => {
+      cancelled = true;
+    };
+    // Depends on the joined string rather than `roster` so it re-runs when
+    // the contact set changes and not on every render, which is what the
+    // dependency-less version did — one vCard request storm per render.
+  }, [dispatch, vCardService, status.isReady, rosterJids]);
+
+  return <>{children}</>;
 };
-
-Events.defaultProps = {};
 
 export default Events;

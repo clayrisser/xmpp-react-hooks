@@ -1,7 +1,6 @@
-import Jid from '@xmpp-ts/jid';
-import React, { FC, useState, useEffect } from 'react';
-import { Roster, RosterItem } from '@xmpp-ts/roster';
-import { useRosterService, useRoster } from 'xmpp-react-hooks';
+import { type FC, type MouseEvent as ReactMouseEvent, useState, useEffect } from 'react';
+import type { Roster, RosterItem } from '@xmpp-ts/roster';
+import { Jid, useRosterService, useRoster } from 'xmpp-react-hooks';
 
 export interface RosterProps {}
 
@@ -13,25 +12,19 @@ const RosterService: FC<RosterProps> = (_props: RosterProps) => {
 
   const roster = useRoster();
   const rosterService = useRosterService();
-  const [getRosterState, setGetRosterState] = useState<Roster | undefined>(
-    undefined
-  );
+  const [getRosterState, setGetRosterState] = useState<Roster | undefined>(undefined);
 
+  // Keep the removal target pointing at something that still exists.
   useEffect(() => {
-    if (
-      !removeJid ||
-      !new Set([
-        ...(roster?.items.map((rosterItem: RosterItem) =>
-          rosterItem.jid.toString()
-        ) || [])
-      ]).has(removeJid)
-    )
-      setRemoveJid(roster?.items?.[0]?.jid.toString() || '');
-  }, [roster]);
+    const present = new Set(
+      roster.items.map((rosterItem: RosterItem) => rosterItem.jid.toString())
+    );
+    if (!removeJid || !present.has(removeJid)) {
+      setRemoveJid(roster.items[0]?.jid.toString() || '');
+    }
+  }, [roster, removeJid]);
 
-  async function handleSetRosterItem(
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) {
+  async function handleSetRosterItem(e: ReactMouseEvent<HTMLButtonElement>) {
     e.preventDefault();
     await rosterService?.set({
       jid: jid || customJid,
@@ -39,17 +32,13 @@ const RosterService: FC<RosterProps> = (_props: RosterProps) => {
     });
   }
 
-  async function handleGetRoster(
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) {
+  async function handleGetRoster(e: ReactMouseEvent<HTMLButtonElement>) {
     e.preventDefault();
-    const roster = await rosterService?.get();
-    if (roster) setGetRosterState(roster);
+    const fetched = await rosterService?.get();
+    if (fetched) setGetRosterState(fetched);
   }
 
-  async function handleRemoveRosterItem(
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) {
+  async function handleRemoveRosterItem(e: ReactMouseEvent<HTMLButtonElement>) {
     e.preventDefault();
     if (!removeJid) return;
     await rosterService?.remove(
@@ -85,12 +74,7 @@ const RosterService: FC<RosterProps> = (_props: RosterProps) => {
         <form>
           <div style={{ paddingBottom: 10 }}>
             <label htmlFor="jid">Jid: </label>
-            <select
-              name="jid"
-              id="jid"
-              onChange={(e: any) => setJid(e.target.value)}
-              value={jid}
-            >
+            <select name="jid" id="jid" onChange={(e: any) => setJid(e.target.value)} value={jid}>
               <option value={''}>Custom</option>
               {renderRosterOptions()}
             </select>
@@ -168,7 +152,5 @@ const RosterService: FC<RosterProps> = (_props: RosterProps) => {
     </div>
   );
 };
-
-RosterService.defaultProps = {};
 
 export default RosterService;

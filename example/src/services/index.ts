@@ -1,6 +1,6 @@
-import Message from './Message';
-import Presence from './Presence';
-import Roster from './Roster';
-import vCard from './vCard';
+import Message from './Message.js';
+import Presence from './Presence.js';
+import Roster from './Roster.js';
+import VCard from './vCard.js';
 
-export { Presence, Roster, Message, vCard };
+export { Message, Presence, Roster, VCard };

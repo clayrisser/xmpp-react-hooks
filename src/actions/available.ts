@@ -1,6 +1,6 @@
-import Jid from '@xmpp-ts/jid';
-import { Action } from '../types';
-import { AvailableActions } from '../reducers/available';
+import type { Jid } from '../xmppTs.js';
+import type { Action } from '../types.js';
+import { AvailableActions } from '../reducers/available.js';
 
 export function setAvailable(jid: Jid): Action<Jid> {
   return { payload: jid, type: AvailableActions.SetAvailable };

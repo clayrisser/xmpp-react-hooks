@@ -1,53 +1,37 @@
-import React, { FC, useContext, useEffect } from 'react';
-import { Switch, Route, useHistory } from 'react-router-dom';
-import GlobalContext from '../contexts/global';
-import Home from './Home';
-import Login from './Login';
-import Message from './Message';
-import Presence from './Presence';
-import Roster from './Roster';
-import { Footer, Header } from '../containers';
-import VCard from './vCard';
+import { useContext, useEffect } from 'react';
+import type { FC } from 'react';
+import { Navigate, Route, Routes as RouterRoutes, useNavigate } from 'react-router-dom';
+import GlobalContext from '../contexts/global.js';
+import Login from './Login.js';
+import Message from './Message.js';
+import Presence from './Presence.js';
+import Roster from './Roster.js';
+import VCard from './vCard.js';
+import { Footer, Header } from '../containers/index.js';
 
-export interface RoutesProps {}
-
-const Routes: FC<RoutesProps> = (_props: RoutesProps) => {
+const Routes: FC = () => {
   const [global] = useContext(GlobalContext);
-  const history = useHistory();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const { username, password } = global;
-    if (!username || !password) history.push('/login');
-  }, [global, history]);
+    if (!username || !password) navigate('/login');
+  }, [global, navigate]);
 
   return (
     <>
       <Header />
-      <Switch>
-        <Route exact path="/">
-          <Home />
-        </Route>
-        <Route path="/login">
-          <Login />
-        </Route>
-        <Route path="/roster">
-          <Roster />
-        </Route>
-        <Route path="/presence">
-          <Presence />
-        </Route>
-        <Route path="/message">
-          <Message />
-        </Route>
-        <Route path="/vcard">
-          <VCard />
-        </Route>
-      </Switch>
+      <RouterRoutes>
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/roster" element={<Roster />} />
+        <Route path="/presence" element={<Presence />} />
+        <Route path="/message" element={<Message />} />
+        <Route path="/vcard" element={<VCard />} />
+      </RouterRoutes>
       <Footer />
     </>
   );
 };
-
-Routes.defaultProps = {};
 
 export default Routes;
