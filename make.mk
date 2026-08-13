@@ -39,13 +39,24 @@ sudo:
 
 # .env → $(MAKEDIR)/env.mk: any change to .env triggers regeneration before
 # targets run (Make's -include auto-rebuilds the included file if it has a
-# rule). .env itself bootstraps from .env.example on first use.
+# rule). .env itself bootstraps from .env.example on first use. make.mk is a
+# prerequisite too, so editing the converter below regenerates env.mk instead
+# of leaving a stale one behind in existing clones.
+#
+# The emitted form is `ifeq ($(origin K),undefined)` + a bare `define`, NOT
+# `define K ?=`. An assignment operator on define is GNU Make 3.82+ syntax and
+# macOS still ships 3.81, which parses `define K ?=` as a variable literally
+# named "K ?=" and never assigns K. The trailing `export K` then defines K as
+# empty, so K is defined-but-empty and every later `K ?= default` is a no-op.
+# It fails silently, and far from its cause. `ifeq`/`origin`/`define` all
+# predate 3.81, and origin-undefined is exactly the `?=` test, so this form
+# behaves identically on 3.81 and 4.x.
 $(ROOTDIR)/.env: $(ROOTDIR)/.env.example
 	@[ -f $@ ] && cp $@ $@.bak; cp $< $@
-$(MAKEDIR)/env.mk: $(ROOTDIR)/.env
+$(MAKEDIR)/env.mk: $(ROOTDIR)/.env $(ROOTDIR)/make.mk
 	@mkdir -p $(@D)
 	@awk '/^[[:space:]]*(#|$$)/&&!m{next}'\
-	'm{if(/"$$/){sub(/"$$/,"");print;print"endef";print"export "k;m=0}else print;next}'\
+	'm{if(/"$$/){sub(/"$$/,"");print;print"endef";print"endif";print"export "k;m=0}else print;next}'\
 	'/^[A-Za-z_][A-Za-z0-9_]*=/{k=substr($$0,1,index($$0,"=")-1);v=substr($$0,index($$0,"=")+1);'\
-	'if(v~/^"/&&v!~/"$$/){printf"define %s ?=\n",k;sub(/^"/,"",v);print v;m=1}else{gsub(/^"|"$$/,"",v);'\
-	'if(v)printf"define %s ?=\n%s\nendef\nexport %s\n",k,v,k;else printf"%s ?=\nexport %s\n",k,k}}' $< > $@
+	'if(v~/^"/&&v!~/"$$/){printf"ifeq ($$(origin %s),undefined)\ndefine %s\n",k,k;sub(/^"/,"",v);print v;m=1}else{gsub(/^"|"$$/,"",v);'\
+	'if(v)printf"ifeq ($$(origin %s),undefined)\ndefine %s\n%s\nendef\nendif\nexport %s\n",k,k,v,k;else printf"%s ?=\nexport %s\n",k,k}}' $< > $@
