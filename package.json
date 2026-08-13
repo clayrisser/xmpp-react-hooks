@@ -93,7 +93,7 @@
     "react": "^18.2.0 || ^19.0.0"
   },
   "engines": {
-    "node": ">=20.10"
+    "node": ">=22.12"
   },
   "packageManager": "pnpm@10.22.0",
   "pnpm": {
