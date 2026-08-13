@@ -2,8 +2,10 @@
  * https://tools.ietf.org/html/rfc6121
  * */
 import xmppDebug from '@xmpp/debug';
-import { XmppClient, client as xmppClient, XmlElement } from '@xmpp/client';
-import Services from './services';
+import { client as xmppClient } from '@xmpp/client';
+import type { Client as XmppClient } from '@xmpp/client';
+import type { Element as XmlElement } from 'ltx';
+import Services from './services/index.js';
 
 export default class Xmpp {
   client?: XmppClient;
@@ -18,6 +20,8 @@ export default class Xmpp {
 
   services?: Services;
 
+  private errorListeners = new Set<ErrorListener>();
+
   constructor(config: Config) {
     if (!config.hostname && !config.domain) {
       throw new Error('hostname or domain is required');
@@ -29,40 +33,35 @@ export default class Xmpp {
     this.lang = this.config.lang || 'en';
   }
 
-  private createCheckCondition(
-    condition: CheckCondition | string | string[]
-  ): CheckCondition {
-    let checkCondition = condition as CheckCondition;
-    if (Array.isArray(condition) && condition.length >= 2) {
-      checkCondition = (stanzaElement: XmlElement) => {
-        const [namespaceName, id] = condition;
-        return (
-          !!stanzaElement.getChildByAttr('xmlns', namespaceName) &&
-          stanzaElement.getAttr('id') === id &&
-          (stanzaElement.getAttr('type') === 'result' ||
-            stanzaElement.getAttr('type') === 'error') &&
-          stanzaElement.name === 'iq'
-        );
-      };
-    } else if (typeof condition === 'string') {
-      checkCondition = (stanzaElement: XmlElement) => {
-        return (
-          stanzaElement.getAttr('id') === condition &&
-          (stanzaElement.getAttr('type') === 'result' ||
-            stanzaElement.getAttr('type') === 'error') &&
-          stanzaElement.name === 'iq'
-        );
-      };
+  private createCheckCondition(condition: CheckCondition | string | string[]): CheckCondition {
+    if (Array.isArray(condition)) {
+      const [namespaceName, id] = condition;
+      return (stanzaElement: XmlElement) =>
+        !!stanzaElement.getChildByAttr('xmlns', namespaceName as string) &&
+        stanzaElement.getAttr('id') === id &&
+        (stanzaElement.getAttr('type') === 'result' || stanzaElement.getAttr('type') === 'error') &&
+        stanzaElement.name === 'iq';
     }
-    return checkCondition;
+    if (typeof condition === 'string') {
+      return (stanzaElement: XmlElement) =>
+        stanzaElement.getAttr('id') === condition &&
+        (stanzaElement.getAttr('type') === 'result' || stanzaElement.getAttr('type') === 'error') &&
+        stanzaElement.name === 'iq';
+    }
+    return condition;
   }
 
+  /**
+   * Rethrowing here would escape through the client's event emitter and take
+   * the whole app down, since nothing above an emitter can catch it. Errors
+   * are fanned out to subscribers instead.
+   */
   private handleError(err: Error) {
-    switch (err.message) {
-      default: {
-        throw err;
-      }
+    if (this.errorListeners.size === 0) {
+      console.error('xmpp error', err);
+      return;
     }
+    for (const listener of this.errorListeners) listener(err);
   }
 
   private handleOnline() {
@@ -72,55 +71,54 @@ export default class Xmpp {
 
   private handleOffline() {
     this.isOnline = false;
-    this.isReady = this.isReady;
   }
 
-  private handleStanza(stanza: XmlElement) {
-    return stanza;
+  onError(listener: ErrorListener): Cleanup {
+    this.errorListeners.add(listener);
+    return () => this.errorListeners.delete(listener);
+  }
+
+  /**
+   * Adopt an already-built xmpp.js client: wire up status tracking, error
+   * fan-out and the stanza services. `login()` calls this; call it yourself to
+   * supply a client configured beyond what `Config` covers.
+   */
+  attach(client: XmppClient): this {
+    this.client = client;
+    client.on('error', this.handleError.bind(this));
+    client.on('offline', this.handleOffline.bind(this));
+    client.on('online', this.handleOnline.bind(this));
+    if (this.config.debug) xmppDebug(client, true);
+    this.services = new Services(client, { debug: this.config.debug });
+    return this;
   }
 
   async login(username: string, password: string) {
     const domain = this.config.domain || this.config.hostname;
     const { resource } = this.config;
     const service = this.config.service || `wss://${this.config.hostname}/ws`;
-    this.client = xmppClient({
-      password,
-      username,
-      service,
-      domain,
-      resource
-    });
-    this.client.on('error', this.handleError.bind(this));
-    this.client.on('offline', this.handleOffline.bind(this));
-    this.client.on('online', this.handleOnline.bind(this));
-    this.client.on('stanza', this.handleStanza.bind(this));
-    if (this.config.debug) xmppDebug(this.client, true);
-    this.services = new Services(this.client, { debug: this.config.debug });
+    this.attach(xmppClient({ password, username, service, domain, resource }));
   }
 
   async start() {
     if (!this.client) throw new Error('login to create xmpp client');
-    await new Promise((resolve, reject) => {
-      const handleOnline = async () => {
-        this.client!.removeListener('online', handleOnline);
-        resolve();
-      };
-      this.client!.on('online', handleOnline);
-      try {
-        this.client!.start();
-      } catch (err) {
-        reject(err);
-      }
-    });
-    this.services?.presence.send();
+    await this.client.start();
   }
 
+  /**
+   * `stop()` also disables reconnection, so the instance is spent afterwards —
+   * call `login()` again to get a usable client back.
+   */
   async stop() {
-    console.warn('!WARNING: xmpp.stop() has dangerous side effects');
     if (!this.client) return;
-    this.services?.presence.unavailable();
-    this.client.restart = async () => {};
-    await this.client.disconnect(500);
+    // Only announce departure if we ever arrived. Sending presence from an
+    // unauthenticated client produces a stanza with no addresses at all.
+    if (this.isOnline && this.client.jid) {
+      this.services?.presence.unavailable();
+    }
+    await this.client.stop();
+    this.isOnline = false;
+    this.isReady = false;
   }
 
   handle(
@@ -129,24 +127,24 @@ export default class Xmpp {
     event = 'stanza'
   ): Cleanup {
     if (!this.client) throw new Error('login to create xmpp client');
+    const client = this.client;
     const checkCondition = this.createCheckCondition(condition);
     const listener = (stanzaElement: XmlElement) => {
       if (checkCondition(stanzaElement)) readCallback(stanzaElement);
     };
-    this.client.on(event, listener);
-    return () => this.client?.removeListener(event, listener);
+    client.on(event, listener);
+    return () => client.removeListener(event, listener);
   }
 
-  query(
-    request: any,
-    condition?: CheckCondition | string | string[]
-  ): Promise<XmlElement>;
+  query(request: any, condition?: CheckCondition | string | string[]): Promise<XmlElement>;
+
   query(
     request: any,
     condition: CheckCondition | string | string[],
     readCallback: ReadCallback,
     event?: string
   ): Promise<Cleanup>;
+
   async query(
     request: any,
     condition: CheckCondition | string | string[] = () => true,
@@ -154,29 +152,29 @@ export default class Xmpp {
     event = 'stanza'
   ): Promise<XmlElement | Cleanup> {
     if (!this.client) throw new Error('login to create xmpp client');
+    const client = this.client;
     const checkCondition = this.createCheckCondition(condition);
     if (readCallback) {
       const listener = (stanzaElement: XmlElement) => {
         if (checkCondition(stanzaElement)) readCallback(stanzaElement);
       };
-      this.client.on(event, listener);
-      this.client.send(request);
-      return () => {
-        this.client?.removeListener(event, listener);
-      };
+      client.on(event, listener);
+      client.send(request);
+      return () => client.removeListener(event, listener);
     }
-    return new Promise((resolve, reject) => {
+    return new Promise<XmlElement>((resolve, reject) => {
       const listener = (stanza: XmlElement) => {
         if (checkCondition(stanza)) {
-          this.client!.removeListener(event, listener);
+          client.removeListener(event, listener);
           resolve(stanza);
         }
       };
-      this.client!.on(event, listener);
+      client.on(event, listener);
       try {
-        this.client!.send(request);
+        client.send(request);
       } catch (err) {
-        reject(err);
+        client.removeListener(event, listener);
+        reject(err as Error);
       }
     });
   }
@@ -205,5 +203,7 @@ export type Handle = (
 export type CheckCondition = (stanza: XmlElement) => boolean;
 
 export type ReadCallback = (stanza: XmlElement) => any;
+
+export type ErrorListener = (error: Error) => void;
 
 export type Cleanup = () => any;

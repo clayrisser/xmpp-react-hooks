@@ -1,12 +1,6 @@
-import React, { FC, useState } from 'react';
-import { RosterItem } from '@xmpp-ts/roster';
-import Jid from '@xmpp-ts/jid';
-import {
-  useVCard,
-  useVCardService,
-  useRoster,
-  useXmppClient
-} from 'xmpp-react-hooks';
+import { type FC, type MouseEvent as ReactMouseEvent, useState } from 'react';
+import type { RosterItem } from '@xmpp-ts/roster';
+import { useVCard, useVCardService, useRoster, useXmppClient } from 'xmpp-react-hooks';
 
 export interface vCardProps {}
 
@@ -14,25 +8,22 @@ const VCard: FC<vCardProps> = (_props: vCardProps) => {
   const [avtar, setImage] = useState('');
   const [jid, setJid] = useState('');
   const roster = useRoster();
-  const vCard = useVCard(new Jid(jid), null);
+  const vCard = useVCard(jid);
   const vCardService = useVCardService();
-  const [value, setValue] = useState();
+  const [value, setValue] = useState<unknown>();
   const xmppClient = useXmppClient();
   const [bDay, setBDay] = useState('');
   const [nickName, setNickName] = useState('');
   const [fullName, setFullName] = useState('');
   const [country, setCountry] = useState('');
   const [locality, setLocality] = useState('');
-  const [pincode, setPincode] = useState();
+  const [pincode, setPincode] = useState('');
   const [title, setTitle] = useState('');
   const [role, setRole] = useState('');
   const [number, setNumber] = useState('');
-  const [id, setJabberId] = useState('');
   const [email, setEmail] = useState('');
 
-  async function handleSetVCard(
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) {
+  async function handleSetVCard(e: ReactMouseEvent<HTMLButtonElement>) {
     e.preventDefault();
     await vCardService?.set({
       image: avtar,
@@ -41,18 +32,16 @@ const VCard: FC<vCardProps> = (_props: vCardProps) => {
       locality: locality,
       email: email,
       nickName: nickName,
-      jabberId: xmppClient?.jid.bare().toString(),
+      jabberId: xmppClient?.jid?.bare().toString(),
       fullName: fullName,
       number: number,
       title: title,
       role: role,
-      pincode: pincode
+      pincode: pincode ? Number(pincode) : undefined
     });
   }
 
-  async function handleGetVCard(
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) {
+  async function handleGetVCard(e: ReactMouseEvent<HTMLButtonElement>) {
     e.preventDefault();
     const result = await vCardService?.get({});
     setValue(result);
@@ -60,10 +49,7 @@ const VCard: FC<vCardProps> = (_props: vCardProps) => {
 
   function renderRosterOptions() {
     return roster.items?.map((rosterItem: RosterItem) => (
-      <option
-        key={rosterItem.jid.toString()}
-        value={rosterItem.jid.bare().toString()}
-      >
+      <option key={rosterItem.jid.toString()} value={rosterItem.jid.bare().toString()}>
         {rosterItem.name || rosterItem.jid.bare().toString()}
       </option>
     ));
@@ -75,21 +61,13 @@ const VCard: FC<vCardProps> = (_props: vCardProps) => {
       <hr />
       <h3>Get vCard of Roster Items</h3>
 
-      <select
-        name="jid"
-        id="jid"
-        onChange={(e: any) => setJid(e.target.value)}
-        value={jid}
-      >
-        <option
-          selected={true}
-          value={`${xmppClient?.jid?.local}@${xmppClient?.jid?.domain}`}
-        >
+      <select name="jid" id="jid" onChange={(e: any) => setJid(e.target.value)} value={jid}>
+        <option value={`${xmppClient?.jid?.local}@${xmppClient?.jid?.domain}`}>
           {`${xmppClient?.jid?.local}@${xmppClient?.jid?.domain}`}
         </option>
         {renderRosterOptions()}
       </select>
-      {JSON.stringify(vCard[0])}
+      {JSON.stringify(vCard)}
       <h3>Set vCard</h3>
       <div style={{ display: 'flex', flexDirection: 'column' }}>
         <form style={{ width: 500 }}>
@@ -229,7 +207,5 @@ const VCard: FC<vCardProps> = (_props: vCardProps) => {
     </div>
   );
 };
-
-VCard.defaultProps = {};
 
 export default VCard;

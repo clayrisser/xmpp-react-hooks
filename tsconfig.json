@@ -1,20 +1,26 @@
 {
   "compilerOptions": {
-    "allowJs": true,
     "declaration": true,
-    "emitDecoratorMetadata": true,
+    "declarationMap": true,
     "esModuleInterop": true,
-    "experimentalDecorators": true,
-    "incremental": false,
-    "jsx": "react",
-    "lib": ["dom", "esnext"],
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "outDir": "node_modules/.tmp/lib",
+    "exactOptionalPropertyTypes": false,
+    "forceConsistentCasingInFileNames": true,
+    "jsx": "react-jsx",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "resolveJsonModule": true,
+    "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
-    "target": "esnext"
+    "target": "es2022",
+    "types": ["vitest/globals"],
+    "verbatimModuleSyntax": true
   },
-  "include": ["src", "tests"]
+  "include": ["src", "tests", "vitest.config.ts"]
 }

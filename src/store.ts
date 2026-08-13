@@ -1,53 +1,48 @@
-import { Epic, createEpicMiddleware } from 'redux-observable';
-import { composeWithDevTools } from 'redux-devtools-extension';
+import { type Storage, type Persistor, persistReducer, persistStore } from 'redux-persist';
 import {
-  Persistor,
-  Storage,
-  persistReducer,
-  persistStore
-} from 'redux-persist';
-import {
-  Action,
-  Store,
+  type Reducer,
+  type Store,
+  type StoreEnhancer,
   applyMiddleware,
+  compose,
   createStore as reduxCreateStore
 } from 'redux';
-import epics from './epics';
-import reducers from './reducers';
-import { defaultState, State } from './state';
+import reducers from './reducers/index.js';
+import type { State } from './state.js';
 
-const rootEpic = (epics as unknown) as Epic<Action>;
-
-export function createStore(): Store<State> {
-  return reduxCreateStore(
-    reducers,
-    // @ts-ignore
-    defaultState
-  );
+/**
+ * Redux DevTools when the extension is installed, plain compose otherwise.
+ * Inlined because the `redux-devtools-extension` package this used to import
+ * has been unmaintained since 2021 and only ever did this.
+ */
+function composeEnhancers(...enhancers: StoreEnhancer[]): StoreEnhancer {
+  const devTools = (
+    globalThis as {
+      __REDUX_DEVTOOLS_EXTENSION_COMPOSE__?: typeof compose;
+    }
+  ).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__;
+  return (devTools ?? compose)(...enhancers) as StoreEnhancer;
 }
 
-export function createPersistorStore(
-  storage: Storage,
-  storageKey?: string
-): PersistorStore {
-  const composeEnhancers = composeWithDevTools({});
-  const epicMiddleware = createEpicMiddleware();
+// No preloaded state is passed: every reducer already defaults to its slice of
+// `defaultState`, and redux 5 types a partial preload as `never`.
+export function createStore(): Store<State> {
+  return reduxCreateStore(reducers) as unknown as Store<State>;
+}
+
+export function createPersistorStore(storage: Storage, storageKey?: string): PersistorStore {
   const rootReducer = persistReducer(
     { key: storageKey || 'xmpp', storage, blacklist: ['available'] },
-    reducers
+    reducers as unknown as Reducer<State>
   );
-  const store: Store<State> = reduxCreateStore(
+  const store = reduxCreateStore(
     rootReducer,
-    // @ts-ignore
-    defaultState,
-    composeEnhancers(applyMiddleware(epicMiddleware))
-  );
-  const persistor = persistStore(store);
-  epicMiddleware.run(rootEpic);
-  return { store, persistor };
+    composeEnhancers(applyMiddleware())
+  ) as unknown as Store<State>;
+  return { store, persistor: persistStore(store) };
 }
 
 export interface PersistorStore {
-  store: Store;
+  store: Store<State>;
   persistor: Persistor;
 }

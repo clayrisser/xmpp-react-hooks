@@ -1,7 +1,9 @@
-import PresenceService from '../services/presence';
-import useServices from './useServices';
+import type PresenceService from '../services/presence.js';
+import useServices from './useServices.js';
 
+/**
+ * Broadcast presence and manage subscriptions.
+ */
 export default function usePresenceService(): PresenceService | undefined {
-  const services = useServices();
-  return services?.presence;
+  return useServices()?.presence;
 }

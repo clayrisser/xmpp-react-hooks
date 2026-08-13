@@ -1,0 +1,44 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["react", "typescript", "unicorn", "import"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn",
+    "perf": "warn"
+  },
+  "env": {
+    "browser": true,
+    "es2024": true
+  },
+  "rules": {
+    "eslint/no-unused-vars": [
+      "error",
+      {
+        "args": "after-used",
+        "argsIgnorePattern": "^_",
+        "ignoreRestSiblings": true
+      }
+    ],
+    "typescript/no-explicit-any": "off",
+    "unicorn/prefer-add-event-listener": "off",
+    "react/react-in-jsx-scope": "off",
+    "eslint/no-await-in-loop": "off",
+    "eslint/no-underscore-dangle": [
+      "error",
+      {
+        "allow": ["__REDUX_DEVTOOLS_EXTENSION_COMPOSE__"]
+      }
+    ]
+  },
+  "ignorePatterns": ["lib", "coverage", "example/dist"],
+  "overrides": [
+    {
+      "files": ["tests/**"],
+      "rules": {
+        "typescript/no-non-null-assertion": "off",
+        "import/no-unassigned-import": "off",
+        "unicorn/consistent-function-scoping": "off"
+      }
+    }
+  ]
+}

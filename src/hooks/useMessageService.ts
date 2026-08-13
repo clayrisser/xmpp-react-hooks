@@ -1,7 +1,9 @@
-import MessageService from '../services/message';
-import useServices from './useServices';
+import type MessageService from '../services/message.js';
+import useServices from './useServices.js';
 
+/**
+ * Send messages and subscribe to incoming ones.
+ */
 export default function useMessageService(): MessageService | undefined {
-  const services = useServices();
-  return services?.message;
+  return useServices()?.message;
 }

@@ -1,8 +1,7 @@
-import vCardClient from '@xmpp-ts/vcard';
-import { XmppClient } from '@xmpp/client';
+import { VCardClient } from '../xmppTs.js';
 
-export default class VCardService extends vCardClient {
-  constructor(client: XmppClient) {
-    super(client);
-  }
-}
+/**
+ * Named subclass so the package owns the type consumers see, and so a
+ * behavioural fix has somewhere to live — as roster and presence needed.
+ */
+export default class VCardService extends VCardClient {}

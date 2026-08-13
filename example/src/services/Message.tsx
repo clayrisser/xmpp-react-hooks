@@ -1,7 +1,6 @@
-import React, { FC, useState, useEffect } from 'react';
-import { RosterItem } from '@xmpp-ts/roster';
-import Jid from '@xmpp-ts/jid';
-import { useMessageService, useMessages, useRoster } from 'xmpp-react-hooks';
+import { type FC, type MouseEvent as ReactMouseEvent, useState, useEffect } from 'react';
+import type { RosterItem } from '@xmpp-ts/roster';
+import { Jid, useMessageService, useMessages, useRoster } from 'xmpp-react-hooks';
 
 export interface MessageProps {}
 
@@ -22,9 +21,7 @@ const Message: FC<MessageProps> = (_props: MessageProps) => {
     }
   }, [roster, to, jid]);
 
-  function handleSendMessage(
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) {
+  function handleSendMessage(e: ReactMouseEvent<HTMLButtonElement>) {
     e.preventDefault();
     messageService?.send({
       to: new Jid(to),
@@ -35,10 +32,7 @@ const Message: FC<MessageProps> = (_props: MessageProps) => {
 
   function renderRosterOptions() {
     return roster.items?.map((rosterItem: RosterItem) => (
-      <option
-        key={rosterItem.jid.toString()}
-        value={rosterItem.jid.bare().toString()}
-      >
+      <option key={rosterItem.jid.toString()} value={rosterItem.jid.bare().toString()}>
         {rosterItem.name || rosterItem.jid.bare().toString()}
       </option>
     ));
@@ -51,12 +45,7 @@ const Message: FC<MessageProps> = (_props: MessageProps) => {
       <h3>Messages</h3>
       <div style={{ paddingBottom: 10 }}>
         <label htmlFor="jid">Jid: </label>
-        <select
-          name="jid"
-          id="jid"
-          onChange={(e: any) => setJid(e.target.value)}
-          value={jid}
-        >
+        <select name="jid" id="jid" onChange={(e: any) => setJid(e.target.value)} value={jid}>
           {renderRosterOptions()}
         </select>
       </div>
@@ -65,12 +54,7 @@ const Message: FC<MessageProps> = (_props: MessageProps) => {
       <form>
         <div style={{ paddingBottom: 10 }}>
           <label htmlFor="to">To: </label>
-          <select
-            name="to"
-            id="to"
-            onChange={(e: any) => setTo(e.target.value)}
-            value={to}
-          >
+          <select name="to" id="to" onChange={(e: any) => setTo(e.target.value)} value={to}>
             {renderRosterOptions()}
           </select>
         </div>
@@ -91,7 +75,5 @@ const Message: FC<MessageProps> = (_props: MessageProps) => {
     </div>
   );
 };
-
-Message.defaultProps = {};
 
 export default Message;

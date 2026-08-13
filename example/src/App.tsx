@@ -1,35 +1,40 @@
-import React, { FC, useState } from 'react';
+import { useMemo, useState } from 'react';
+import type { FC } from 'react';
 import storage from 'redux-persist/lib/storage';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 import { Provider as XmppProvider } from 'xmpp-react-hooks';
-import GlobalContext, { Global } from './contexts/global';
-import Routes from './routes';
+import GlobalContext, { type Global, type GlobalContextType } from './contexts/global.js';
+import Routes from './routes/index.js';
 
-const { REACT_APP_XMPP_HOSTNAME } = process.env;
+// Defaults line up with the throwaway Prosody in docker/compose.yaml, so
+// `make docker/up-d && pnpm --filter example start` is enough to try it.
+const domain = import.meta.env.VITE_XMPP_DOMAIN || 'localhost';
+const service = import.meta.env.VITE_XMPP_SERVICE || 'ws://localhost:15280/xmpp-websocket';
 
-export interface AppProps {}
-
-const App: FC<AppProps> = (_props: AppProps) => {
+const App: FC = () => {
   const [global, setGlobal] = useState<Global>({});
+  const [error, setError] = useState<Error>();
+  const globalValue = useMemo<GlobalContextType>(() => [global, setGlobal], [global]);
 
   return (
-    <GlobalContext.Provider value={[global, setGlobal]}>
+    <GlobalContext.Provider value={globalValue}>
       <XmppProvider
         debug
-        hostname={REACT_APP_XMPP_HOSTNAME}
+        domain={domain}
+        onError={setError}
         password={global.password}
-        resource="abc"
+        resource="example"
+        service={service}
         storage={storage}
         username={global.username}
       >
-        <Router>
+        {error ? <p style={{ color: 'crimson' }}>connection failed: {error.message}</p> : null}
+        <BrowserRouter>
           <Routes />
-        </Router>
+        </BrowserRouter>
       </XmppProvider>
     </GlobalContext.Provider>
   );
 };
-
-App.defaultProps = {};
 
 export default App;

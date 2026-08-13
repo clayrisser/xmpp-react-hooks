@@ -1,15 +1,16 @@
-import useAvailable from './useAvailable';
-import useMessageService from './useMessageService';
-import useMessages from './useMessages';
-import usePresenceService from './usePresenceService';
-import useRoster from './useRoster';
-import useRosterService from './useRosterService';
-import useServices from './useServices';
-import useStatus from './useStatus';
-import useXmpp from './useXmpp';
-import useXmppClient from './useXmppClient';
-import useVCard from './useVCard';
-import useVCardService from './useVCardService';
+import useAvailable from './useAvailable.js';
+import useMessageService from './useMessageService.js';
+import useMessages from './useMessages.js';
+import usePresenceService from './usePresenceService.js';
+import useRoster from './useRoster.js';
+import useRosterService from './useRosterService.js';
+import useServices from './useServices.js';
+import useStatus from './useStatus.js';
+import useVCard from './useVCard.js';
+import useVCardService from './useVCardService.js';
+import useVCards from './useVCards.js';
+import useXmpp from './useXmpp.js';
+import useXmppClient from './useXmppClient.js';
 
 export {
   useAvailable,
@@ -20,8 +21,11 @@ export {
   useRosterService,
   useServices,
   useStatus,
-  useXmpp,
-  useXmppClient,
   useVCard,
-  useVCardService
+  useVCardService,
+  useVCards,
+  useXmpp,
+  useXmppClient
 };
+
+export type { Status } from './useStatus.js';

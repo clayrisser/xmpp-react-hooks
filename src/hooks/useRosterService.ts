@@ -1,7 +1,9 @@
-import RosterService from '../services/roster';
-import useServices from './useServices';
+import type RosterService from '../services/roster.js';
+import useServices from './useServices.js';
 
+/**
+ * Read and mutate the contact list.
+ */
 export default function useRosterService(): RosterService | undefined {
-  const services = useServices();
-  return services?.roster;
+  return useServices()?.roster;
 }

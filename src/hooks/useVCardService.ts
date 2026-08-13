@@ -1,7 +1,9 @@
-import vCardService from '../services/vCard';
-import useServices from './useServices';
+import type VCardService from '../services/vCard.js';
+import useServices from './useServices.js';
 
-export default function useVCardService(): vCardService | undefined {
-  const services = useServices();
-  return services?.vCard;
+/**
+ * Fetch and publish vCards.
+ */
+export default function useVCardService(): VCardService | undefined {
+  return useServices()?.vCard;
 }

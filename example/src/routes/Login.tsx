@@ -1,20 +1,18 @@
-import React, { FC, useState, useContext } from 'react';
-import GlobalContext from '../contexts/global';
-import { useHistory } from 'react-router-dom';
+import { useContext, useState } from 'react';
+import type { FC, MouseEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
+import GlobalContext from '../contexts/global.js';
 
-export interface LoginProps {}
-
-const Login: FC<LoginProps> = (_props: LoginProps) => {
+const Login: FC = () => {
   const [, setGlobal] = useContext(GlobalContext);
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
+  const navigate = useNavigate();
 
-  const history = useHistory();
-
-  function handleClick(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+  function handleClick(e: MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
     setGlobal({ username, password });
-    history.push('/roster');
+    navigate('/roster');
   }
 
   return (
@@ -27,7 +25,7 @@ const Login: FC<LoginProps> = (_props: LoginProps) => {
           <input
             id="username"
             name="username"
-            onChange={(e: any) => setUsername(e.target.value)}
+            onChange={(e) => setUsername(e.target.value)}
             value={username}
           />
         </div>
@@ -37,7 +35,7 @@ const Login: FC<LoginProps> = (_props: LoginProps) => {
           <input
             id="password"
             name="password"
-            onChange={(e: any) => setPassword(e.target.value)}
+            onChange={(e) => setPassword(e.target.value)}
             type="password"
             value={password}
           />
@@ -50,7 +48,5 @@ const Login: FC<LoginProps> = (_props: LoginProps) => {
     </>
   );
 };
-
-Login.defaultProps = {};
 
 export default Login;

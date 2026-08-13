@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import { type FC } from 'react';
 import { Link } from 'react-router-dom';
 
 export interface HeaderProps {}
@@ -24,7 +24,5 @@ const Header: FC<HeaderProps> = (_props: HeaderProps) => {
     </div>
   );
 };
-
-Header.defaultProps = {};
 
 export default Header;
